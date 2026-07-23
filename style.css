@@ -1,0 +1,31 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    background:#2d1a10;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    height:100vh;
+
+    overflow:hidden;
+
+}
+
+canvas{
+
+    background:#d8a15b;
+
+    border:10px solid #5b3414;
+
+    border-radius:12px;
+
+}
