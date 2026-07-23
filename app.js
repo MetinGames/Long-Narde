@@ -1,5 +1,5 @@
-import { createBoard, points } from "./engine/board.js";
+import { createBoard } from "./engine/board.js";
+import { initRenderer } from "./engine/renderer.js";
 
 createBoard();
-
-console.table(points);
+initRenderer();
