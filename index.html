@@ -1,17 +1,47 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
-    <title>Long Narde</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klasik Narde Oyunu</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <div id="game-container">
+        <!-- Üst Bilgi Paneli -->
+        <div id="info-panel">
+            <div id="turn-indicator">Sıra: <span id="current-player">Beyaz</span></div>
+            
+            <!-- Kırmızı Sayaç Alanı -->
+            <div id="timer-container">Kalan Süre: <span id="timer-countdown">60</span>s</div>
+            
+            <div id="dice-container">
+                <button id="roll-button">Zar At</button>
+                <div id="dice-display">
+                    <span class="die" id="die1">-</span>
+                    <span class="die" id="die2">-</span>
+                </div>
+                <!-- Strateji Butonları -->
+                <button id="undo-button" style="display: none;">Geri Al</button>
+                <button id="confirm-button" style="display: none;">Hamleyi Bitir</button>
+            </div>
+            
+            <div id="status-message">Oyunu başlatmak için zar atın.</div>
+        </div>
 
-    <canvas id="gameCanvas"></canvas>
+        <!-- HTML5 Canvas Tavla Tahtası -->
+        <canvas id="game-canvas" width="800" height="600"></canvas>
+    </div>
 
+    <!-- Oyunu Başlatan Ana Script -->
     <script type="module" src="app.js"></script>
-
+    <!-- index.html dosyasının en altına, </body> etiketinin hemen üstüne ekleyin -->
+<div id="game-over-overlay" style="display: none;">
+    <div id="game-over-box">
+        <h2 id="winner-title">Tebrikler!</h2>
+        <p id="winner-message">Beyaz oyuncu oyunu kazandı!</p>
+        <button id="restart-button">Yeniden Oyna</button>
+    </div>
+</div>
 </body>
 </html>
