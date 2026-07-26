@@ -323,3 +323,26 @@ body {
     filter: grayscale(1);
     transform: scale(0.92);
 }
+
+
+/* Dil seçimi bot seviyesiyle aynı görsel dili kullanır. */
+#language-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+#language-container label,
+#difficulty-container label {
+    font-size: 13px;
+}
+
+#language-select {
+    background: #294966;
+    color: #ffffff;
+    border: 1px solid #66829c;
+    border-radius: 6px;
+    padding: 7px 9px;
+    cursor: pointer;
+}
