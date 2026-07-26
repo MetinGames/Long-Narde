@@ -353,6 +353,8 @@ function bindEvents() {
         document.getElementById('game-canvas');
     const languageSelect =
         document.getElementById('language-select');
+    const themeSelect =
+        document.getElementById('theme-select');
 
     difficultySelect?.addEventListener('change', event => {
         bot.difficulty = event.target.value;
@@ -366,6 +368,16 @@ function bindEvents() {
         applyTranslations();
         updateScreen();
         renderer.updateStatus(t('status.languageChanged'));
+    });
+
+    themeSelect?.addEventListener('change', event => {
+        renderer.setTheme(event.target.value);
+        updateScreen();
+        renderer.updateStatus(
+            t('status.themeChanged', {
+                theme: event.target.selectedOptions[0].text
+            })
+        );
     });
 
     restartButton?.addEventListener('click', restartGame);
@@ -421,14 +433,21 @@ function bindEvents() {
     window.addEventListener('focus', updateTimerFromClock);
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
     setLanguage(getLanguage());
     applyTranslations();
+    await renderer.initialize();
 
     const languageSelect =
         document.getElementById('language-select');
     if (languageSelect) {
         languageSelect.value = getLanguage();
+    }
+
+    const themeSelect =
+        document.getElementById('theme-select');
+    if (themeSelect) {
+        themeSelect.value = renderer.theme.id;
     }
 
     bindEvents();
