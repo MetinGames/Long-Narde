@@ -1,4 +1,4 @@
-/* style.css */
+/* --- GENEL RESET VE TASARIM --- */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -13,7 +13,7 @@ body {
     align-items: center;
     min-height: 100vh;
     color: white;
-    overflow: hidden; /* Tarayıcıda kaydırma çubuklarını tamamen engeller */
+    overflow: hidden;
 }
 
 #game-container {
@@ -23,117 +23,292 @@ body {
     gap: 15px;
 }
 
-/* Bilgi Paneli - Sabit Yükseklik Verildi */
+/* --- ÜST BİLGİ PANELİ --- */
 #info-panel {
-    background-color: #34495e;
-    padding: 10px 20px;
-    border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 800px;
-    height: 70px; /* Sabit dikey yükseklik: İçindeki metin uzasa da asla büyümez! */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    overflow: hidden;
+    background-color: #34495e;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+#turn-indicator {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#timer-container {
+    background-color: #c0392b;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 #dice-container {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 
-#roll-button, #undo-button, #confirm-button {
+#roll-button {
+    background-color: #e67e22;
     color: white;
     border: none;
-    padding: 8px 14px;
-    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 6px;
     font-weight: bold;
-    border-radius: 4px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background-color 0.2s;
 }
 
-#roll-button { background-color: #e67e22; }
-#roll-button:hover { background-color: #d35400; }
+#roll-button:hover {
+    background-color: #d35400;
+}
 
-#undo-button { background-color: #c0392b; }
-#undo-button:hover { background-color: #962d22; }
-
-#confirm-button { background-color: #27ae60; }
-#confirm-button:hover { background-color: #1e8449; }
+#dice-display {
+    display: flex;
+    gap: 8px;
+}
 
 .die {
     background-color: white;
-    color: #333;
-    width: 32px;
-    height: 32px;
-    display: inline-flex;
+    color: #2c3e50;
+    width: 30px;
+    height: 30px;
+    display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-#timer-container {
-    background-color: #2c3e50;
-    padding: 6px 12px;
     border-radius: 4px;
-    border: 1px solid #e74c3c;
-    font-weight: bold;
-    color: #e74c3c;
-    font-size: 14px;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Durum mesajının paneli daraltmaması için esnek yapısı */
 #status-message {
-    font-size: 13px;
-    max-width: 250px;
-    text-align: right;
-    opacity: 0.9;
-    white-space: normal; /* Yazı sığmazsa alt satıra geçer, paneli büyütmez */
+    font-size: 14px;
+    color: #bdc3c7;
 }
 
-/* Canvas Dünya Standartlarında Sabitlendi */
-#game-canvas {
-    background-color: #1e4620;
-    border-radius: 6px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
-    cursor: pointer;
-}
-
-/* Oyun Bitti Ekranı */
+/* --- GAME OVER OVERLAY --- */
 #game-over-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100;
+    z-index: 1000;
 }
 
 #game-over-box {
-    background-color: #2c3e50;
-    padding: 40px;
+    background-color: #34495e;
+    padding: 30px 50px;
     border-radius: 12px;
     text-align: center;
-    border: 3px solid #e67e22;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    animation: popIn 0.3s ease-out;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-#game-over-box h2 { font-size: 32px; margin-bottom: 10px; color: #e67e22; }
-#game-over-box p { font-size: 18px; margin-bottom: 25px; }
-#restart-button { background-color: #27ae60; color: white; border: none; padding: 12px 30px; font-size: 18px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
-#restart-button:hover { background-color: #219653; }
+#game-over-box h2 {
+    font-size: 28px;
+    color: #2ecc71;
+}
 
-@keyframes popIn {
-    0% { transform: scale(0.7); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+#restart-button {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#restart-button:hover {
+    background-color: #2ecc71;
+}
+
+/* --- ORTA ÇITAYA GÖMÜLÜ MİNİMAL BUTONLAR --- */
+#board-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+#action-buttons {
+    position: absolute;
+    left: 357px; 
+    bottom: 80px; 
+    width: 30px; 
+    display: flex;
+    flex-direction: column; 
+    gap: 20px;
+    align-items: center;
+    pointer-events: none; 
+}
+
+#action-buttons button {
+    pointer-events: auto;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%; 
+    border: none;
+    background-color: rgba(0, 0, 0, 0.4); 
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px; 
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.1); 
+    transition: all 0.2s ease;
+}
+
+#action-buttons button:active {
+    transform: translateY(2px) scale(0.95); 
+}
+
+#undo-button:hover {
+    background-color: rgba(231, 76, 60, 0.9);
+    color: white;
+}
+
+#confirm-button:hover {
+    background-color: rgba(46, 204, 113, 0.9);
+    color: white;
+}/* --- ZORLUK SEÇİCİ STİLİ --- */
+#difficulty-container {
+    display: flex;
+    align-items: center;
+    background-color: #2c3e50;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+#bot-difficulty {
+    background-color: #34495e;
+    color: white;
+    border: 1px solid #4e6d8c;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+}
+
+#bot-difficulty:hover {
+    border-color: #e67e22;
+}
+
+/* --- İSTATİSTİK KARTI STİLİ --- */
+#match-stats {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #bdc3c7;
+    margin: 5px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#match-stats p {
+    font-weight: bold;
+    color: #f39c12;
+}/* --- AĞA TAHTASI VE LÜKS KAPSÜL BUTONLAR --- */
+body {
+    background: linear-gradient(135deg, #1a252f 0%, #0d1117 100%); /* Daha derin, lüks bir gece tonu arka plan */
+}
+
+#game-container {
+    background: #1e1b18; /* Tahtanın arkasında lüks bir ahşap gövde hissi */
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), inset 0 2px 5px rgba(255, 255, 255, 0.1);
+    border: 3px solid #4a3525;
+}
+
+#info-panel {
+    background: linear-gradient(to bottom, #3d2f24, #2c2119);
+    border: 1px solid #5c4331;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+/* --- ORTA ÇITAYA GÖMÜLÜ KAPSÜL BUTONLAR (Yandex Tarzı) --- */
+#board-wrapper {
+    position: relative;
+    display: inline-block;
+    border: 4px solid #3d2f24;
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+
+#action-buttons {
+    position: absolute;
+    /* Tahtanın tam ortasındaki ahşap çıtanın üzerine milimetrik yerleşim */
+    left: 352px; 
+    bottom: 75px; 
+    width: 40px; 
+    display: flex;
+    flex-direction: column; 
+    gap: 15px;
+    align-items: center;
+    pointer-events: none; 
+}
+
+#action-buttons button {
+    pointer-events: auto;
+    width: 65px; /* Yatay kapsül formu */
+    height: 28px;
+    border-radius: 14px; /* Oval kapsül kenarlar */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.3);
+    transition: all 0.2s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+#action-buttons button:active {
+    transform: translateY(2px) scale(0.96); 
+}
+
+/* İptal / Geri Al Kapsülü (Tok Kırmızı-Kahve Tonu) */
+#undo-button {
+    background: linear-gradient(to bottom, #c0392b, #962d22);
+}
+
+#undo-button:hover {
+    background: linear-gradient(to bottom, #e74c3c, #c0392b);
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.6);
+}
+
+/* Hamleyi Bitir Kapsülü (Tok Sedef Yeşil Tonu) */
+#confirm-button {
+    background: linear-gradient(to bottom, #27ae60, #1e8449);
+}
+
+#confirm-button:hover {
+    background: linear-gradient(to bottom, #2ecc71, #27ae60);
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
 }

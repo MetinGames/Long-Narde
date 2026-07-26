@@ -11,6 +11,17 @@
         <!-- Üst Bilgi Paneli -->
         <div id="info-panel">
             <div id="turn-indicator">Sıra: <span id="current-player">Beyaz</span></div>
+            
+            <!-- YENİ: Zorluk Seviyesi Seçici -->
+            <div id="difficulty-container">
+                <label for="bot-difficulty" style="font-size: 13px; margin-right: 5px;">Bot:</label>
+                <select id="bot-difficulty">
+                    <option value="easy">Kolay</option>
+                    <option value="medium" selected>Orta</option>
+                    <option value="hard">Usta (Mastermind)</option>
+                </select>
+            </div>
+
             <div id="timer-container">Kalan Süre: <span id="timer-countdown">60</span>s</div>
             
             <div id="dice-container">
@@ -19,21 +30,35 @@
                     <span class="die" id="die1">-</span>
                     <span class="die" id="die2">-</span>
                 </div>
-                <button id="undo-button" style="display: none;">Geri Al</button>
-                <button id="confirm-button" style="display: none;">Hamleyi Bitir</button>
             </div>
             
             <div id="status-message">Oyunu başlatmak için zar atın.</div>
         </div>
 
-        <!-- HTML5 Canvas Tavla Tahtası -->
-        <canvas id="game-canvas" width="800" height="600"></canvas>
+        <!-- HTML5 Canvas Tavla Tahtası ve Orta Çıta Buttonları -->
+        <div id="board-wrapper">
+            <canvas id="game-canvas" width="800" height="600"></canvas>
+            
+            <!-- Orta Çıtanın Üzerine Binen Minimalist Tuşlar -->
+            <div id="action-buttons">
+                <button id="undo-button" style="display: none;" title="Geri Al">↺</button>
+                <button id="confirm-button" style="display: none;" title="Hamleyi Bitir">✓</button>
+            </div>
+        </div>
     </div>
 
+    <!-- YENİ: Gelişmiş İstatistikli Game Over Paneli -->
     <div id="game-over-overlay" style="display: none;">
         <div id="game-over-box">
             <h2 id="winner-title">Tebrikler!</h2>
             <p id="winner-message">Beyaz oyuncu oyunu kazandı!</p>
+            
+            <!-- Maç İstatistikleri Kartı -->
+            <div id="match-stats">
+                <p>📊 Maç Özeti</p>
+                <div id="stats-details">Toplam Hamle: <span id="stat-moves">0</span></div>
+            </div>
+
             <button id="restart-button">Yeniden Oyna</button>
         </div>
     </div>
