@@ -10,19 +10,28 @@
     <div id="game-container">
         <!-- Üst Bilgi Paneli -->
         <div id="info-panel">
-            <div id="turn-indicator">Sıra: <span id="current-player">Beyaz</span></div>
+            <div id="turn-indicator"><span data-i18n="ui.turn">Sıra:</span> <span id="current-player">Beyaz</span></div>
             
             <!-- YENİ: Zorluk Seviyesi Seçici -->
             <div id="difficulty-container">
-                <label for="bot-difficulty" style="font-size: 13px; margin-right: 5px;">Bot:</label>
+                <label for="bot-difficulty" data-i18n="ui.bot">Bot:</label>
                 <select id="bot-difficulty">
-                    <option value="easy">Kolay</option>
-                    <option value="medium" selected>Orta</option>
-                    <option value="hard">Usta (Mastermind)</option>
+                    <option value="easy" data-i18n="difficulty.easy">Kolay</option>
+                    <option value="medium" data-i18n="difficulty.medium" selected>Orta</option>
+                    <option value="hard" data-i18n="difficulty.hard">Usta</option>
                 </select>
             </div>
 
-            <div id="timer-container">Kalan Süre: <span id="timer-countdown">60</span>s</div>
+            <div id="language-container">
+                <label for="language-select" data-i18n="ui.language">Dil:</label>
+                <select id="language-select" aria-label="Dil">
+                    <option value="tr">Türkçe</option>
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                </select>
+            </div>
+
+            <div id="timer-container"><span data-i18n="ui.time">Kalan Süre:</span> <span id="timer-countdown">60</span>s</div>
             
             <div id="dice-container">
                 <button id="roll-button">Zar At</button>
@@ -32,7 +41,7 @@
                 </div>
             </div>
             
-            <div id="status-message">Oyunu başlatmak için zar atın.</div>
+            <div id="status-message" data-i18n="status.starting">Yeni oyun başlıyor...</div>
         </div>
 
         <!-- HTML5 Canvas Tavla Tahtası ve Orta Çıta Buttonları -->
@@ -55,11 +64,11 @@
             
             <!-- Maç İstatistikleri Kartı -->
             <div id="match-stats">
-                <p>📊 Maç Özeti</p>
-                <div id="stats-details">Toplam Hamle: <span id="stat-moves">0</span></div>
+                <p data-i18n="ui.matchSummary">📊 Maç Özeti</p>
+                <div id="stats-details"><span data-i18n="ui.totalMoves">Toplam Hamle:</span> <span id="stat-moves">0</span></div>
             </div>
 
-            <button id="restart-button">Yeniden Oyna</button>
+            <button id="restart-button" data-i18n="ui.playAgain">Yeniden Oyna</button>
         </div>
     </div>
 
