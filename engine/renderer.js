@@ -144,7 +144,7 @@ export class Renderer {
         if (isTop) { this.ctx.moveTo(x, y); this.ctx.lineTo(x + width, y); this.ctx.lineTo(x + (width / 2), y + height); }
         else { this.ctx.moveTo(x, y); this.ctx.lineTo(x + width, y); this.ctx.lineTo(x + (width / 2), y - height); }
         this.ctx.closePath();
-        this.ctx.fillStyle = 'rgba(212, 175, 55, 0.45);'; 
+        this.ctx.fillStyle = 'rgba(212, 175, 55, 0.45)'; 
         this.ctx.fill();
     }
 
@@ -222,13 +222,8 @@ export class Renderer {
     }
 
     drawBearOffTrays(game) {
-        let wCount = 0, bCount = 0;
-        for (let i = 1; i <= 24; i++) {
-            if (game.board.slots[i].player === 1) wCount += game.board.slots[i].count;
-            if (game.board.slots[i].player === 2) bCount += game.board.slots[i].count;
-        }
-        const wCollected = 15 - wCount;
-        const bCollected = 15 - bCount;
+        const wCollected = game.board.borneOff?.[1] ?? 0;
+        const bCollected = game.board.borneOff?.[2] ?? 0;
         const pips = this.calculatePipCount(game);
 
         const trayX = this.boardWidth - this.borderSize - this.trayWidth + 5;
@@ -265,66 +260,43 @@ export class Renderer {
 
     calculateHighlights(game, selectedSlotId) {
         this.highlightedSlots = [];
-        if (selectedSlotId === null || game.gameStatus !== 'PLAYING') return;
 
-        const headSlot = game.currentPlayer === 1 ? 1 : 13;
-        if (selectedSlotId === headSlot) {
-            if (game.headMovesThisTurn >= 1) {
-                const isSpecialDouble = game.dice.values[0] === game.dice.values[1] && 
-                                       [3, 4, 6].includes(game.dice.values[0]);
-                if (!isSpecialDouble || game.headMovesThisTurn >= 2) return;
+        if (
+            selectedSlotId === null ||
+            game.gameStatus !== 'PLAYING'
+        ) {
+            return;
+        }
+
+        const headSlot = game.board.getHeadSlot(game.currentPlayer);
+        if (
+            selectedSlotId === headSlot &&
+            !game.canMoveFromHead()
+        ) {
+            return;
+        }
+
+        for (const sequence of game.getAvailableDiceSequences()) {
+            const result = game.simulateDiceSequence(
+                selectedSlotId,
+                sequence
+            );
+
+            if (!result.valid) continue;
+
+            if (result.borneOffCount > 0) {
+                this.highlightedSlots.push(25);
+            } else if (
+                result.targetSlot >= 1 &&
+                result.targetSlot <= 24
+            ) {
+                this.highlightedSlots.push(result.targetSlot);
             }
         }
 
-        const uniqueMoves = [...new Set(game.availableMoves)];
-        
-        for (let zar of uniqueMoves) {
-            const target = game.board.calculateTargetSlot(game.currentPlayer, selectedSlotId, zar);
-            if (game.board.isValidMove(game.currentPlayer, selectedSlotId, target)) {
-                const isBearOff = (game.currentPlayer === 1 && target > 24) || 
-                                  (game.currentPlayer === 2 && target > 12 && selectedSlotId <= 12);
-                if (isBearOff) this.highlightedSlots.push(25); 
-                else this.highlightedSlots.push(target);
-            }
-        }
-        
-        if (game.availableMoves.length >= 2) {
-            const isDouble = game.availableMoves[0] === game.availableMoves[1];
-            
-            if (isDouble) {
-                const zarDegeri = game.availableMoves[0];
-                for (let adet = 1; adet <= game.availableMoves.length; adet++) {
-                    const zarSirasi = Array(adet).fill(zarDegeri);
-                    const toplamHedef = game.canPlayDiceSequence(selectedSlotId, zarSirasi);
-                    
-                    if (toplamHedef !== null) {
-                        const isBearOff = (game.currentPlayer === 1 && toplamHedef > 24) || 
-                                          (game.currentPlayer === 2 && toplamHedef > 12 && selectedSlotId <= 12);
-                        if (isBearOff) this.highlightedSlots.push(25);
-                        else if (toplamHedef >= 1 && toplamHedef <= 24) this.highlightedSlots.push(toplamHedef);
-                    }
-                }
-            } else {
-                const zar1 = game.availableMoves[0];
-                const zar2 = game.availableMoves[1];
-
-                const toplamHedef1 = game.canPlayDiceSequence(selectedSlotId, [zar1, zar2]);
-                const toplamHedef2 = game.canPlayDiceSequence(selectedSlotId, [zar2, zar1]);
-
-                if (toplamHedef1 !== null) {
-                    const isBearOff = (game.currentPlayer === 1 && toplamHedef1 > 24) || (game.currentPlayer === 2 && toplamHedef1 > 12 && selectedSlotId <= 12);
-                    if (isBearOff) this.highlightedSlots.push(25);
-                    else if (toplamHedef1 >= 1 && toplamHedef1 <= 24) this.highlightedSlots.push(toplamHedef1);
-                }
-
-                if (toplamHedef2 !== null) {
-                    const isBearOff = (game.currentPlayer === 1 && toplamHedef2 > 24) || (game.currentPlayer === 2 && toplamHedef2 > 12 && selectedSlotId <= 12);
-                    if (isBearOff) this.highlightedSlots.push(25);
-                    else if (toplamHedef2 >= 1 && toplamHedef2 <= 24) this.highlightedSlots.push(toplamHedef2);
-                }
-            }
-        }
-        this.highlightedSlots = [...new Set(this.highlightedSlots)];
+        this.highlightedSlots = [
+            ...new Set(this.highlightedSlots)
+        ];
     }
 
     updateStatus(message) { if (this.statusMessage) this.statusMessage.textContent = message; }
