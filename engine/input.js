@@ -10,9 +10,9 @@ export function getCanvasCoordinates(canvas, event) {
 
     return {
         x: (event.clientX - rect.left) *
-            (canvas.width / rect.width),
+            (BOARD_LAYOUT.width / rect.width),
         y: (event.clientY - rect.top) *
-            (canvas.height / rect.height)
+            (BOARD_LAYOUT.height / rect.height)
     };
 }
 
