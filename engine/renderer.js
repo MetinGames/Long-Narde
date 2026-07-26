@@ -90,15 +90,27 @@ export class Renderer {
 
         const isDouble = game.availableMoves.length >= 2 && game.availableMoves[0] === game.availableMoves[1];
 
-        if (isDouble) {
+                if (isDouble) {
             const zarDegeri = game.availableMoves[0];
-            let aktifDurak = selectedSlotId;
-            for (let i = 1; i <= game.availableMoves.length; i++) {
-                aktifDurak = game.board.calculateTargetSlot(game.currentPlayer, aktifDurak, zarDegeri);
-                if (game.board.isValidMove(game.currentPlayer, selectedSlotId, aktifDurak)) {
-                    this.highlightedSlots.push(aktifDurak);
-                } else { break; }
+
+            for (let adet = 1; adet <= game.availableMoves.length; adet++) {
+                const zarSirasi = Array(adet).fill(zarDegeri);
+
+                const toplamHedef = game.canPlayDiceSequence(
+                    selectedSlotId,
+                    zarSirasi
+                );
+
+                if (
+                    toplamHedef !== null &&
+                    toplamHedef >= 1 &&
+                    toplamHedef <= 24
+                ) {
+                    this.highlightedSlots.push(toplamHedef);
+                }
             }
+
+            this.highlightedSlots = [...new Set(this.highlightedSlots)];
         } else {
             const uniqueMoves = [...new Set(game.availableMoves)];
             
