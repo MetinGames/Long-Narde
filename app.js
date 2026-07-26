@@ -4,6 +4,12 @@ import { NardeGame } from './engine/game.js';
 import { Renderer } from './engine/renderer.js';
 import { NardeBot } from './engine/bot.js';
 import { UIManager } from './engine/uiManager.js';
+import {
+    applyTranslations,
+    getLanguage,
+    setLanguage,
+    t
+} from './engine/i18n.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -67,7 +73,7 @@ function updateTimerFromClock() {
     if (secondsLeft === 0) {
         clearInterval(turnTimerInterval);
         turnTimerInterval = null;
-        renderer.updateStatus('Süreniz doldu. Sıra bilgisayara geçti.');
+        renderer.updateStatus(t('status.timeExpired'));
         finishCurrentTurn();
     }
 }
@@ -100,10 +106,10 @@ function beginCurrentTurn() {
 
     if (game.currentPlayer === 1) {
         ui.setHumanTurnLayout();
-        renderer.updateStatus('Sıra sizde.');
+        renderer.updateStatus(t('status.yourTurn'));
     } else {
         ui.setBotTurnLayout();
-        renderer.updateStatus('Bilgisayarın sırası.');
+        renderer.updateStatus(t('status.botTurn'));
     }
 
     schedule(startAutomaticDiceRoll, 650);
@@ -116,8 +122,8 @@ function startAutomaticDiceRoll() {
     ui.setBotTurnLayout();
     renderer.updateStatus(
         rollingPlayer === 1
-            ? 'Zarlarınız atılıyor...'
-            : 'Bilgisayar zar atıyor...'
+            ? t('status.rollingYou')
+            : t('status.rollingBot')
     );
 
     const die1 = document.getElementById('die1');
@@ -142,18 +148,18 @@ function startAutomaticDiceRoll() {
         if (rollingPlayer === 1) {
             ui.setHumanPlayingLayout();
             renderer.updateStatus(
-                `Zarlar: ${diceValues.join(', ')}. Hamlenizi yapın.`
+                t('status.rolledYou', { dice: diceValues.join(', ') })
             );
             startHumanTimer();
 
             if (!game.hasValidMoves()) {
                 renderer.updateStatus(
-                    'Geçerli hamle yok. Hamleyi bitirin.'
+                    t('status.noMoves')
                 );
             }
         } else {
             renderer.updateStatus(
-                `Bilgisayarın zarları: ${diceValues.join(', ')}.`
+                t('status.rolledBot', { dice: diceValues.join(', ') })
             );
             schedule(runBotMove, 550);
         }
@@ -207,13 +213,13 @@ function showGameOver(winner) {
 
     if (title) {
         title.textContent =
-            winner === 1 ? 'Tebrikler! 🎉' : 'Bu Kez Bilgisayar Kazandı';
+            winner === 1 ? t('game.winTitle') : t('game.loseTitle');
     }
     if (message) {
         message.textContent =
             winner === 1
-                ? 'Kazandınız! Harika bir oyun çıkardınız.'
-                : 'Yeni oyunda rövanşı alabilirsiniz.';
+                ? t('game.winMessage')
+                : t('game.loseMessage');
     }
     if (statMoves) statMoves.textContent = totalMoveCounter;
     if (overlay) overlay.style.display = 'flex';
@@ -233,7 +239,7 @@ function restartGame() {
     updateScreen();
     ui.setHumanTurnLayout();
     ui.updateTimerText(getHumanTurnDuration());
-    renderer.updateStatus('Yeni oyun başlıyor...');
+    renderer.updateStatus(t('status.starting'));
 
     schedule(startAutomaticDiceRoll, 650);
 }
@@ -292,11 +298,11 @@ function explainUnplayableSlot(slotId) {
         !game.canMoveFromHead()
     ) {
         renderer.updateStatus(
-            'Bu tur başlangıçtan başka pul çıkaramazsınız.'
+            t('status.headBlocked')
         );
     } else {
         renderer.updateStatus(
-            'Bu pul mevcut zarlarla oynanamıyor.'
+            t('status.pieceBlocked')
         );
     }
 }
@@ -316,11 +322,11 @@ function selectPlayableSlot(slotId) {
 
     if (legalTargets.includes(25)) {
         renderer.updateStatus(
-            'Pulu toplamak için sağdaki parlayan TOPLA alanına tıklayın.'
+            t('status.selectCollect')
         );
     } else {
         renderer.updateStatus(
-            'Işıklı hedeflerden birini seçin.'
+            t('status.selectTarget')
         );
     }
     return true;
@@ -351,7 +357,7 @@ function handleSlotClick(slotId) {
     if (selectedSlotId === slotId) {
         selectedSlotId = null;
         updateScreen();
-        renderer.updateStatus('Pul seçimi kaldırıldı.');
+        renderer.updateStatus(t('status.deselected'));
         return;
     }
 
@@ -362,7 +368,7 @@ function handleSlotClick(slotId) {
     if (legalTargets.includes(slotId)) {
         if (!game.processPlayerInput(selectedSlotId, slotId)) {
             renderer.updateStatus(
-                'Hamle uygulanamadı. Lütfen yeniden seçin.'
+                t('status.applyFailed')
             );
             return;
         }
@@ -381,7 +387,7 @@ function handleSlotClick(slotId) {
             game.availableMoves.length === 0 ||
             !game.hasValidMoves()
         ) {
-            renderer.updateStatus('Hamleniz tamamlandı.');
+            renderer.updateStatus(t('status.moveComplete'));
         }
         return;
     }
@@ -396,7 +402,7 @@ function handleSlotClick(slotId) {
     }
 
     renderer.updateStatus(
-        'Işıklı hedeflerden birini seçmelisiniz.'
+        t('status.targetRequired')
     );
 }
 
@@ -407,12 +413,21 @@ function bindEvents() {
         document.getElementById('restart-button');
     const canvas =
         document.getElementById('game-canvas');
+    const languageSelect =
+        document.getElementById('language-select');
 
     difficultySelect?.addEventListener('change', event => {
         bot.difficulty = event.target.value;
         renderer.updateStatus(
-            `Bot seviyesi: ${event.target.selectedOptions[0].text}`
+            t('status.difficulty', { level: event.target.selectedOptions[0].text })
         );
+    });
+
+    languageSelect?.addEventListener('change', event => {
+        setLanguage(event.target.value);
+        applyTranslations();
+        updateScreen();
+        renderer.updateStatus(t('status.languageChanged'));
     });
 
     restartButton?.addEventListener('click', restartGame);
@@ -424,7 +439,7 @@ function bindEvents() {
         ) {
             selectedSlotId = null;
             updateScreen();
-            renderer.updateStatus('Bu turdaki hamleler geri alındı.');
+            renderer.updateStatus(t('status.undo'));
         }
     });
 
@@ -441,7 +456,7 @@ function bindEvents() {
             game.hasValidMoves()
         ) {
             renderer.updateStatus(
-                'Önce kullanılabilecek zarları oynamalısınız.'
+                t('status.useDice')
             );
             return;
         }
@@ -480,6 +495,15 @@ function bindEvents() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    setLanguage(getLanguage());
+    applyTranslations();
+
+    const languageSelect =
+        document.getElementById('language-select');
+    if (languageSelect) {
+        languageSelect.value = getLanguage();
+    }
+
     bindEvents();
     restartGame();
 });
