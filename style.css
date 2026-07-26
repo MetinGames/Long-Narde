@@ -346,3 +346,136 @@ body {
 #board-wrapper {
     max-width: 100%;
 }
+
+
+/* --- GÖRSEL UYUM VE OKUNAKLILIK PAKETİ --- */
+body {
+    overflow: auto;
+    padding: 18px;
+}
+
+#game-container {
+    width: min(846px, calc(100vw - 24px));
+}
+
+#info-panel {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px 14px 10px;
+}
+
+#panel-controls {
+    display: grid;
+    grid-template-columns:
+        minmax(92px, 1fr)
+        auto
+        auto
+        minmax(145px, auto)
+        auto
+        auto;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+}
+
+#turn-indicator,
+#timer-container {
+    white-space: nowrap;
+}
+
+#turn-indicator {
+    line-height: 1.2;
+}
+
+#difficulty-container,
+#language-container,
+#theme-container {
+    min-height: 36px;
+}
+
+#theme-select {
+    max-width: 150px;
+}
+
+#status-message {
+    width: 100%;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-top: 1px solid rgba(220, 184, 116, 0.18);
+    background: rgba(15, 9, 5, 0.22);
+    border-radius: 5px;
+    color: #e0d3c2;
+    line-height: 1.25;
+}
+
+#board-wrapper {
+    width: 100%;
+    padding-bottom: 46px;
+    background: linear-gradient(to bottom, #2b1c13, #17100b);
+    overflow: hidden;
+}
+
+#game-canvas {
+    width: 100%;
+}
+
+#action-buttons {
+    left: 50%;
+    right: auto;
+    bottom: 8px;
+    width: auto;
+    transform: translateX(-50%);
+    flex-direction: row;
+    gap: 12px;
+    padding: 0;
+}
+
+#action-buttons button {
+    width: 78px;
+    height: 30px;
+    border-radius: 7px;
+}
+
+#action-buttons button:active {
+    transform: translateY(1px) scale(0.97);
+}
+
+@media (max-width: 760px) {
+    body {
+        align-items: flex-start;
+        padding: 8px;
+    }
+
+    #game-container {
+        width: calc(100vw - 16px);
+        padding: 10px;
+        gap: 10px;
+    }
+
+    #panel-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #turn-indicator,
+    #timer-container,
+    #dice-container {
+        justify-self: stretch;
+    }
+
+    #difficulty-container,
+    #language-container,
+    #theme-container {
+        justify-content: space-between;
+    }
+
+    #bot-difficulty,
+    #language-select,
+    #theme-select {
+        min-width: 0;
+        max-width: 120px;
+    }
+}
