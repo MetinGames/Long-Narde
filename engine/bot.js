@@ -16,7 +16,6 @@ export class NardeBot {
         }
 
         const legalMoves = [];
-        const uniqueMoves = [...new Set(game.availableMoves)];
 
         for (let fromSlot = 1; fromSlot <= 24; fromSlot++) {
             const slot = game.board.slots[fromSlot];
@@ -27,7 +26,15 @@ export class NardeBot {
                 continue;
             }
 
-            for (const diceValue of uniqueMoves) {
+            const legalFirstDice = [
+                ...new Set(
+                    game.getRuleCompliantDiceSequences(fromSlot)
+                        .filter(sequence => sequence.length === 1)
+                        .map(sequence => sequence[0])
+                )
+            ];
+
+            for (const diceValue of legalFirstDice) {
                 const result = game.simulateDiceSequence(
                     fromSlot,
                     [diceValue]
