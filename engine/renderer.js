@@ -260,41 +260,107 @@ export class Renderer {
         return { whitePips, blackPips };
     }
 
+    drawCollectPrompt(x, y, width, height) {
+        this.ctx.save();
+        this.ctx.shadowColor = '#f6c744';
+        this.ctx.shadowBlur = 18;
+        this.ctx.strokeStyle = '#ffd75e';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeRect(x + 2, y + 2, width - 4, height - 4);
+        this.ctx.shadowBlur = 0;
+
+        this.ctx.fillStyle = 'rgba(246, 199, 68, 0.24)';
+        this.ctx.fillRect(x + 3, y + 3, width - 6, height - 6);
+
+        this.ctx.fillStyle = '#fff3b0';
+        this.ctx.textAlign = 'center';
+        this.ctx.font = 'bold 10px sans-serif';
+        this.ctx.fillText('TOPLA', x + width / 2, y + height / 2 - 4);
+        this.ctx.font = 'bold 22px sans-serif';
+        this.ctx.fillText('→', x + width / 2, y + height / 2 + 22);
+        this.ctx.restore();
+    }
+
     drawBearOffTrays(game) {
         const wCollected = game.board.borneOff?.[1] ?? 0;
         const bCollected = game.board.borneOff?.[2] ?? 0;
         const pips = this.calculatePipCount(game);
 
-        const trayX = this.boardWidth - this.borderSize - this.trayWidth + 5;
-        const trayHeight = (this.boardHeight - (this.borderSize * 2)) / 2 - 10;
-        
-        // Siyah Tepsisi (Üst Sağ)
-        this.ctx.fillStyle = 'rgba(15, 8, 3, 0.85)';
-        this.ctx.fillRect(trayX, this.borderSize, this.trayWidth, trayHeight);
-        if (game.currentPlayer === 2 && this.highlightedSlots.includes(25)) {
-            this.ctx.fillStyle = 'rgba(212, 175, 55, 0.5)';
-            this.ctx.fillRect(trayX, this.borderSize, this.trayWidth, trayHeight);
-        }
-        this.ctx.fillStyle = '#d4af37';
-        this.ctx.font = 'bold 12px sans-serif';
-        this.ctx.fillText(`${bCollected}/15`, trayX + 10, this.borderSize + trayHeight / 2 - 10);
-        
-        this.ctx.fillStyle = '#e67e22';
-        this.ctx.fillText(`${pips.blackPips} 🎯`, trayX + 8, this.borderSize + trayHeight / 2 + 10);
+        const trayX =
+            this.boardWidth - this.borderSize - this.trayWidth + 5;
+        const trayHeight =
+            (this.boardHeight - (this.borderSize * 2)) / 2 - 10;
+        const blackTrayY = this.borderSize;
+        const whiteTrayY =
+            this.borderSize + trayHeight + 20;
+        const canCollect =
+            this.highlightedSlots.includes(25);
 
-        // Beyaz Tepsisi (Alt Sağ)
+        // Siyah toplama tepsisi
         this.ctx.fillStyle = 'rgba(15, 8, 3, 0.85)';
-        this.ctx.fillRect(trayX, this.borderSize + trayHeight + 20, this.trayWidth, trayHeight);
-        if (game.currentPlayer === 1 && this.highlightedSlots.includes(25)) {
-            this.ctx.fillStyle = 'rgba(212, 175, 55, 0.5)';
-            this.ctx.fillRect(trayX, this.borderSize + trayHeight + 20, this.trayWidth, trayHeight);
+        this.ctx.fillRect(
+            trayX,
+            blackTrayY,
+            this.trayWidth,
+            trayHeight
+        );
+
+        if (game.currentPlayer === 2 && canCollect) {
+            this.drawCollectPrompt(
+                trayX,
+                blackTrayY,
+                this.trayWidth,
+                trayHeight
+            );
         }
+
+        this.ctx.textAlign = 'left';
         this.ctx.fillStyle = '#d4af37';
         this.ctx.font = 'bold 12px sans-serif';
-        this.ctx.fillText(`${wCollected}/15`, trayX + 10, this.borderSize + trayHeight + 20 + trayHeight / 2 - 10);
-        
+        this.ctx.fillText(
+            `${bCollected}/15`,
+            trayX + 10,
+            blackTrayY + trayHeight / 2 - 10
+        );
         this.ctx.fillStyle = '#e67e22';
-        this.ctx.fillText(`${pips.whitePips} 🎯`, trayX + 8, this.borderSize + trayHeight + 20 + trayHeight / 2 + 10);
+        this.ctx.fillText(
+            `${pips.blackPips} 🎯`,
+            trayX + 8,
+            blackTrayY + trayHeight / 2 + 10
+        );
+
+        // Beyaz toplama tepsisi
+        this.ctx.fillStyle = 'rgba(15, 8, 3, 0.85)';
+        this.ctx.fillRect(
+            trayX,
+            whiteTrayY,
+            this.trayWidth,
+            trayHeight
+        );
+
+        if (game.currentPlayer === 1 && canCollect) {
+            this.drawCollectPrompt(
+                trayX,
+                whiteTrayY,
+                this.trayWidth,
+                trayHeight
+            );
+        }
+
+        this.ctx.textAlign = 'left';
+        this.ctx.fillStyle = '#d4af37';
+        this.ctx.font = 'bold 12px sans-serif';
+        this.ctx.fillText(
+            `${wCollected}/15`,
+            trayX + 10,
+            whiteTrayY + trayHeight / 2 - 10
+        );
+        this.ctx.fillStyle = '#e67e22';
+        this.ctx.fillText(
+            `${pips.whitePips} 🎯`,
+            trayX + 8,
+            whiteTrayY + trayHeight / 2 + 10
+        );
     }
 
     calculateHighlights(game, selectedSlotId) {
