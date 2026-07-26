@@ -1,6 +1,11 @@
 // engine/renderer.js
 
 import { t } from './i18n.js';
+import {
+    BOARD_LAYOUT,
+    getSlotX
+} from './layout.js';
+import { getTheme } from './themes.js';
 
 export class Renderer {
     constructor() {
@@ -12,11 +17,13 @@ export class Renderer {
         this.die2Text = document.getElementById('die2');
         this.statusMessage = document.getElementById('status-message');
 
-        this.boardWidth = 800; 
-        this.boardHeight = 600; 
-        this.borderSize = 20; 
-        this.barWidth = 30;
-        this.trayWidth = 55; 
+        this.boardWidth = BOARD_LAYOUT.width;
+        this.boardHeight = BOARD_LAYOUT.height;
+        this.borderSize = BOARD_LAYOUT.border;
+        this.barWidth = BOARD_LAYOUT.bar;
+        this.trayWidth = BOARD_LAYOUT.tray;
+        this.slotHeight = BOARD_LAYOUT.slotHeight;
+        this.theme = getTheme('walnut');
         this.highlightedSlots = [];
     }
 
@@ -33,26 +40,26 @@ export class Renderer {
         this.ctx.clearRect(0, 0, this.boardWidth, this.boardHeight);
         
         const frameGrad = this.ctx.createLinearGradient(0, 0, this.boardWidth, this.boardHeight);
-        frameGrad.addColorStop(0, '#2b170b');
-        frameGrad.addColorStop(0.5, '#1a0e06');
-        frameGrad.addColorStop(1, '#382010');
+        frameGrad.addColorStop(0, this.theme.frame[0]);
+        frameGrad.addColorStop(0.5, this.theme.frame[1]);
+        frameGrad.addColorStop(1, this.theme.frame[2]);
         this.ctx.fillStyle = frameGrad;
         this.ctx.fillRect(0, 0, this.boardWidth, this.boardHeight);
         
         // İç Tahta (Kadife Dokulu Derin Kahve Zemin)
         const innerWidth = this.boardWidth - (this.borderSize * 2) - this.trayWidth;
         const boardGrad = this.ctx.createLinearGradient(this.borderSize, this.borderSize, this.borderSize + innerWidth, this.boardHeight);
-        boardGrad.addColorStop(0, '#2e1c10');
-        boardGrad.addColorStop(1, '#1b1008');
+        boardGrad.addColorStop(0, this.theme.board[0]);
+        boardGrad.addColorStop(1, this.theme.board[1]);
         this.ctx.fillStyle = boardGrad;
         this.ctx.fillRect(this.borderSize, this.borderSize, innerWidth, this.boardHeight - (this.borderSize * 2));
         
         // Orta Bar (Masif İşlemeli Ahşap Sütun)
         const barX = this.borderSize + (innerWidth / 2) - (this.barWidth / 2);
         const barGrad = this.ctx.createLinearGradient(barX, this.borderSize, barX + this.barWidth, this.boardHeight);
-        barGrad.addColorStop(0, '#190e07');
-        barGrad.addColorStop(0.5, '#2d1b0f');
-        barGrad.addColorStop(1, '#120a05');
+        barGrad.addColorStop(0, this.theme.bar[0]);
+        barGrad.addColorStop(0.5, this.theme.bar[1]);
+        barGrad.addColorStop(1, this.theme.bar[2]);
         this.ctx.fillStyle = barGrad;
         this.ctx.fillRect(barX, this.borderSize, this.barWidth, this.boardHeight - (this.borderSize * 2));
 
@@ -63,12 +70,12 @@ export class Renderer {
 
         const usableWidth = innerWidth - this.barWidth;
         const slotWidth = usableWidth / 12;
-        const slotHeight = 220;
+        const slotHeight = this.slotHeight;
 
         // Üst Haneler (1-12)
         for (let i = 12; i >= 1; i--) {
             const colIndex = 12 - i; 
-            const x = this.getSlotX(colIndex, slotWidth, innerWidth);
+            const x = getSlotX(colIndex, slotWidth);
             this.drawMastermindTriangle(x, this.borderSize, slotWidth, slotHeight, true, i, i % 2 === 0);
             if (this.highlightedSlots.includes(i)) this.drawHighlightGlow(x, this.borderSize, slotWidth, slotHeight, true);
             this.drawMastermindPieces(x, this.borderSize, slotWidth, game.board.slots[i], true, selectedSlotId === i);
@@ -77,7 +84,7 @@ export class Renderer {
         // Alt Haneler (13-24)
         for (let i = 13; i <= 24; i++) {
             const colIndex = i - 13; 
-            const x = this.getSlotX(colIndex, slotWidth, innerWidth); 
+            const x = getSlotX(colIndex, slotWidth); 
             const y = this.boardHeight - this.borderSize;
             this.drawMastermindTriangle(x, y, slotWidth, slotHeight, false, i, i % 2 === 0);
             if (this.highlightedSlots.includes(i)) this.drawHighlightGlow(x, y, slotWidth, slotHeight, false);
@@ -135,12 +142,6 @@ export class Renderer {
             this.die2Text,
             !remaining.includes(die2)
         );
-    }
-
-    getSlotX(colIndex, slotWidth, innerWidth) {
-        let x = this.borderSize + (colIndex * slotWidth);
-        if (colIndex >= 6) x += this.barWidth;
-        return x;
     }
 
     // SEDEF KAKMALI VE ALTIN YALDIZLI MASTERMIND ÜÇGENLERİ
