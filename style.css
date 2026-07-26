@@ -311,7 +311,8 @@ body {
 
 
 /* Dil seçimi bot seviyesiyle aynı görsel dili kullanır. */
-#language-container {
+#language-container,
+#theme-container {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -319,15 +320,29 @@ body {
 }
 
 #language-container label,
+#theme-container label,
 #difficulty-container label {
     font-size: 13px;
 }
 
-#language-select {
+#language-select,
+#theme-select {
     background: #294966;
     color: #ffffff;
     border: 1px solid #66829c;
     border-radius: 6px;
     padding: 7px 9px;
     cursor: pointer;
+}
+
+
+/* Canvas iç çözünürlüğü yüksek DPI için büyür; ekrandaki ölçüsü sabit kalır. */
+#game-canvas {
+    display: block;
+    width: min(800px, calc(100vw - 32px));
+    height: auto;
+}
+
+#board-wrapper {
+    max-width: 100%;
 }
