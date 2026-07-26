@@ -1,5 +1,7 @@
 // engine/renderer.js
 
+import { t } from './i18n.js';
+
 export class Renderer {
     constructor() {
         this.canvas = document.getElementById('game-canvas');
@@ -86,7 +88,7 @@ export class Renderer {
         this.drawBearOffTrays(game);
 
         // UI Metin Güncellemeleri
-        if (this.currentPlayerText) this.currentPlayerText.textContent = game.currentPlayer === 1 ? 'Beyaz' : 'Siyah';
+        if (this.currentPlayerText) this.currentPlayerText.textContent = game.currentPlayer === 1 ? t('player.white') : t('player.black');
         if (game.dice.values && game.dice.values.length > 0) {
             if (this.die1Text) this.die1Text.textContent = game.dice.values[0];
             if (this.die2Text) this.die2Text.textContent = game.dice.values[1];
@@ -275,7 +277,7 @@ export class Renderer {
         this.ctx.fillStyle = '#fff3b0';
         this.ctx.textAlign = 'center';
         this.ctx.font = 'bold 10px sans-serif';
-        this.ctx.fillText('TOPLA', x + width / 2, y + height / 2 - 4);
+        this.ctx.fillText(t('collect'), x + width / 2, y + height / 2 - 4);
         this.ctx.font = 'bold 22px sans-serif';
         this.ctx.fillText('→', x + width / 2, y + height / 2 + 22);
         this.ctx.restore();
