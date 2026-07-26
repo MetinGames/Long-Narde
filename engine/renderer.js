@@ -285,7 +285,7 @@ export class Renderer {
                     x,
                     this.borderSize,
                     slotWidth,
-                    this.slotHeight,
+                    (this.theme.pointHeight || this.slotHeight),
                     true
                 );
             }
@@ -309,7 +309,7 @@ export class Renderer {
                     x,
                     y,
                     slotWidth,
-                    this.slotHeight,
+                    (this.theme.pointHeight || this.slotHeight),
                     false
                 );
             }
@@ -417,13 +417,22 @@ export class Renderer {
         
         // Altın Sarısı İnce Kakma Çerçeve
         this.ctx.lineWidth = 1.5;
-        this.ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+        this.ctx.strokeStyle = this.theme.pointStroke || 'rgba(212, 175, 55, 0.4)';
         this.ctx.stroke();
 
         // Hane Numaraları (Ağırbaşlı Altın Tonu)
-        this.ctx.fillStyle = '#d4af37'; 
-        this.ctx.font = 'bold 10px sans-serif';
-        this.ctx.fillText(slotId, x + (width / 2) - 6, isTop ? y + height + 15 : y - height - 5);
+        const numberY = isTop ? y + height + 16 : y - height - 7;
+        const numberX = x + (width / 2);
+        this.ctx.save();
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.font = 'bold 11px sans-serif';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeStyle = 'rgba(39, 20, 8, 0.78)';
+        this.ctx.strokeText(slotId, numberX, numberY);
+        this.ctx.fillStyle = this.theme.numberColor || '#d4af37';
+        this.ctx.fillText(slotId, numberX, numberY);
+        this.ctx.restore();
     }
 
     drawHighlightGlow(x, y, width, height, isTop) {
@@ -465,13 +474,13 @@ export class Renderer {
             
             const pieceGrad = this.ctx.createRadialGradient(centerX - 4, centerY - 4, 2, centerX, centerY, radius);
             if (slotData.player === 1) {
-                pieceGrad.addColorStop(0, '#ffffff');
-                pieceGrad.addColorStop(0.7, '#e6dec1');
-                pieceGrad.addColorStop(1, '#b5a982');
+                pieceGrad.addColorStop(0, '#f8efd9');
+                pieceGrad.addColorStop(0.72, '#dfcfaa');
+                pieceGrad.addColorStop(1, '#a98d60');
             } else {
-                pieceGrad.addColorStop(0, '#4a4a4a');
-                pieceGrad.addColorStop(0.7, '#212121');
-                pieceGrad.addColorStop(1, '#0a0a0a');
+                pieceGrad.addColorStop(0, '#554940');
+                pieceGrad.addColorStop(0.72, '#27201c');
+                pieceGrad.addColorStop(1, '#0d0a08');
             }
             this.ctx.fillStyle = pieceGrad;
             this.ctx.shadowColor = 'rgba(0,0,0,0.5)';
@@ -481,7 +490,7 @@ export class Renderer {
             
             // Kenar Çerçevesi
             this.ctx.lineWidth = 1.5; 
-            this.ctx.strokeStyle = slotData.player === 1 ? '#d4af37' : '#555555'; 
+            this.ctx.strokeStyle = slotData.player === 1 ? '#b99b61' : '#62554b'; 
             this.ctx.stroke();
             
             // Pulun İçindeki El Oyması Halka Detayı
@@ -529,6 +538,30 @@ export class Renderer {
         this.ctx.restore();
     }
 
+    drawTraySurface(x, y, width, height) {
+        const trayGradient = this.ctx.createLinearGradient(
+            x,
+            y,
+            x + width,
+            y + height
+        );
+        const trayColors = this.theme.tray || ['#261308', '#120905'];
+        trayGradient.addColorStop(0, trayColors[0]);
+        trayGradient.addColorStop(1, trayColors[1]);
+        this.ctx.fillStyle = trayGradient;
+        this.ctx.fillRect(x, y, width, height);
+
+        this.ctx.strokeStyle = 'rgba(215, 174, 92, 0.46)';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(x + 1, y + 1, width - 2, height - 2);
+
+        this.ctx.fillStyle = this.theme.trayInset || '#160b06';
+        this.ctx.fillRect(x + 7, y + 8, width - 14, height - 16);
+        this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.48)';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(x + 7, y + 8, width - 14, height - 16);
+    }
+
     drawBearOffTrays(game) {
         const wCollected = game.board.borneOff?.[1] ?? 0;
         const bCollected = game.board.borneOff?.[2] ?? 0;
@@ -545,8 +578,7 @@ export class Renderer {
             this.highlightedSlots.includes(25);
 
         // Siyah toplama tepsisi
-        this.ctx.fillStyle = 'rgba(15, 8, 3, 0.85)';
-        this.ctx.fillRect(
+        this.drawTraySurface(
             trayX,
             blackTrayY,
             this.trayWidth,
@@ -578,8 +610,7 @@ export class Renderer {
         );
 
         // Beyaz toplama tepsisi
-        this.ctx.fillStyle = 'rgba(15, 8, 3, 0.85)';
-        this.ctx.fillRect(
+        this.drawTraySurface(
             trayX,
             whiteTrayY,
             this.trayWidth,
