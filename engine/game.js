@@ -393,7 +393,7 @@ export class NardeGame {
         const requiredDice = new Set(this.getRequiredDiceValues());
         const compliant = [];
 
-        for (const sequence of this.getRuleCompliantDiceSequences(fromSlot)) {
+        for (const sequence of this.getAvailableDiceSequences()) {
             if (
                 sequence.length === 1 &&
                 !requiredDice.has(sequence[0])
