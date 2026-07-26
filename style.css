@@ -312,3 +312,14 @@ body {
     background: linear-gradient(to bottom, #2ecc71, #27ae60);
     box-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
 }
+
+/* Kullanılmış zarın artık oynanamayacağını açıkça gösterir. */
+.die {
+    transition: opacity 160ms ease, filter 160ms ease, transform 160ms ease;
+}
+
+.die.used {
+    opacity: 0.28;
+    filter: grayscale(1);
+    transform: scale(0.92);
+}
