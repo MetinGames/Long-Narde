@@ -9,7 +9,12 @@ export const THEMES = Object.freeze({
         bar: ['#190e07', '#2d1b0f', '#120a05'],
         gold: '#d4af37',
         lightPoint: ['#594028', '#3b2818'],
-        darkPoint: ['#1d120a', '#2c1b0f']
+        darkPoint: ['#1d120a', '#2c1b0f'],
+        pointHeight: 220,
+        pointStroke: 'rgba(212, 175, 55, 0.4)',
+        numberColor: '#f1cf65',
+        tray: ['#261308', '#120905'],
+        trayInset: '#160b06'
     }),
     anatolian: Object.freeze({
         id: 'anatolian',
@@ -23,9 +28,14 @@ export const THEMES = Object.freeze({
             'rgba(77, 41, 18, 0.62)'
         ],
         darkPoint: [
-            'rgba(57, 29, 14, 0.68)',
-            'rgba(91, 49, 23, 0.58)'
-        ]
+            'rgba(68, 37, 18, 0.34)',
+            'rgba(91, 49, 23, 0.28)'
+        ],
+        pointHeight: 178,
+        pointStroke: 'rgba(116, 76, 31, 0.48)',
+        numberColor: '#f7dc8a',
+        tray: ['#5a241f', '#2d100f'],
+        trayInset: '#3c1515'
     })
 });
 
