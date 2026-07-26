@@ -2,14 +2,13 @@
 
 export class Board {
     constructor() {
-        // 24 haneli tahta. İndeksler 1'den 24'e kadar.
+        // 24 haneli tahta. İndeksler 1'den 24'e kadar. (0. indeks kullanılmaz)
         this.slots = Array(25).fill(null).map(() => ({
             count: 0,   // Hanedeki pul sayısı
             player: null // Pulun sahibi (1: Beyaz, 2: Siyah, null: Boş)
         }));
     }
 
-    // Taşları Narde resmi kuralına göre başlangıç pozisyonuna getirir
     setupInitialPieces() {
         for (let i = 1; i <= 24; i++) {
             this.slots[i] = { count: 0, player: null };
@@ -20,11 +19,8 @@ export class Board {
 
         // SİYAH OYUNCU (2): 13. Haneye 15 Pul
         this.slots[13] = { count: 15, player: 2 };
-        
-        console.log("Narde resmi başlangıç dizilimi kuruldu.");
     }
 
-    // Bir haneden pul alıp başka haneye koyma simülasyonu
     movePiece(from, to) {
         if (this.slots[from].count <= 0) return false;
 
@@ -36,12 +32,11 @@ export class Board {
             this.slots[from].player = null;
         }
 
-        // Taş toplama hamlesi kontrolü
+        // Taş toplama hamlesi kontrolü (Bear-off)
         const isBearingOff = (player === 1 && to > 24) || (player === 2 && to > 12 && from <= 12);
         
         if (isBearingOff) {
-            console.log(`Oyuncu ${player} bir pul topladı!`);
-            return true; 
+            return true; // Pul tahtadan başarıyla çıkarıldı
         }
 
         // Normal haneye pul ekle
@@ -51,71 +46,85 @@ export class Board {
         return true;
     }
 
-    // Yan yana 6'lı blok (Prime) ve rakip taş engeli kontrolü
+    // YENİLENDİ: Döngüsel (Wrap-around) 6'lı blok kontrolü eklendi
     wouldCreateIllegalPrime(player, fromSlot, toSlot) {
-        const currentCount = this.slots[toSlot] ? this.slots[toSlot].count : 0;
-        const currentOwner = this.slots[toSlot] ? this.slots[toSlot].player : null;
+        // Hedef hamle yapılmış gibi sanal bir tahta dizisi oluşturuyoruz
+        const simulatedSlots = this.slots.map(slot => ({ ...slot }));
         
-        for (let start = 1; start <= 19; start++) {
+        simulatedSlots[fromSlot].count--;
+        if (simulatedSlots[fromSlot].count === 0) simulatedSlots[fromSlot].player = null;
+        
+        // Eğer pul toplanıyorsa blok oluşamaz
+        const isBearingOff = (player === 1 && toSlot > 24) || (player === 2 && toSlot > 12 && fromSlot <= 12);
+        if (!isBearingOff) {
+            simulatedSlots[toSlot].count++;
+            simulatedSlots[toSlot].player = player;
+        }
+
+        // 24 haneyi döngüsel olarak kontrol et
+        for (let start = 1; start <= 24; start++) {
             let consecutive = 0;
+            let primeEndSlot = -1;
+
             for (let offset = 0; offset < 6; offset++) {
-                const checkSlot = start + offset;
-                if (checkSlot > 24) continue;
+                let checkSlot = start + offset;
+                if (checkSlot > 24) checkSlot -= 24; // Siyah için 24'ten 1'e dönüş
 
-                const count = (checkSlot === toSlot) 
-                    ? (currentOwner === player ? currentCount + 1 : 1) 
-                    : (checkSlot === fromSlot ? this.slots[checkSlot].count - 1 : this.slots[checkSlot].count);
-                const owner = (checkSlot === toSlot) ? player : this.slots[checkSlot].player;
-
-                if (count > 0 && owner === player) {
+                if (simulatedSlots[checkSlot].count > 0 && simulatedSlots[checkSlot].player === player) {
                     consecutive++;
+                    primeEndSlot = checkSlot;
                 } else {
-                    consecutive = 0;
+                    break; // Zincir kırıldı
                 }
+            }
 
-                if (consecutive === 6) {
-                    const opponent = player === 1 ? 2 : 1;
-                    const primeEndSlot = checkSlot; 
-                    let opponentAhead = false;
-                    
-                    for (let i = 1; i <= 24; i++) {
-                        if (this.slots[i].player === opponent && this.slots[i].count > 0) {
-                            if (player === 1 && i > primeEndSlot) opponentAhead = true;
-                            if (player === 2) {
-                                const relOpponent = (i >= 13) ? (i - 12) : (i + 12);
-                                const relPrimeEnd = (primeEndSlot >= 13) ? (primeEndSlot - 12) : (primeEndSlot + 12);
-                                if (relOpponent > relPrimeEnd) opponentAhead = true;
+            // Eğer 6'lı bir duvar oluştuysa, rakibin önünde pulu var mı diye bak
+            if (consecutive === 6) {
+                const opponent = player === 1 ? 2 : 1;
+                let opponentAhead = false;
+                
+                for (let i = 1; i <= 24; i++) {
+                    if (simulatedSlots[i].player === opponent && simulatedSlots[i].count > 0) {
+                        if (player === 1 && i > primeEndSlot) {
+                            opponentAhead = true;
+                            break;
+                        }
+                        if (player === 2) {
+                            // Siyahın döngüsel (relative) pozisyon hesabı
+                            const relOpponent = (i >= 13) ? (i - 12) : (i + 12);
+                            const relPrimeEnd = (primeEndSlot >= 13) ? (primeEndSlot - 12) : (primeEndSlot + 12);
+                            if (relOpponent > relPrimeEnd) {
+                                opponentAhead = true;
+                                break;
                             }
                         }
                     }
-                    if (!opponentAhead) return true;
                 }
+                
+                // Rakibin önünde hiç pulu yoksa (yani tamamen hapsedildiyse) bu hamle YASAKTIR.
+                if (!opponentAhead) return true; 
             }
         }
         return false; 
     }
 
-    // Bir hamlenin kurallara göre geçerli olup olmadığını kontrol eder
     isValidMove(player, from, to) {
-        // 1. Seçilen hanede pul var mı ve oyuncunun kendisine mi ait?
         if (this.slots[from].player !== player || this.slots[from].count === 0) return false;
 
-        // 2. TAŞ TOPLAMA KONTROLÜ
         const isBearingOff = (player === 1 && to > 24) || (player === 2 && to > 12 && from <= 12);
         
         if (isBearingOff) {
             return this.areAllPiecesInHomeBoard(player);
         }
 
-        // 3. Normal Hamle Kontrolleri (Sınır dışı kontrolü)
         if (from < 1 || from > 24 || to < 1 || to > 24) return false;
 
-        // 4. Hedef hanede rakip oyuncu var mı? (Narde'da tek pul bile olsa üzerine basılamaz!)
+        // Hedef hanede rakip oyuncu var mı? (Narde'da vurma yoktur)
         if (this.slots[to].player !== null && this.slots[to].player !== player) {
             return false; 
         }
 
-        // 5. 6'lı İllegal Blok (Prime) Kontrolü
+        // 6'lı İllegal Blok (Prime) Kontrolü
         if (this.wouldCreateIllegalPrime(player, from, to)) {
             return false;
         }
@@ -123,15 +132,14 @@ export class Board {
         return true;
     }
 
-    // Oyuncunun tüm taşları toplama alanına girdi mi kontrolü
     areAllPiecesInHomeBoard(player) {
         if (player === 1) {
-            // Beyaz için toplama alanı: 19 - 24 arası haneler
+            // Beyaz ev: 19-24
             for (let i = 1; i <= 18; i++) {
                 if (this.slots[i].player === 1 && this.slots[i].count > 0) return false;
             }
         } else {
-            // Siyah için toplama alanı: 7 - 12 arası haneler
+            // Siyah ev: 7-12
             for (let i = 1; i <= 24; i++) {
                 if (i >= 7 && i <= 12) continue; 
                 if (this.slots[i].player === 2 && this.slots[i].count > 0) return false;
@@ -140,14 +148,12 @@ export class Board {
         return true;
     }
 
-    // Oyuncuların zar adımlarına göre hedef hanesini hesaplar
     calculateTargetSlot(player, from, steps) {
         if (player === 1) {
-            return from + steps; // Beyaz düz ilerler
+            return from + steps;
         } else {
-            // Siyah döngüsel ilerler (13 -> 24 -> 1 -> 12)
             let target = from + steps;
-            if (target > 24) {
+            if (from <= 24 && target > 24) {
                 target = target - 24;
             }
             return target;

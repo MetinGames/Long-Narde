@@ -9,7 +9,7 @@ export class NardeGame {
         this.currentPlayer = 1; 
         this.gameStatus = 'WAITING_FOR_DICE';
         this.availableMoves = []; 
-        this.hasMovedFromHeadThisTurn = false; 
+        this.headMovesThisTurn = 0; // YENİ: Baştan kaç taş çıkıldığını sayan değişken
         this.turnSnapshot = null;
     }
 
@@ -17,7 +17,7 @@ export class NardeGame {
         this.board.setupInitialPieces(); 
         this.currentPlayer = 1; 
         this.gameStatus = 'WAITING_FOR_DICE'; 
-        this.hasMovedFromHeadThisTurn = false; 
+        this.headMovesThisTurn = 0; 
         this.turnSnapshot = null; 
     }
 
@@ -26,9 +26,10 @@ export class NardeGame {
         const rollResult = this.dice.roll();
         this.availableMoves = [...rollResult.movesLeft]; 
         this.gameStatus = 'PLAYING';
+        this.headMovesThisTurn = 0; // Her zar atıldığında baştan çıkış sayısı sıfırlanır
         this.turnSnapshot = { 
             slotsBackup: JSON.parse(JSON.stringify(this.board.slots)), 
-            hasMovedFromHeadBackup: this.hasMovedFromHeadThisTurn, 
+            headMovesBackup: this.headMovesThisTurn, 
             initialAvailableMoves: [...this.availableMoves] 
         };
         return rollResult.values;
@@ -37,7 +38,7 @@ export class NardeGame {
     undoTurnMoves() {
         if (!this.turnSnapshot || this.gameStatus !== 'PLAYING') return false;
         this.board.slots = JSON.parse(JSON.stringify(this.turnSnapshot.slotsBackup)); 
-        this.hasMovedFromHeadThisTurn = this.turnSnapshot.hasMovedFromHeadBackup;
+        this.headMovesThisTurn = this.turnSnapshot.headMovesBackup;
         this.availableMoves = [...this.turnSnapshot.initialAvailableMoves]; 
         this.dice.movesLeft = [...this.turnSnapshot.initialAvailableMoves];
         return true;
@@ -46,7 +47,7 @@ export class NardeGame {
     confirmTurnEnd() { 
         this.currentPlayer = this.currentPlayer === 1 ? 2 : 1; 
         this.availableMoves = []; 
-        this.hasMovedFromHeadThisTurn = false; 
+        this.headMovesThisTurn = 0; 
         this.gameStatus = 'WAITING_FOR_DICE'; 
         this.turnSnapshot = null; 
     }
@@ -69,12 +70,17 @@ export class NardeGame {
         
         const headSlot = this.currentPlayer === 1 ? 1 : 13;
         
-        if (fromSlot === headSlot && this.hasMovedFromHeadThisTurn) {
-            const isSpecialDouble = this.dice.values[0] === this.dice.values[1] && 
-                                   [3, 4, 6].includes(this.dice.values[0]);
-            
-            if (!isSpecialDouble) {
-                return false;
+        // YENİ: Baştan çıkış kuralları (Head Rule)
+        if (fromSlot === headSlot) {
+            if (this.headMovesThisTurn >= 1) {
+                // Sadece 3-3, 4-4, 6-6 çift zarlarında ikinci taşı çıkmaya izin ver
+                const isSpecialDouble = this.dice.values[0] === this.dice.values[1] && 
+                                       [3, 4, 6].includes(this.dice.values[0]);
+                
+                // Eğer özel çift zar değilse veya zaten 2 taş çıkıldıysa, hamle geçersizdir.
+                if (!isSpecialDouble || this.headMovesThisTurn >= 2) {
+                    return false;
+                }
             }
         }
 
@@ -86,15 +92,16 @@ export class NardeGame {
         this.dice.useMove(diceValue);
         
         if (fromSlot === headSlot) {
-            this.hasMovedFromHeadThisTurn = true;
+            this.headMovesThisTurn++; // Çıkan taşı say
         }
         return true;
     }
+
     canPlayDiceSequence(fromSlot, diceValues) {
         const slotsBackup = JSON.parse(JSON.stringify(this.board.slots));
         const availableMovesBackup = [...this.availableMoves];
         const diceMovesBackup = [...this.dice.movesLeft];
-        const headMoveBackup = this.hasMovedFromHeadThisTurn;
+        const headMoveBackup = this.headMovesThisTurn;
 
         let currentSlot = fromSlot;
         let sequenceIsValid = true;
@@ -114,7 +121,6 @@ export class NardeGame {
 
             currentSlot = targetSlot;
 
-            // Taş toplandıysa aynı taşla başka zar oynanamaz.
             if (
                 (currentSlot < 1 || currentSlot > 24) &&
                 i < diceValues.length - 1
@@ -124,14 +130,14 @@ export class NardeGame {
             }
         }
 
-        // Bu yalnızca denemedir; tahtayı eski hâline getiriyoruz.
         this.board.slots = slotsBackup;
         this.availableMoves = availableMovesBackup;
         this.dice.movesLeft = diceMovesBackup;
-        this.hasMovedFromHeadThisTurn = headMoveBackup;
+        this.headMovesThisTurn = headMoveBackup;
 
         return sequenceIsValid ? currentSlot : null;
     }
+
     processPlayerInput(selectedId, targetId) {
         let steps = targetId - selectedId;
         if (this.currentPlayer === 2 && steps < 0) steps += 24;
@@ -153,7 +159,6 @@ export class NardeGame {
             if (chosenDiceValue !== null && this.executeMove(selectedId, chosenDiceValue)) return true;
         }
 
-        // ÇİFT ZAR KONTROLÜ
         const isDouble = this.availableMoves.length >= 2 && this.availableMoves[0] === this.availableMoves[1];
         if (isDouble) {
             const zarDegeri = this.availableMoves[0];
@@ -180,8 +185,6 @@ export class NardeGame {
 
         if (this.availableMoves.includes(steps) && this.executeMove(selectedId, steps)) return true;
         
-        // NORMAL FARKLI ZAR KOMBİNASYONU
-               // NORMAL FARKLI ZAR KOMBİNASYONU
         if (this.availableMoves.length >= 2 && !isDouble) {
             const zar1 = this.availableMoves[0];
             const zar2 = this.availableMoves[1];
@@ -224,7 +227,16 @@ export class NardeGame {
             const slot = this.board.slots[fromSlot];
             if (slot.player === this.currentPlayer && slot.count > 0) {
                 const headSlot = this.currentPlayer === 1 ? 1 : 13;
-                if (fromSlot === headSlot && this.hasMovedFromHeadThisTurn) continue;
+                
+                // YENİ: Geçerli hamle ararken de baştan çıkış sınırını kontrol et
+                if (fromSlot === headSlot) {
+                    if (this.headMovesThisTurn >= 1) {
+                        const isSpecialDouble = this.dice.values[0] === this.dice.values[1] && 
+                                               [3, 4, 6].includes(this.dice.values[0]);
+                        if (!isSpecialDouble || this.headMovesThisTurn >= 2) continue;
+                    }
+                }
+                
                 const uniqueMoves = [...new Set(this.availableMoves)];
                 for (let diceValue of uniqueMoves) {
                     const toSlot = this.board.calculateTargetSlot(this.currentPlayer, fromSlot, diceValue);

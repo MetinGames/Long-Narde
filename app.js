@@ -11,6 +11,7 @@ const ui = new UIManager();
 
 let selectedSlotId = null; 
 let turnTimerInterval = null;
+let turnEndTime = 0; // YENİ: Arka planda donmayı engelleyen mutlak zaman hedefi
 let timeLeft = 60; 
 
 const boardWidth = 800, boardHeight = 600, borderSize = 20, barWidth = 30;
@@ -19,33 +20,52 @@ window.addEventListener('DOMContentLoaded', () => {
     game.initGame();
     updateScreen();
 
-    // 1. ZAR ATMA VE ANİMASYON MOTORU
-    ui.rollButton.addEventListener('click', () => {
-        if (game.gameStatus === 'WAITING_FOR_DICE' && game.currentPlayer === 1) {
-            ui.rollButton.style.display = "none";
-            renderer.updateStatus("Zarlar çalkalanıyor...");
-
-            let count = 0;
-            const d1 = document.getElementById('die1'), d2 = document.getElementById('die2');
-            const anim = setInterval(() => {
-                if (d1) d1.textContent = Math.floor(Math.random() * 6) + 1;
-                if (d2) d2.textContent = Math.floor(Math.random() * 6) + 1;
-                if (++count >= 8) {
-                    clearInterval(anim);
-                    const zarlar = game.rollDice();
-                    selectedSlotId = null; 
-                    updateScreen();
-                    ui.setHumanPlayingLayout();
-                    
-                    // METİN HATASI BURADA DÜZELTİLDİ:
-                    const diceText = Array.isArray(zarlar) ? zarlar.join(', ') : zarlar;
-                    renderer.updateStatus(`Zarlar: ${diceText}. Hamlelerinizi yapın.`);
-                    
-                    startTurnTimer();
-                }
-            }, 60);
+    // OTOMATİK ZAR ATMA MOTORU
+    function startAutomaticDiceRoll() {
+        if (
+            game.gameStatus !== 'WAITING_FOR_DICE' ||
+            game.currentPlayer !== 1
+        ) {
+            return;
         }
-    });
+
+        ui.setBotTurnLayout();
+        renderer.updateStatus("Zarlar otomatik olarak atılıyor...");
+
+        let count = 0;
+        const d1 = document.getElementById('die1');
+        const d2 = document.getElementById('die2');
+
+        const anim = setInterval(() => {
+            if (d1) d1.textContent = Math.floor(Math.random() * 6) + 1;
+            if (d2) d2.textContent = Math.floor(Math.random() * 6) + 1;
+
+            count++;
+
+            if (count >= 10) {
+                clearInterval(anim);
+
+                const zarlar = game.rollDice();
+                selectedSlotId = null;
+
+                updateScreen();
+                ui.setHumanPlayingLayout();
+
+                const diceText = Array.isArray(zarlar)
+                    ? zarlar.join(', ')
+                    : zarlar;
+
+                renderer.updateStatus(
+                    `Zarlar: ${diceText}. Hamlelerinizi yapın.`
+                );
+
+                startTurnTimer();
+            }
+        }, 70);
+    }
+
+    // Oyun açıldıktan kısa süre sonra ilk zarlar otomatik atılır.
+    setTimeout(startAutomaticDiceRoll, 700);
 
     // RESTART BUTONU
     const rBtn = document.getElementById('restart-button');
@@ -61,18 +81,28 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // YENİ: MUTLAK ZAMANLAYICI (ABSOLUTE TIMER)
     function startTurnTimer() {
         clearInterval(turnTimerInterval); 
-        timeLeft = 60; 
+        const durationInSeconds = 60;
+        turnEndTime = Date.now() + (durationInSeconds * 1000); // Gelecekteki tam bitiş milisaniyesi
+        timeLeft = durationInSeconds;
         ui.updateTimerText(timeLeft);
+        
         turnTimerInterval = setInterval(() => {
-            ui.updateTimerText(--timeLeft);
+            const now = Date.now();
+            timeLeft = Math.ceil((turnEndTime - now) / 1000);
+
             if (timeLeft <= 0) {
+                timeLeft = 0;
+                ui.updateTimerText(timeLeft);
                 clearInterval(turnTimerInterval);
                 renderer.updateStatus(`Süre doldu! Hamle hakkınızı kaybettiniz.`);
                 forceSwitchTurn();
+            } else {
+                ui.updateTimerText(timeLeft);
             }
-        }, 1000);
+        }, 500); // 500ms'de bir kontrol et. Tarayıcı uyusa bile, uyanınca Date.now() affetmez.
     }
 
     function forceSwitchTurn() {
@@ -125,6 +155,7 @@ window.addEventListener('DOMContentLoaded', () => {
         updateScreen();
         ui.setHumanTurnLayout(); 
         renderer.updateStatus("Sıra size geçti! Zar atın.");
+        setTimeout(startAutomaticDiceRoll, 700);
     }
 
     function handleGameOver() {

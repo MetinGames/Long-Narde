@@ -12,7 +12,7 @@ export class UIManager {
     setHumanTurnLayout() {
         if (this.undoButton) this.undoButton.style.display = "none";
         if (this.confirmButton) this.confirmButton.style.display = "none";
-        if (this.rollButton) this.rollButton.style.display = "inline-block";
+        if (this.rollButton) this.rollButton.style.display = "none";
     }
 
     // İnsan zar attığında strateji butonlarını açar
