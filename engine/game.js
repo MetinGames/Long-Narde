@@ -11,7 +11,7 @@ export class NardeGame {
         this.availableMoves = [];
         this.headMovesThisTurn = 0;
         this.turnsCompleted = { 1: 0, 2: 0 };
-        this.turnSnapshot = null;
+        this.moveHistory = [];
     }
 
     createMoveStateSnapshot() {
@@ -40,7 +40,7 @@ export class NardeGame {
         this.availableMoves = [];
         this.headMovesThisTurn = 0;
         this.turnsCompleted = { 1: 0, 2: 0 };
-        this.turnSnapshot = null;
+        this.moveHistory = [];
     }
 
     isCurrentPlayersFirstTurn() {
@@ -70,28 +70,22 @@ export class NardeGame {
         this.availableMoves = [...rollResult.moves];
         this.gameStatus = 'PLAYING';
         this.headMovesThisTurn = 0;
-        this.turnSnapshot = {
-            slotsBackup: JSON.parse(JSON.stringify(this.board.slots)),
-            borneOffBackup: { ...this.board.borneOff },
-            headMovesBackup: 0,
-            initialAvailableMoves: [...this.availableMoves]
-        };
+        this.moveHistory = [];
 
         return rollResult.values;
     }
 
     undoTurnMoves() {
-        if (!this.turnSnapshot || this.gameStatus !== 'PLAYING') return false;
+        if (
+            this.gameStatus !== 'PLAYING' ||
+            this.moveHistory.length === 0
+        ) {
+            return false;
+        }
 
-        this.board.slots = JSON.parse(
-            JSON.stringify(this.turnSnapshot.slotsBackup)
-        );
-        this.board.borneOff = { ...this.turnSnapshot.borneOffBackup };
-        this.headMovesThisTurn = this.turnSnapshot.headMovesBackup;
-        this.availableMoves = [
-            ...this.turnSnapshot.initialAvailableMoves
-        ];
-
+        const previousMove =
+            this.moveHistory.pop();
+        this.restoreMoveState(previousMove);
         return true;
     }
 
@@ -102,7 +96,7 @@ export class NardeGame {
         this.availableMoves = [];
         this.headMovesThisTurn = 0;
         this.gameStatus = 'WAITING_FOR_DICE';
-        this.turnSnapshot = null;
+        this.moveHistory = [];
     }
 
     checkWinCondition() {
@@ -119,7 +113,7 @@ export class NardeGame {
         return 0;
     }
 
-    executeMove(fromSlot, diceValue) {
+    executeMove(fromSlot, diceValue, recordHistory = true) {
         if (this.gameStatus !== 'PLAYING') return false;
 
         const moveIndex = this.availableMoves.indexOf(diceValue);
@@ -140,12 +134,21 @@ export class NardeGame {
             return false;
         }
 
+        const moveSnapshot =
+            recordHistory
+                ? this.createMoveStateSnapshot()
+                : null;
+
         if (!this.board.movePiece(fromSlot, toSlot)) return false;
 
         this.availableMoves.splice(moveIndex, 1);
 
         if (fromSlot === headSlot) {
             this.headMovesThisTurn++;
+        }
+
+        if (moveSnapshot) {
+            this.moveHistory.push(moveSnapshot);
         }
 
         return true;
@@ -169,7 +172,7 @@ export class NardeGame {
                 const beforeBorneOff =
                     this.board.borneOff[this.currentPlayer];
 
-                if (!this.executeMove(currentSlot, diceValue)) {
+                if (!this.executeMove(currentSlot, diceValue, false)) {
                     valid = false;
                     break;
                 }
@@ -214,6 +217,7 @@ export class NardeGame {
         if (!simulation.valid) return false;
 
         const snapshot = this.createMoveStateSnapshot();
+        const historyLength = this.moveHistory.length;
         let currentSlot = fromSlot;
 
         try {
@@ -229,6 +233,7 @@ export class NardeGame {
 
                 if (!this.executeMove(currentSlot, diceValue)) {
                     this.restoreMoveState(snapshot);
+                    this.moveHistory.length = historyLength;
                     return false;
                 }
 
@@ -245,6 +250,7 @@ export class NardeGame {
             return true;
         } catch (error) {
             this.restoreMoveState(snapshot);
+            this.moveHistory.length = historyLength;
             throw error;
         }
     }
