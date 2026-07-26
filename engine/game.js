@@ -283,6 +283,176 @@ export class NardeGame {
         return sequences.sort((a, b) => a.length - b.length);
     }
 
+    getRawLegalSingleMoves() {
+        if (
+            this.gameStatus !== 'PLAYING' ||
+            this.availableMoves.length === 0
+        ) {
+            return [];
+        }
+
+        const legalMoves = [];
+        const uniqueDice = [...new Set(this.availableMoves)];
+
+        for (let fromSlot = 1; fromSlot <= 24; fromSlot++) {
+            const source = this.board.slots[fromSlot];
+            if (
+                source.player !== this.currentPlayer ||
+                source.count <= 0
+            ) {
+                continue;
+            }
+
+            for (const diceValue of uniqueDice) {
+                const result = this.simulateDiceSequence(
+                    fromSlot,
+                    [diceValue]
+                );
+                if (!result.valid) continue;
+
+                legalMoves.push({
+                    from: fromSlot,
+                    dice: diceValue,
+                    target: result.borneOffCount > 0
+                        ? 25
+                        : result.targetSlot
+                });
+            }
+        }
+
+        return legalMoves;
+    }
+
+    getMaximumPlayableMoveCount() {
+        if (this.availableMoves.length === 0) return 0;
+
+        const legalMoves = this.getRawLegalSingleMoves();
+        if (legalMoves.length === 0) return 0;
+
+        let maximum = 0;
+
+        for (const move of legalMoves) {
+            const snapshot = this.createMoveStateSnapshot();
+
+            try {
+                if (!this.executeMove(move.from, move.dice, false)) {
+                    continue;
+                }
+
+                maximum = Math.max(
+                    maximum,
+                    1 + this.getMaximumPlayableMoveCount()
+                );
+            } finally {
+                this.restoreMoveState(snapshot);
+            }
+        }
+
+        return maximum;
+    }
+
+    getRequiredDiceValues() {
+        const maximum = this.getMaximumPlayableMoveCount();
+        if (maximum === 0) return [];
+
+        const legalMoves = this.getRawLegalSingleMoves();
+
+        // İki farklı zardan yalnız biri oynanabiliyorsa büyük zar zorunludur.
+        if (maximum === 1) {
+            return [Math.max(...legalMoves.map(move => move.dice))];
+        }
+
+        const required = new Set();
+
+        for (const move of legalMoves) {
+            const snapshot = this.createMoveStateSnapshot();
+
+            try {
+                if (!this.executeMove(move.from, move.dice, false)) {
+                    continue;
+                }
+
+                if (
+                    1 + this.getMaximumPlayableMoveCount() ===
+                    maximum
+                ) {
+                    required.add(move.dice);
+                }
+            } finally {
+                this.restoreMoveState(snapshot);
+            }
+        }
+
+        return [...required];
+    }
+
+    getRuleCompliantDiceSequences(fromSlot) {
+        const maximum = this.getMaximumPlayableMoveCount();
+        if (maximum === 0) return [];
+
+        const requiredDice = new Set(this.getRequiredDiceValues());
+        const compliant = [];
+
+        for (const sequence of this.getRuleCompliantDiceSequences(fromSlot)) {
+            if (
+                sequence.length === 1 &&
+                !requiredDice.has(sequence[0])
+            ) {
+                continue;
+            }
+
+            const simulation = this.simulateDiceSequence(
+                fromSlot,
+                sequence
+            );
+            if (!simulation.valid) continue;
+
+            const snapshot = this.createMoveStateSnapshot();
+            let currentSlot = fromSlot;
+            let executed = 0;
+
+            try {
+                for (const diceValue of sequence) {
+                    const targetSlot =
+                        this.board.calculateTargetSlot(
+                            this.currentPlayer,
+                            currentSlot,
+                            diceValue
+                        );
+                    const beforeBorneOff =
+                        this.board.borneOff[this.currentPlayer];
+
+                    if (!this.executeMove(currentSlot, diceValue, false)) {
+                        break;
+                    }
+
+                    executed++;
+
+                    if (
+                        this.board.borneOff[this.currentPlayer] >
+                        beforeBorneOff
+                    ) {
+                        break;
+                    }
+
+                    currentSlot = targetSlot;
+                }
+
+                if (
+                    executed === sequence.length &&
+                    executed + this.getMaximumPlayableMoveCount() ===
+                    maximum
+                ) {
+                    compliant.push(sequence);
+                }
+            } finally {
+                this.restoreMoveState(snapshot);
+            }
+        }
+
+        return compliant;
+    }
+
     getLegalTargets(fromSlot) {
         if (
             this.gameStatus !== 'PLAYING' ||
@@ -310,7 +480,7 @@ export class NardeGame {
 
         const targets = [];
 
-        for (const sequence of this.getAvailableDiceSequences()) {
+        for (const sequence of this.getRuleCompliantDiceSequences(fromSlot)) {
             const result = this.simulateDiceSequence(
                 fromSlot,
                 sequence
@@ -331,7 +501,7 @@ export class NardeGame {
     }
 
     findSequenceForTarget(fromSlot, targetId) {
-        for (const sequence of this.getAvailableDiceSequences()) {
+        for (const sequence of this.getRuleCompliantDiceSequences(fromSlot)) {
             const result = this.simulateDiceSequence(
                 fromSlot,
                 sequence
