@@ -262,6 +262,53 @@ export class NardeGame {
         return sequences.sort((a, b) => a.length - b.length);
     }
 
+    getLegalTargets(fromSlot) {
+        if (
+            this.gameStatus !== 'PLAYING' ||
+            fromSlot < 1 ||
+            fromSlot > 24
+        ) {
+            return [];
+        }
+
+        const source = this.board.slots[fromSlot];
+        if (
+            source.player !== this.currentPlayer ||
+            source.count <= 0
+        ) {
+            return [];
+        }
+
+        const headSlot = this.board.getHeadSlot(this.currentPlayer);
+        if (
+            fromSlot === headSlot &&
+            !this.canMoveFromHead()
+        ) {
+            return [];
+        }
+
+        const targets = [];
+
+        for (const sequence of this.getAvailableDiceSequences()) {
+            const result = this.simulateDiceSequence(
+                fromSlot,
+                sequence
+            );
+            if (!result.valid) continue;
+
+            if (result.borneOffCount > 0) {
+                targets.push(25);
+            } else if (
+                result.targetSlot >= 1 &&
+                result.targetSlot <= 24
+            ) {
+                targets.push(result.targetSlot);
+            }
+        }
+
+        return [...new Set(targets)];
+    }
+
     findSequenceForTarget(fromSlot, targetId) {
         for (const sequence of this.getAvailableDiceSequences()) {
             const result = this.simulateDiceSequence(
