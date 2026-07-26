@@ -90,10 +90,49 @@ export class Renderer {
         if (game.dice.values && game.dice.values.length > 0) {
             if (this.die1Text) this.die1Text.textContent = game.dice.values[0];
             if (this.die2Text) this.die2Text.textContent = game.dice.values[1];
+            this.updateDiceAvailability(game);
         } else {
             if (this.die1Text) this.die1Text.textContent = '-';
             if (this.die2Text) this.die2Text.textContent = '-';
+            this.setDieUsed(this.die1Text, false);
+            this.setDieUsed(this.die2Text, false);
         }
+    }
+
+    setDieUsed(element, isUsed) {
+        if (!element) return;
+        element.classList.toggle('used', isUsed);
+    }
+
+    updateDiceAvailability(game) {
+        const [die1, die2] = game.dice.values;
+        const remaining = game.availableMoves;
+
+        if (die1 === die2) {
+            const movesLeft = remaining.filter(
+                value => value === die1
+            ).length;
+            const allUsed = movesLeft === 0;
+
+            this.setDieUsed(this.die1Text, allUsed);
+            this.setDieUsed(this.die2Text, allUsed);
+
+            const title = allUsed
+                ? 'Bu zarın tüm hamleleri kullanıldı'
+                : `Kalan hamle: ${movesLeft}`;
+            if (this.die1Text) this.die1Text.title = title;
+            if (this.die2Text) this.die2Text.title = title;
+            return;
+        }
+
+        this.setDieUsed(
+            this.die1Text,
+            !remaining.includes(die1)
+        );
+        this.setDieUsed(
+            this.die2Text,
+            !remaining.includes(die2)
+        );
     }
 
     getSlotX(colIndex, slotWidth, innerWidth) {
@@ -259,44 +298,10 @@ export class Renderer {
     }
 
     calculateHighlights(game, selectedSlotId) {
-        this.highlightedSlots = [];
-
-        if (
-            selectedSlotId === null ||
-            game.gameStatus !== 'PLAYING'
-        ) {
-            return;
-        }
-
-        const headSlot = game.board.getHeadSlot(game.currentPlayer);
-        if (
-            selectedSlotId === headSlot &&
-            !game.canMoveFromHead()
-        ) {
-            return;
-        }
-
-        for (const sequence of game.getAvailableDiceSequences()) {
-            const result = game.simulateDiceSequence(
-                selectedSlotId,
-                sequence
-            );
-
-            if (!result.valid) continue;
-
-            if (result.borneOffCount > 0) {
-                this.highlightedSlots.push(25);
-            } else if (
-                result.targetSlot >= 1 &&
-                result.targetSlot <= 24
-            ) {
-                this.highlightedSlots.push(result.targetSlot);
-            }
-        }
-
-        this.highlightedSlots = [
-            ...new Set(this.highlightedSlots)
-        ];
+        this.highlightedSlots =
+            selectedSlotId === null
+                ? []
+                : game.getLegalTargets(selectedSlotId);
     }
 
     updateStatus(message) { if (this.statusMessage) this.statusMessage.textContent = message; }
