@@ -284,6 +284,39 @@ function getSlotFromCoordinates(x, y) {
         : 13 + colIndex;
 }
 
+function explainUnplayableSlot(slotId) {
+    const headSlot = game.board.getHeadSlot(game.currentPlayer);
+
+    if (
+        slotId === headSlot &&
+        !game.canMoveFromHead()
+    ) {
+        renderer.updateStatus(
+            'Bu tur başlangıçtan başka pul çıkaramazsınız.'
+        );
+    } else {
+        renderer.updateStatus(
+            'Bu pul mevcut zarlarla oynanamıyor.'
+        );
+    }
+}
+
+function selectPlayableSlot(slotId) {
+    const legalTargets = game.getLegalTargets(slotId);
+
+    if (legalTargets.length === 0) {
+        selectedSlotId = null;
+        updateScreen();
+        explainUnplayableSlot(slotId);
+        return false;
+    }
+
+    selectedSlotId = slotId;
+    updateScreen();
+    renderer.updateStatus('Işıklı hedeflerden birini seçin.');
+    return true;
+}
+
 function handleSlotClick(slotId) {
     if (
         game.gameStatus !== 'PLAYING' ||
@@ -301,8 +334,7 @@ function handleSlotClick(slotId) {
             clickedSlot.player === game.currentPlayer &&
             clickedSlot.count > 0
         ) {
-            selectedSlotId = slotId;
-            updateScreen();
+            selectPlayableSlot(slotId);
         }
         return;
     }
@@ -310,6 +342,38 @@ function handleSlotClick(slotId) {
     if (selectedSlotId === slotId) {
         selectedSlotId = null;
         updateScreen();
+        renderer.updateStatus('Pul seçimi kaldırıldı.');
+        return;
+    }
+
+    const legalTargets =
+        game.getLegalTargets(selectedSlotId);
+
+    // Hedefte kendi pulumuz olsa bile önce hamleyi uygula.
+    if (legalTargets.includes(slotId)) {
+        if (!game.processPlayerInput(selectedSlotId, slotId)) {
+            renderer.updateStatus(
+                'Hamle uygulanamadı. Lütfen yeniden seçin.'
+            );
+            return;
+        }
+
+        selectedSlotId = null;
+        totalMoveCounter++;
+        updateScreen();
+
+        const winner = game.checkWinCondition();
+        if (winner !== 0) {
+            showGameOver(winner);
+            return;
+        }
+
+        if (
+            game.availableMoves.length === 0 ||
+            !game.hasValidMoves()
+        ) {
+            renderer.updateStatus('Hamleniz tamamlandı.');
+        }
         return;
     }
 
@@ -318,32 +382,13 @@ function handleSlotClick(slotId) {
         clickedSlot.player === game.currentPlayer &&
         clickedSlot.count > 0
     ) {
-        selectedSlotId = slotId;
-        updateScreen();
+        selectPlayableSlot(slotId);
         return;
     }
 
-    if (!game.processPlayerInput(selectedSlotId, slotId)) {
-        renderer.updateStatus('Bu hedefe geçerli bir hamle yapılamıyor.');
-        return;
-    }
-
-    selectedSlotId = null;
-    totalMoveCounter++;
-    updateScreen();
-
-    const winner = game.checkWinCondition();
-    if (winner !== 0) {
-        showGameOver(winner);
-        return;
-    }
-
-    if (
-        game.availableMoves.length === 0 ||
-        !game.hasValidMoves()
-    ) {
-        renderer.updateStatus('Hamleniz tamamlandı.');
-    }
+    renderer.updateStatus(
+        'Işıklı hedeflerden birini seçmelisiniz.'
+    );
 }
 
 function bindEvents() {
