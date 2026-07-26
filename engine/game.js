@@ -90,7 +90,48 @@ export class NardeGame {
         }
         return true;
     }
+    canPlayDiceSequence(fromSlot, diceValues) {
+        const slotsBackup = JSON.parse(JSON.stringify(this.board.slots));
+        const availableMovesBackup = [...this.availableMoves];
+        const diceMovesBackup = [...this.dice.movesLeft];
+        const headMoveBackup = this.hasMovedFromHeadThisTurn;
 
+        let currentSlot = fromSlot;
+        let sequenceIsValid = true;
+
+        for (let i = 0; i < diceValues.length; i++) {
+            const diceValue = diceValues[i];
+            const targetSlot = this.board.calculateTargetSlot(
+                this.currentPlayer,
+                currentSlot,
+                diceValue
+            );
+
+            if (!this.executeMove(currentSlot, diceValue)) {
+                sequenceIsValid = false;
+                break;
+            }
+
+            currentSlot = targetSlot;
+
+            // Taş toplandıysa aynı taşla başka zar oynanamaz.
+            if (
+                (currentSlot < 1 || currentSlot > 24) &&
+                i < diceValues.length - 1
+            ) {
+                sequenceIsValid = false;
+                break;
+            }
+        }
+
+        // Bu yalnızca denemedir; tahtayı eski hâline getiriyoruz.
+        this.board.slots = slotsBackup;
+        this.availableMoves = availableMovesBackup;
+        this.dice.movesLeft = diceMovesBackup;
+        this.hasMovedFromHeadThisTurn = headMoveBackup;
+
+        return sequenceIsValid ? currentSlot : null;
+    }
     processPlayerInput(selectedId, targetId) {
         let steps = targetId - selectedId;
         if (this.currentPlayer === 2 && steps < 0) steps += 24;
@@ -140,21 +181,36 @@ export class NardeGame {
         if (this.availableMoves.includes(steps) && this.executeMove(selectedId, steps)) return true;
         
         // NORMAL FARKLI ZAR KOMBİNASYONU
+               // NORMAL FARKLI ZAR KOMBİNASYONU
         if (this.availableMoves.length >= 2 && !isDouble) {
-            const zar1 = this.availableMoves[0]; 
+            const zar1 = this.availableMoves[0];
             const zar2 = this.availableMoves[1];
-            if (zar1 + zar2 === steps) {
-                const araDurak1 = this.board.calculateTargetSlot(this.currentPlayer, selectedId, zar1);
-                if (this.board.isValidMove(this.currentPlayer, selectedId, araDurak1)) {
-                    this.executeMove(selectedId, zar1); 
-                    this.executeMove(araDurak1, zar2);
-                    return true;
-                }
-                
-                const araDurak2 = this.board.calculateTargetSlot(this.currentPlayer, selectedId, zar2);
-                if (this.board.isValidMove(this.currentPlayer, selectedId, araDurak2)) {
-                    this.executeMove(selectedId, zar2); 
-                    this.executeMove(araDurak2, zar1);
+
+            const oynamaSiraları = [
+                [zar1, zar2],
+                [zar2, zar1]
+            ];
+
+            for (const zarSirasi of oynamaSiraları) {
+                const toplamHedef = this.canPlayDiceSequence(
+                    selectedId,
+                    zarSirasi
+                );
+
+                if (toplamHedef === targetId) {
+                    let aktifHane = selectedId;
+
+                    for (const zar of zarSirasi) {
+                        const sonrakiHane = this.board.calculateTargetSlot(
+                            this.currentPlayer,
+                            aktifHane,
+                            zar
+                        );
+
+                        this.executeMove(aktifHane, zar);
+                        aktifHane = sonrakiHane;
+                    }
+
                     return true;
                 }
             }

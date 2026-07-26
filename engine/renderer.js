@@ -109,21 +109,40 @@ export class Renderer {
                 }
             }
             
-            if (game.availableMoves.length >= 2) {
-                const zar1 = game.availableMoves[0]; 
+                       if (game.availableMoves.length >= 2) {
+                const zar1 = game.availableMoves[0];
                 const zar2 = game.availableMoves[1];
-                
-                const ara1 = game.board.calculateTargetSlot(game.currentPlayer, selectedSlotId, zar1);
-                const hedef1 = game.board.calculateTargetSlot(game.currentPlayer, ara1, zar2);
-                if (game.board.isValidMove(game.currentPlayer, selectedSlotId, ara1) && game.board.isValidMove(game.currentPlayer, ara1, hedef1)) {
-                    this.highlightedSlots.push(hedef1);
+
+                // Önce birinci, sonra ikinci zar
+                const toplamHedef1 = game.canPlayDiceSequence(
+                    selectedSlotId,
+                    [zar1, zar2]
+                );
+
+                // Önce ikinci, sonra birinci zar
+                const toplamHedef2 = game.canPlayDiceSequence(
+                    selectedSlotId,
+                    [zar2, zar1]
+                );
+
+                if (
+                    toplamHedef1 !== null &&
+                    toplamHedef1 >= 1 &&
+                    toplamHedef1 <= 24
+                ) {
+                    this.highlightedSlots.push(toplamHedef1);
                 }
 
-                const ara2 = game.board.calculateTargetSlot(game.currentPlayer, selectedSlotId, zar2);
-                const hedef2 = game.board.calculateTargetSlot(game.currentPlayer, ara2, zar1);
-                if (game.board.isValidMove(game.currentPlayer, selectedSlotId, ara2) && game.board.isValidMove(game.currentPlayer, ara2, hedef2)) {
-                    this.highlightedSlots.push(hedef2);
+                if (
+                    toplamHedef2 !== null &&
+                    toplamHedef2 >= 1 &&
+                    toplamHedef2 <= 24
+                ) {
+                    this.highlightedSlots.push(toplamHedef2);
                 }
+
+                // Aynı hedef iki defa eklendiyse teke indir.
+                                this.highlightedSlots = [...new Set(this.highlightedSlots)];
             }
         }
     }
