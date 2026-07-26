@@ -6,16 +6,17 @@ import {
     getSlotX
 } from './layout.js';
 import { getTheme } from './themes.js';
+import { assets } from './assets.js';
 
 export class Renderer {
     constructor() {
         this.canvas = document.getElementById('game-canvas');
-        if (this.canvas) this.ctx = this.canvas.getContext('2d');
-        
-        this.currentPlayerText = document.getElementById('current-player');
+        this.currentPlayerText =
+            document.getElementById('current-player');
         this.die1Text = document.getElementById('die1');
         this.die2Text = document.getElementById('die2');
-        this.statusMessage = document.getElementById('status-message');
+        this.statusMessage =
+            document.getElementById('status-message');
 
         this.boardWidth = BOARD_LAYOUT.width;
         this.boardHeight = BOARD_LAYOUT.height;
@@ -23,82 +24,326 @@ export class Renderer {
         this.barWidth = BOARD_LAYOUT.bar;
         this.trayWidth = BOARD_LAYOUT.tray;
         this.slotHeight = BOARD_LAYOUT.slotHeight;
+        this.pixelRatio = 1;
         this.theme = getTheme('walnut');
+        this.boardArtwork = null;
         this.highlightedSlots = [];
+        this.staticBoardCanvas = null;
+        this.staticBoardDirty = true;
+
+        this.prepareCanvas();
     }
 
-    render(game, selectedSlotId = null) {
-        if (!this.ctx) {
-            this.canvas = document.getElementById('game-canvas');
-            if (!this.canvas) return;
-            this.ctx = this.canvas.getContext('2d');
+    prepareCanvas() {
+        if (!this.canvas) return;
+
+        this.pixelRatio = Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+        this.canvas.width =
+            this.boardWidth * this.pixelRatio;
+        this.canvas.height =
+            this.boardHeight * this.pixelRatio;
+        this.canvas.style.aspectRatio =
+            `${this.boardWidth} / ${this.boardHeight}`;
+        this.canvas.dataset.logicalWidth = this.boardWidth;
+        this.canvas.dataset.logicalHeight = this.boardHeight;
+
+        this.ctx = this.canvas.getContext('2d');
+        this.ctx.setTransform(
+            this.pixelRatio,
+            0,
+            0,
+            this.pixelRatio,
+            0,
+            0
+        );
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+        this.staticBoardDirty = true;
+    }
+
+    async initialize() {
+        try {
+            await assets.loadImage(
+                'board.anatolian',
+                'boards/anadolu-ustasi-board-v1.webp'
+            );
+        } catch {
+            // Görsel yüklenemezse çizim tabanlı tema çalışmaya devam eder.
         }
 
-        this.calculateHighlights(game, selectedSlotId);
+        const savedTheme =
+            localStorage.getItem('narde-theme') || 'anatolian';
+        this.setTheme(savedTheme);
+    }
 
-        // --- LÜKS MASİF CEVİZ DIŞ ÇERÇEVE ---
-        this.ctx.clearRect(0, 0, this.boardWidth, this.boardHeight);
-        
-        const frameGrad = this.ctx.createLinearGradient(0, 0, this.boardWidth, this.boardHeight);
+    setTheme(themeId) {
+        this.theme = getTheme(themeId);
+        this.boardArtwork =
+            this.theme.artwork
+                ? assets.getImage('board.anatolian')
+                : null;
+
+        localStorage.setItem('narde-theme', this.theme.id);
+        this.staticBoardDirty = true;
+    }
+
+    drawBoardSurface(innerWidth, barX) {
+        if (this.boardArtwork) {
+            this.ctx.drawImage(
+                this.boardArtwork,
+                0,
+                0,
+                this.boardWidth,
+                this.boardHeight
+            );
+            return;
+        }
+
+        const frameGrad = this.ctx.createLinearGradient(
+            0,
+            0,
+            this.boardWidth,
+            this.boardHeight
+        );
         frameGrad.addColorStop(0, this.theme.frame[0]);
         frameGrad.addColorStop(0.5, this.theme.frame[1]);
         frameGrad.addColorStop(1, this.theme.frame[2]);
         this.ctx.fillStyle = frameGrad;
-        this.ctx.fillRect(0, 0, this.boardWidth, this.boardHeight);
-        
-        // İç Tahta (Kadife Dokulu Derin Kahve Zemin)
-        const innerWidth = this.boardWidth - (this.borderSize * 2) - this.trayWidth;
-        const boardGrad = this.ctx.createLinearGradient(this.borderSize, this.borderSize, this.borderSize + innerWidth, this.boardHeight);
+        this.ctx.fillRect(
+            0,
+            0,
+            this.boardWidth,
+            this.boardHeight
+        );
+
+        const boardGrad = this.ctx.createLinearGradient(
+            this.borderSize,
+            this.borderSize,
+            this.borderSize + innerWidth,
+            this.boardHeight
+        );
         boardGrad.addColorStop(0, this.theme.board[0]);
         boardGrad.addColorStop(1, this.theme.board[1]);
         this.ctx.fillStyle = boardGrad;
-        this.ctx.fillRect(this.borderSize, this.borderSize, innerWidth, this.boardHeight - (this.borderSize * 2));
-        
-        // Orta Bar (Masif İşlemeli Ahşap Sütun)
-        const barX = this.borderSize + (innerWidth / 2) - (this.barWidth / 2);
-        const barGrad = this.ctx.createLinearGradient(barX, this.borderSize, barX + this.barWidth, this.boardHeight);
+        this.ctx.fillRect(
+            this.borderSize,
+            this.borderSize,
+            innerWidth,
+            this.boardHeight - (this.borderSize * 2)
+        );
+
+        const barGrad = this.ctx.createLinearGradient(
+            barX,
+            this.borderSize,
+            barX + this.barWidth,
+            this.boardHeight
+        );
         barGrad.addColorStop(0, this.theme.bar[0]);
         barGrad.addColorStop(0.5, this.theme.bar[1]);
         barGrad.addColorStop(1, this.theme.bar[2]);
         this.ctx.fillStyle = barGrad;
-        this.ctx.fillRect(barX, this.borderSize, this.barWidth, this.boardHeight - (this.borderSize * 2));
+        this.ctx.fillRect(
+            barX,
+            this.borderSize,
+            this.barWidth,
+            this.boardHeight - (this.borderSize * 2)
+        );
 
-        // Bar Üstüne İnce Altın Çizgi Gölgeleri
         this.ctx.strokeStyle = 'rgba(212, 175, 55, 0.15)';
         this.ctx.lineWidth = 1;
-        this.ctx.strokeRect(barX, this.borderSize, this.barWidth, this.boardHeight - (this.borderSize * 2));
+        this.ctx.strokeRect(
+            barX,
+            this.borderSize,
+            this.barWidth,
+            this.boardHeight - (this.borderSize * 2)
+        );
+    }
 
+    rebuildStaticBoard() {
+        const canvas = document.createElement('canvas');
+        canvas.width = this.boardWidth * this.pixelRatio;
+        canvas.height = this.boardHeight * this.pixelRatio;
+
+        const backgroundContext = canvas.getContext('2d');
+        backgroundContext.setTransform(
+            this.pixelRatio,
+            0,
+            0,
+            this.pixelRatio,
+            0,
+            0
+        );
+        backgroundContext.imageSmoothingEnabled = true;
+        backgroundContext.imageSmoothingQuality = 'high';
+
+        const visibleContext = this.ctx;
+        this.ctx = backgroundContext;
+
+        const innerWidth =
+            this.boardWidth -
+            (this.borderSize * 2) -
+            this.trayWidth;
+        const barX =
+            this.borderSize +
+            (innerWidth / 2) -
+            (this.barWidth / 2);
         const usableWidth = innerWidth - this.barWidth;
         const slotWidth = usableWidth / 12;
-        const slotHeight = this.slotHeight;
 
-        // Üst Haneler (1-12)
-        for (let i = 12; i >= 1; i--) {
-            const colIndex = 12 - i; 
-            const x = getSlotX(colIndex, slotWidth);
-            this.drawMastermindTriangle(x, this.borderSize, slotWidth, slotHeight, true, i, i % 2 === 0);
-            if (this.highlightedSlots.includes(i)) this.drawHighlightGlow(x, this.borderSize, slotWidth, slotHeight, true);
-            this.drawMastermindPieces(x, this.borderSize, slotWidth, game.board.slots[i], true, selectedSlotId === i);
+        this.ctx.clearRect(
+            0,
+            0,
+            this.boardWidth,
+            this.boardHeight
+        );
+        this.drawBoardSurface(innerWidth, barX);
+
+        for (let slotId = 12; slotId >= 1; slotId--) {
+            const columnIndex = 12 - slotId;
+            const x = getSlotX(columnIndex, slotWidth);
+            this.drawMastermindTriangle(
+                x,
+                this.borderSize,
+                slotWidth,
+                this.slotHeight,
+                true,
+                slotId,
+                slotId % 2 === 0
+            );
         }
 
-        // Alt Haneler (13-24)
-        for (let i = 13; i <= 24; i++) {
-            const colIndex = i - 13; 
-            const x = getSlotX(colIndex, slotWidth); 
+        for (let slotId = 13; slotId <= 24; slotId++) {
+            const columnIndex = slotId - 13;
+            const x = getSlotX(columnIndex, slotWidth);
+            this.drawMastermindTriangle(
+                x,
+                this.boardHeight - this.borderSize,
+                slotWidth,
+                this.slotHeight,
+                false,
+                slotId,
+                slotId % 2 === 0
+            );
+        }
+
+        this.ctx = visibleContext;
+        this.staticBoardCanvas = canvas;
+        this.staticBoardDirty = false;
+    }
+
+    render(game, selectedSlotId = null) {
+        if (!this.ctx) {
+            this.canvas =
+                document.getElementById('game-canvas');
+            if (!this.canvas) return;
+            this.prepareCanvas();
+        }
+
+        this.calculateHighlights(game, selectedSlotId);
+
+        if (
+            this.staticBoardDirty ||
+            !this.staticBoardCanvas
+        ) {
+            this.rebuildStaticBoard();
+        }
+
+        this.ctx.clearRect(
+            0,
+            0,
+            this.boardWidth,
+            this.boardHeight
+        );
+        this.ctx.drawImage(
+            this.staticBoardCanvas,
+            0,
+            0,
+            this.staticBoardCanvas.width,
+            this.staticBoardCanvas.height,
+            0,
+            0,
+            this.boardWidth,
+            this.boardHeight
+        );
+
+        const innerWidth =
+            this.boardWidth -
+            (this.borderSize * 2) -
+            this.trayWidth;
+        const usableWidth = innerWidth - this.barWidth;
+        const slotWidth = usableWidth / 12;
+
+        for (let slotId = 12; slotId >= 1; slotId--) {
+            const columnIndex = 12 - slotId;
+            const x = getSlotX(columnIndex, slotWidth);
+
+            if (this.highlightedSlots.includes(slotId)) {
+                this.drawHighlightGlow(
+                    x,
+                    this.borderSize,
+                    slotWidth,
+                    this.slotHeight,
+                    true
+                );
+            }
+            this.drawMastermindPieces(
+                x,
+                this.borderSize,
+                slotWidth,
+                game.board.slots[slotId],
+                true,
+                selectedSlotId === slotId
+            );
+        }
+
+        for (let slotId = 13; slotId <= 24; slotId++) {
+            const columnIndex = slotId - 13;
+            const x = getSlotX(columnIndex, slotWidth);
             const y = this.boardHeight - this.borderSize;
-            this.drawMastermindTriangle(x, y, slotWidth, slotHeight, false, i, i % 2 === 0);
-            if (this.highlightedSlots.includes(i)) this.drawHighlightGlow(x, y, slotWidth, slotHeight, false);
-            this.drawMastermindPieces(x, y, slotWidth, game.board.slots[i], false, selectedSlotId === i);
+
+            if (this.highlightedSlots.includes(slotId)) {
+                this.drawHighlightGlow(
+                    x,
+                    y,
+                    slotWidth,
+                    this.slotHeight,
+                    false
+                );
+            }
+            this.drawMastermindPieces(
+                x,
+                y,
+                slotWidth,
+                game.board.slots[slotId],
+                false,
+                selectedSlotId === slotId
+            );
         }
 
-        // Toplama Tepsileri ve Pip Sayacı
         this.drawBearOffTrays(game);
 
-        // UI Metin Güncellemeleri
-        if (this.currentPlayerText) this.currentPlayerText.textContent = game.currentPlayer === 1 ? t('player.white') : t('player.black');
-        if (game.dice.values && game.dice.values.length > 0) {
-            if (this.die1Text) this.die1Text.textContent = game.dice.values[0];
-            if (this.die2Text) this.die2Text.textContent = game.dice.values[1];
+        if (this.currentPlayerText) {
+            this.currentPlayerText.textContent =
+                game.currentPlayer === 1
+                    ? t('player.white')
+                    : t('player.black');
+        }
+
+        if (
+            game.dice.values &&
+            game.dice.values.length > 0
+        ) {
+            if (this.die1Text) {
+                this.die1Text.textContent =
+                    game.dice.values[0];
+            }
+            if (this.die2Text) {
+                this.die2Text.textContent =
+                    game.dice.values[1];
+            }
             this.updateDiceAvailability(game);
         } else {
             if (this.die1Text) this.die1Text.textContent = '-';
@@ -161,11 +406,11 @@ export class Renderer {
         // Sedef ve Maun Kontrast Geçişleri
         const triGrad = this.ctx.createLinearGradient(x, y, x + width, y + (isTop ? height : -height));
         if (isEven) {
-            triGrad.addColorStop(0, '#594028');
-            triGrad.addColorStop(1, '#3b2818');
+            triGrad.addColorStop(0, this.theme.lightPoint[0]);
+            triGrad.addColorStop(1, this.theme.lightPoint[1]);
         } else {
-            triGrad.addColorStop(0, '#1d120a');
-            triGrad.addColorStop(1, '#2c1b0f');
+            triGrad.addColorStop(0, this.theme.darkPoint[0]);
+            triGrad.addColorStop(1, this.theme.darkPoint[1]);
         }
         this.ctx.fillStyle = triGrad;
         this.ctx.fill();
