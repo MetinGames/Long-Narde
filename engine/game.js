@@ -14,10 +14,27 @@ export class NardeGame {
         this.turnSnapshot = null;
     }
 
+    createMoveStateSnapshot() {
+        return {
+            slots: JSON.parse(JSON.stringify(this.board.slots)),
+            borneOff: { ...this.board.borneOff },
+            availableMoves: [...this.availableMoves],
+            headMoves: this.headMovesThisTurn
+        };
+    }
+
+    restoreMoveState(snapshot) {
+        this.board.slots = JSON.parse(
+            JSON.stringify(snapshot.slots)
+        );
+        this.board.borneOff = { ...snapshot.borneOff };
+        this.availableMoves = [...snapshot.availableMoves];
+        this.headMovesThisTurn = snapshot.headMoves;
+    }
+
     initGame() {
         this.board.setupInitialPieces();
-        this.dice.values = [];
-        this.dice.movesLeft = [];
+        this.dice.reset();
         this.currentPlayer = 1;
         this.gameStatus = 'WAITING_FOR_DICE';
         this.availableMoves = [];
@@ -50,7 +67,7 @@ export class NardeGame {
         if (this.gameStatus !== 'WAITING_FOR_DICE') return null;
 
         const rollResult = this.dice.roll();
-        this.availableMoves = [...rollResult.movesLeft];
+        this.availableMoves = [...rollResult.moves];
         this.gameStatus = 'PLAYING';
         this.headMovesThisTurn = 0;
         this.turnSnapshot = {
@@ -74,9 +91,6 @@ export class NardeGame {
         this.availableMoves = [
             ...this.turnSnapshot.initialAvailableMoves
         ];
-        this.dice.movesLeft = [
-            ...this.turnSnapshot.initialAvailableMoves
-        ];
 
         return true;
     }
@@ -86,7 +100,6 @@ export class NardeGame {
         this.turnsCompleted[endingPlayer]++;
         this.currentPlayer = endingPlayer === 1 ? 2 : 1;
         this.availableMoves = [];
-        this.dice.movesLeft = [];
         this.headMovesThisTurn = 0;
         this.gameStatus = 'WAITING_FOR_DICE';
         this.turnSnapshot = null;
@@ -130,7 +143,6 @@ export class NardeGame {
         if (!this.board.movePiece(fromSlot, toSlot)) return false;
 
         this.availableMoves.splice(moveIndex, 1);
-        this.dice.useMove(diceValue);
 
         if (fromSlot === headSlot) {
             this.headMovesThisTurn++;
@@ -140,59 +152,53 @@ export class NardeGame {
     }
 
     simulateDiceSequence(fromSlot, diceValues) {
-        const backup = {
-            slots: JSON.parse(JSON.stringify(this.board.slots)),
-            borneOff: { ...this.board.borneOff },
-            availableMoves: [...this.availableMoves],
-            diceMoves: [...this.dice.movesLeft],
-            headMoves: this.headMovesThisTurn
-        };
-
+        const snapshot = this.createMoveStateSnapshot();
         let currentSlot = fromSlot;
         let valid = true;
         let borneOffCount = 0;
 
-        for (let i = 0; i < diceValues.length; i++) {
-            const diceValue = diceValues[i];
-            const targetSlot = this.board.calculateTargetSlot(
-                this.currentPlayer,
-                currentSlot,
-                diceValue
-            );
-            const beforeBorneOff =
-                this.board.borneOff[this.currentPlayer];
+        try {
+            for (let i = 0; i < diceValues.length; i++) {
+                const diceValue = diceValues[i];
+                const targetSlot =
+                    this.board.calculateTargetSlot(
+                        this.currentPlayer,
+                        currentSlot,
+                        diceValue
+                    );
+                const beforeBorneOff =
+                    this.board.borneOff[this.currentPlayer];
 
-            if (!this.executeMove(currentSlot, diceValue)) {
-                valid = false;
-                break;
-            }
-
-            const wasBorneOff =
-                this.board.borneOff[this.currentPlayer] > beforeBorneOff;
-            if (wasBorneOff) {
-                borneOffCount++;
-
-                // Toplanan aynı pul kalan zarlarla tekrar oynanamaz.
-                if (i < diceValues.length - 1) {
+                if (!this.executeMove(currentSlot, diceValue)) {
                     valid = false;
+                    break;
                 }
-                break;
+
+                const wasBorneOff =
+                    this.board.borneOff[this.currentPlayer] >
+                    beforeBorneOff;
+
+                if (wasBorneOff) {
+                    borneOffCount++;
+
+                    // Toplanan pul kalan zarlarla tekrar oynanamaz.
+                    if (i < diceValues.length - 1) {
+                        valid = false;
+                    }
+                    break;
+                }
+
+                currentSlot = targetSlot;
             }
 
-            currentSlot = targetSlot;
+            return {
+                valid,
+                targetSlot: currentSlot,
+                borneOffCount
+            };
+        } finally {
+            this.restoreMoveState(snapshot);
         }
-
-        this.board.slots = backup.slots;
-        this.board.borneOff = backup.borneOff;
-        this.availableMoves = backup.availableMoves;
-        this.dice.movesLeft = backup.diceMoves;
-        this.headMovesThisTurn = backup.headMoves;
-
-        return {
-            valid,
-            targetSlot: currentSlot,
-            borneOffCount
-        };
     }
 
     canPlayDiceSequence(fromSlot, diceValues) {
@@ -207,31 +213,40 @@ export class NardeGame {
         );
         if (!simulation.valid) return false;
 
+        const snapshot = this.createMoveStateSnapshot();
         let currentSlot = fromSlot;
-        for (const diceValue of diceValues) {
-            const targetSlot = this.board.calculateTargetSlot(
-                this.currentPlayer,
-                currentSlot,
-                diceValue
-            );
-            const beforeBorneOff =
-                this.board.borneOff[this.currentPlayer];
 
-            if (!this.executeMove(currentSlot, diceValue)) {
-                return false;
+        try {
+            for (const diceValue of diceValues) {
+                const targetSlot =
+                    this.board.calculateTargetSlot(
+                        this.currentPlayer,
+                        currentSlot,
+                        diceValue
+                    );
+                const beforeBorneOff =
+                    this.board.borneOff[this.currentPlayer];
+
+                if (!this.executeMove(currentSlot, diceValue)) {
+                    this.restoreMoveState(snapshot);
+                    return false;
+                }
+
+                if (
+                    this.board.borneOff[this.currentPlayer] >
+                    beforeBorneOff
+                ) {
+                    break;
+                }
+
+                currentSlot = targetSlot;
             }
 
-            if (
-                this.board.borneOff[this.currentPlayer] >
-                beforeBorneOff
-            ) {
-                break;
-            }
-
-            currentSlot = targetSlot;
+            return true;
+        } catch (error) {
+            this.restoreMoveState(snapshot);
+            throw error;
         }
-
-        return true;
     }
 
     getAvailableDiceSequences() {
