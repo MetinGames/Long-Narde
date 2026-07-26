@@ -10,24 +10,18 @@ import {
     setLanguage,
     t
 } from './engine/i18n.js';
+import { DiceRollAnimation } from './engine/animations.js';
+import { bindCanvasInput } from './engine/input.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
 const bot = new NardeBot(2, 'medium');
 const ui = new UIManager();
-
-const BOARD = {
-    width: 800,
-    height: 600,
-    border: 20,
-    bar: 30,
-    tray: 55
-};
+const diceRollAnimation = new DiceRollAnimation();
 
 let selectedSlotId = null;
 let totalMoveCounter = 0;
 let turnTimerInterval = null;
-let diceAnimationInterval = null;
 let turnEndTime = 0;
 let scheduledTimeouts = new Set();
 
@@ -42,9 +36,8 @@ function schedule(callback, delay) {
 
 function clearRuntimeTasks() {
     clearInterval(turnTimerInterval);
-    clearInterval(diceAnimationInterval);
     turnTimerInterval = null;
-    diceAnimationInterval = null;
+    diceRollAnimation.stop();
 
     for (const timeoutId of scheduledTimeouts) {
         clearTimeout(timeoutId);
@@ -128,19 +121,8 @@ function startAutomaticDiceRoll() {
 
     const die1 = document.getElementById('die1');
     const die2 = document.getElementById('die2');
-    let frame = 0;
 
-    clearInterval(diceAnimationInterval);
-    diceAnimationInterval = setInterval(() => {
-        if (die1) die1.textContent = Math.floor(Math.random() * 6) + 1;
-        if (die2) die2.textContent = Math.floor(Math.random() * 6) + 1;
-
-        frame++;
-        if (frame < 10) return;
-
-        clearInterval(diceAnimationInterval);
-        diceAnimationInterval = null;
-
+    diceRollAnimation.start(die1, die2, () => {
         const diceValues = game.rollDice();
         selectedSlotId = null;
         updateScreen();
@@ -148,22 +130,24 @@ function startAutomaticDiceRoll() {
         if (rollingPlayer === 1) {
             ui.setHumanPlayingLayout();
             renderer.updateStatus(
-                t('status.rolledYou', { dice: diceValues.join(', ') })
+                t('status.rolledYou', {
+                    dice: diceValues.join(', ')
+                })
             );
             startHumanTimer();
 
             if (!game.hasValidMoves()) {
-                renderer.updateStatus(
-                    t('status.noMoves')
-                );
+                renderer.updateStatus(t('status.noMoves'));
             }
         } else {
             renderer.updateStatus(
-                t('status.rolledBot', { dice: diceValues.join(', ') })
+                t('status.rolledBot', {
+                    dice: diceValues.join(', ')
+                })
             );
             schedule(runBotMove, 550);
         }
-    }, 70);
+    });
 }
 
 function runBotMove() {
@@ -242,52 +226,6 @@ function restartGame() {
     renderer.updateStatus(t('status.starting'));
 
     schedule(startAutomaticDiceRoll, 650);
-}
-
-function getSlotFromCoordinates(x, y) {
-    const {
-        width,
-        height,
-        border,
-        bar,
-        tray
-    } = BOARD;
-
-    if (
-        x >= width - border - tray &&
-        x <= width - border &&
-        y >= border &&
-        y <= height - border
-    ) {
-        return 25;
-    }
-
-    if (
-        x < border ||
-        x > width - border - tray ||
-        y < border ||
-        y > height - border
-    ) {
-        return null;
-    }
-
-    const usableWidth = width - (border * 2) - bar - tray;
-    const slotWidth = usableWidth / 12;
-    const middleBarX = border + (usableWidth / 2);
-
-    if (x >= middleBarX && x < middleBarX + bar) {
-        return null;
-    }
-
-    const colIndex = x < middleBarX
-        ? Math.floor((x - border) / slotWidth)
-        : Math.floor((x - border - bar) / slotWidth);
-
-    if (colIndex < 0 || colIndex > 11) return null;
-
-    return y < (height / 2)
-        ? 12 - colIndex
-        : 13 + colIndex;
 }
 
 function explainUnplayableSlot(slotId) {
@@ -464,22 +402,11 @@ function bindEvents() {
         finishCurrentTurn();
     });
 
-    canvas?.addEventListener('click', event => {
-        if (
-            game.currentPlayer !== 1 ||
-            game.gameStatus !== 'PLAYING'
-        ) {
-            return;
-        }
-
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        const x = (event.clientX - rect.left) * scaleX;
-        const y = (event.clientY - rect.top) * scaleY;
-        const slotId = getSlotFromCoordinates(x, y);
-
-        if (slotId !== null) handleSlotClick(slotId);
+    bindCanvasInput(canvas, {
+        canInteract: () =>
+            game.currentPlayer === 1 &&
+            game.gameStatus === 'PLAYING',
+        onSlotClick: handleSlotClick
     });
 
     document.addEventListener('visibilitychange', () => {
