@@ -313,7 +313,16 @@ function selectPlayableSlot(slotId) {
 
     selectedSlotId = slotId;
     updateScreen();
-    renderer.updateStatus('Işıklı hedeflerden birini seçin.');
+
+    if (legalTargets.includes(25)) {
+        renderer.updateStatus(
+            'Pulu toplamak için sağdaki parlayan TOPLA alanına tıklayın.'
+        );
+    } else {
+        renderer.updateStatus(
+            'Işıklı hedeflerden birini seçin.'
+        );
+    }
     return true;
 }
 
