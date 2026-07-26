@@ -54,21 +54,6 @@ body {
     gap: 15px;
 }
 
-#roll-button {
-    background-color: #e67e22;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-#roll-button:hover {
-    background-color: #d35400;
-}
-
 #dice-display {
     display: flex;
     gap: 8px;
