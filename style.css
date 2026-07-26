@@ -13,55 +13,61 @@ body {
     align-items: center;
     min-height: 100vh;
     color: white;
-    overflow: hidden;
+    overflow: hidden; /* Tarayıcıda kaydırma çubuklarını tamamen engeller */
 }
 
 #game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
 
-/* Bilgi Paneli */
+/* Bilgi Paneli - Sabit Yükseklik Verildi */
 #info-panel {
     background-color: #34495e;
-    padding: 15px 30px;
+    padding: 10px 20px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 800px; /* Canvas genişliğiyle eşitledik */
+    width: 800px;
+    height: 70px; /* Sabit dikey yükseklik: İçindeki metin uzasa da asla büyümez! */
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    overflow: hidden;
 }
 
 #dice-container {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
 }
 
-#roll-button {
-    background-color: #e67e22;
+#roll-button, #undo-button, #confirm-button {
     color: white;
     border: none;
-    padding: 8px 16px;
-    font-size: 16px;
+    padding: 8px 14px;
+    font-size: 14px;
     font-weight: bold;
     border-radius: 4px;
     cursor: pointer;
     transition: background 0.2s;
 }
 
-#roll-button:hover {
-    background-color: #d35400;
-}
+#roll-button { background-color: #e67e22; }
+#roll-button:hover { background-color: #d35400; }
+
+#undo-button { background-color: #c0392b; }
+#undo-button:hover { background-color: #962d22; }
+
+#confirm-button { background-color: #27ae60; }
+#confirm-button:hover { background-color: #1e8449; }
 
 .die {
     background-color: white;
     color: #333;
-    width: 35px;
-    height: 35px;
+    width: 32px;
+    height: 32px;
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -71,51 +77,34 @@ body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Canvas Stil Değerleri */
-#game-canvas {
-    background-color: #1e4620;
-    border-radius: 6px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
-    cursor: pointer;
-}
-/* style.css dosyasının en altına ekleyin */
-#undo-button {
-    background-color: #c0392b;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-#undo-button:hover { background-color: #962d22; }
-
-#confirm-button {
-    background-color: #27ae60;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-#confirm-button:hover { background-color: #1e8449; }
-/* style.css dosyasının en altına ekleyin */
 #timer-container {
     background-color: #2c3e50;
     padding: 6px 12px;
     border-radius: 4px;
     border: 1px solid #e74c3c;
     font-weight: bold;
-    color: #e74c3c; /* Canlı Kırmızı Sayaç Rengi */
-    font-size: 16px;
-    box-shadow: 0 0 10px rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    font-size: 14px;
 }
-/* style.css dosyasının en altına ekleyin */
+
+/* Durum mesajının paneli daraltmaması için esnek yapısı */
+#status-message {
+    font-size: 13px;
+    max-width: 250px;
+    text-align: right;
+    opacity: 0.9;
+    white-space: normal; /* Yazı sığmazsa alt satıra geçer, paneli büyütmez */
+}
+
+/* Canvas Dünya Standartlarında Sabitlendi */
+#game-canvas {
+    background-color: #1e4620;
+    border-radius: 6px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+    cursor: pointer;
+}
+
+/* Oyun Bitti Ekranı */
 #game-over-overlay {
     position: fixed;
     top: 0;
@@ -139,28 +128,9 @@ body {
     animation: popIn 0.3s ease-out;
 }
 
-#game-over-box h2 {
-    font-size: 32px;
-    margin-bottom: 10px;
-    color: #e67e22;
-}
-
-#game-over-box p {
-    font-size: 18px;
-    margin-bottom: 25px;
-}
-
-#restart-button {
-    background-color: #27ae60;
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
+#game-over-box h2 { font-size: 32px; margin-bottom: 10px; color: #e67e22; }
+#game-over-box p { font-size: 18px; margin-bottom: 25px; }
+#restart-button { background-color: #27ae60; color: white; border: none; padding: 12px 30px; font-size: 18px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
 #restart-button:hover { background-color: #219653; }
 
 @keyframes popIn {

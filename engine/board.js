@@ -2,8 +2,7 @@
 
 export class Board {
     constructor() {
-        // 24 haneli tahta. İndeksler kolaylık olsun diye 1'den 24'e kadar olacak.
-        // 0. indeksi kullanmayacağız, kafamız karışmasın.
+        // 24 haneli tahta. İndeksler 1'den 24'e kadar.
         this.slots = Array(25).fill(null).map(() => ({
             count: 0,   // Hanedeki pul sayısı
             player: null // Pulun sahibi (1: Beyaz, 2: Siyah, null: Boş)
@@ -12,15 +11,14 @@ export class Board {
 
     // Taşları Narde resmi kuralına göre başlangıç pozisyonuna getirir
     setupInitialPieces() {
-        // Tüm tahtayı temizle
         for (let i = 1; i <= 24; i++) {
             this.slots[i] = { count: 0, player: null };
         }
 
-        // BEYAZ OYUNCU (1) BAŞLANGICI: 1. Haneye 15 Pul (Beyazın Baş / Home noktası)
+        // BEYAZ OYUNCU (1): 1. Haneye 15 Pul
         this.slots[1] = { count: 15, player: 1 };
 
-        // SİYAH OYUNCU (2) BAŞLANGICI: 13. Haneye 15 Pul (Siyahın Baş / Home noktası)
+        // SİYAH OYUNCU (2): 13. Haneye 15 Pul
         this.slots[13] = { count: 15, player: 2 };
         
         console.log("Narde resmi başlangıç dizilimi kuruldu.");
@@ -38,7 +36,7 @@ export class Board {
             this.slots[from].player = null;
         }
 
-        // Eğer hamle bir taş toplama hamlesiyse (yani tahta dışına çıktıysa)
+        // Taş toplama hamlesi kontrolü
         const isBearingOff = (player === 1 && to > 24) || (player === 2 && to > 12 && from <= 12);
         
         if (isBearingOff) {
@@ -51,6 +49,50 @@ export class Board {
         this.slots[to].player = player;
 
         return true;
+    }
+
+    // Yan yana 6'lı blok (Prime) ve rakip taş engeli kontrolü
+    wouldCreateIllegalPrime(player, fromSlot, toSlot) {
+        const currentCount = this.slots[toSlot] ? this.slots[toSlot].count : 0;
+        const currentOwner = this.slots[toSlot] ? this.slots[toSlot].player : null;
+        
+        for (let start = 1; start <= 19; start++) {
+            let consecutive = 0;
+            for (let offset = 0; offset < 6; offset++) {
+                const checkSlot = start + offset;
+                if (checkSlot > 24) continue;
+
+                const count = (checkSlot === toSlot) 
+                    ? (currentOwner === player ? currentCount + 1 : 1) 
+                    : (checkSlot === fromSlot ? this.slots[checkSlot].count - 1 : this.slots[checkSlot].count);
+                const owner = (checkSlot === toSlot) ? player : this.slots[checkSlot].player;
+
+                if (count > 0 && owner === player) {
+                    consecutive++;
+                } else {
+                    consecutive = 0;
+                }
+
+                if (consecutive === 6) {
+                    const opponent = player === 1 ? 2 : 1;
+                    const primeEndSlot = checkSlot; 
+                    let opponentAhead = false;
+                    
+                    for (let i = 1; i <= 24; i++) {
+                        if (this.slots[i].player === opponent && this.slots[i].count > 0) {
+                            if (player === 1 && i > primeEndSlot) opponentAhead = true;
+                            if (player === 2) {
+                                const relOpponent = (i >= 13) ? (i - 12) : (i + 12);
+                                const relPrimeEnd = (primeEndSlot >= 13) ? (primeEndSlot - 12) : (primeEndSlot + 12);
+                                if (relOpponent > relPrimeEnd) opponentAhead = true;
+                            }
+                        }
+                    }
+                    if (!opponentAhead) return true;
+                }
+            }
+        }
+        return false; 
     }
 
     // Bir hamlenin kurallara göre geçerli olup olmadığını kontrol eder
@@ -71,6 +113,11 @@ export class Board {
         // 4. Hedef hanede rakip oyuncu var mı? (Narde'da tek pul bile olsa üzerine basılamaz!)
         if (this.slots[to].player !== null && this.slots[to].player !== player) {
             return false; 
+        }
+
+        // 5. 6'lı İllegal Blok (Prime) Kontrolü
+        if (this.wouldCreateIllegalPrime(player, from, to)) {
+            return false;
         }
 
         return true;

@@ -33,9 +33,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (++count >= 8) {
                     clearInterval(anim);
                     const zarlar = game.rollDice();
-                    selectedSlotId = null; updateScreen();
+                    selectedSlotId = null; 
+                    updateScreen();
                     ui.setHumanPlayingLayout();
-                    renderer.updateStatus(`Zarlar: ${zarlar} - ${zarlar}. Hamlelerinizi yapın.`);
+                    
+                    // METİN HATASI BURADA DÜZELTİLDİ:
+                    const diceText = Array.isArray(zarlar) ? zarlar.join(', ') : zarlar;
+                    renderer.updateStatus(`Zarlar: ${diceText}. Hamlelerinizi yapın.`);
+                    
                     startTurnTimer();
                 }
             }, 60);
@@ -48,14 +53,18 @@ window.addEventListener('DOMContentLoaded', () => {
         rBtn.addEventListener('click', () => {
             document.getElementById('game-over-overlay').style.display = "none";
             clearInterval(turnTimerInterval);
-            game.initGame(); selectedSlotId = null; updateScreen();
+            game.initGame(); 
+            selectedSlotId = null; 
+            updateScreen();
             ui.setHumanTurnLayout();
             renderer.updateStatus("Yeni oyun başladı! Zar atın.");
         });
     }
 
     function startTurnTimer() {
-        clearInterval(turnTimerInterval); timeLeft = 60; ui.updateTimerText(timeLeft);
+        clearInterval(turnTimerInterval); 
+        timeLeft = 60; 
+        ui.updateTimerText(timeLeft);
         turnTimerInterval = setInterval(() => {
             ui.updateTimerText(--timeLeft);
             if (timeLeft <= 0) {
@@ -67,9 +76,16 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     function forceSwitchTurn() {
-        clearInterval(turnTimerInterval); game.confirmTurnEnd(); selectedSlotId = null; updateScreen();
-        if (game.currentPlayer === 2) { ui.setBotTurnLayout(); triggerBotTurnSequence(); }
-        else { ui.setHumanTurnLayout(); }
+        clearInterval(turnTimerInterval); 
+        game.confirmTurnEnd(); 
+        selectedSlotId = null; 
+        updateScreen();
+        if (game.currentPlayer === 2) { 
+            ui.setBotTurnLayout(); 
+            triggerBotTurnSequence(); 
+        } else { 
+            ui.setHumanTurnLayout(); 
+        }
     }
 
     function triggerBotTurnSequence() {
@@ -77,8 +93,12 @@ window.addEventListener('DOMContentLoaded', () => {
             renderer.updateStatus("Bilgisayar sırası: Zar atılıyor...");
             startTurnTimer();
             setTimeout(() => {
-                const zarlar = game.rollDice(); updateScreen();
-                renderer.updateStatus(`Bilgisayar zar attı: ${zarlar} - ${zarlar}. Düşünüyor...`);
+                const zarlar = game.rollDice(); 
+                updateScreen();
+                
+                const diceText = Array.isArray(zarlar) ? zarlar.join(', ') : zarlar;
+                renderer.updateStatus(`Bilgisayar zar attı: ${diceText}. Düşünüyor...`);
+                
                 setTimeout(() => runBotMoves(), 1200);
             }, 1000);
         }
@@ -89,16 +109,22 @@ window.addEventListener('DOMContentLoaded', () => {
         if (game.availableMoves.length === 0 || !game.hasValidMoves()) { endBotTurnSuccessfully(); return; }
 
         const bestMove = bot.makeDecision(game);
-        if (bestMove === null || bestMove.length === 0) { endBotTurnSuccessfully(); return; }
+        if (!bestMove) { endBotTurnSuccessfully(); return; }
 
-        game.executeMove(bestMove.from, bestMove.dice); updateScreen();
-        if (game.gameStatus === 'GAME_OVER') { handleGameOver(); return; }
+        game.executeMove(bestMove.from, bestMove.dice); 
+        updateScreen();
+        
+        if (game.checkWinCondition() !== 0) { handleGameOver(); return; }
         setTimeout(() => runBotMoves(), 1000);
     }
 
     function endBotTurnSuccessfully() {
-        clearInterval(turnTimerInterval); game.confirmTurnEnd(); selectedSlotId = null; updateScreen();
-        ui.setHumanTurnLayout(); renderer.updateStatus("Sıra size geçti! Zar atın.");
+        clearInterval(turnTimerInterval); 
+        game.confirmTurnEnd(); 
+        selectedSlotId = null; 
+        updateScreen();
+        ui.setHumanTurnLayout(); 
+        renderer.updateStatus("Sıra size geçti! Zar atın.");
     }
 
     function handleGameOver() {
@@ -114,16 +140,24 @@ window.addEventListener('DOMContentLoaded', () => {
 
     ui.undoButton.addEventListener('click', () => {
         if (game.currentPlayer === 1 && game.undoTurnMoves()) {
-            selectedSlotId = null; updateScreen(); renderer.updateStatus("Tüm hamleleriniz geri alındı!");
+            selectedSlotId = null; 
+            updateScreen(); 
+            renderer.updateStatus("Tüm hamleleriniz geri alındı!");
         }
     });
 
     ui.confirmButton.addEventListener('click', () => {
         if (game.currentPlayer === 1) {
             if (game.availableMoves.length === 0 || !game.hasValidMoves()) {
-                clearInterval(turnTimerInterval); game.confirmTurnEnd(); selectedSlotId = null; updateScreen();
-                ui.setBotTurnLayout(); triggerBotTurnSequence();
-            } else { renderer.updateStatus(`Henüz oynamadığınız zarlarınız var!`); }
+                clearInterval(turnTimerInterval); 
+                game.confirmTurnEnd(); 
+                selectedSlotId = null; 
+                updateScreen();
+                ui.setBotTurnLayout(); 
+                triggerBotTurnSequence();
+            } else { 
+                renderer.updateStatus(`Henüz oynamadığınız zarlarınız var!`); 
+            }
         }
     });
 
@@ -150,16 +184,26 @@ function handleSlotClick(slotId) {
     const slot = game.board.slots[slotId];
 
     if (selectedSlotId === null) {
-        if (slot.player === game.currentPlayer && slot.count > 0) { selectedSlotId = slotId; updateScreen(); }
+        if (slot.player === game.currentPlayer && slot.count > 0) { 
+            selectedSlotId = slotId; 
+            updateScreen(); 
+        }
     } else {
-        if (selectedSlotId === slotId) { selectedSlotId = null; updateScreen(); return; }
+        if (selectedSlotId === slotId) { 
+            selectedSlotId = null; 
+            updateScreen(); 
+            return; 
+        }
 
-        // TÜM MATEMATİKSEL İŞLEMİ game.js İÇİNDEKİ YENİ FONKSİYONA PASLADIK!
         const hamleBasarili = game.processPlayerInput(selectedSlotId, slotId);
         
         if (hamleBasarili) {
-            selectedSlotId = null; updateScreen();
-            if (game.gameStatus === 'GAME_OVER') document.getElementById('game-over-overlay').style.display = "flex";
+            selectedSlotId = null; 
+            updateScreen();
+            if (game.checkWinCondition() !== 0) {
+                const overlay = document.getElementById('game-over-overlay');
+                if (overlay) overlay.style.display = "flex";
+            }
         }
     }
 }
