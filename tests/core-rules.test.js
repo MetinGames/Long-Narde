@@ -259,3 +259,54 @@ test('daha geride pul varsa öndeki pul büyük zarla toplanamaz', () => {
         player: 1
     });
 });
+
+test('ilk tur özel çiftinde baştan en fazla iki pul çıkar', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [3, 3, 3, 3],
+        pieces: [
+            { slot: 1, count: 15, owner: 1 }
+        ]
+    });
+    game.dice.values = [3, 3];
+    game.turnsCompleted = { 1: 0, 2: 0 };
+
+    assert.equal(game.processPlayerInput(1, 4), true);
+    assert.equal(game.processPlayerInput(1, 4), true);
+    assert.equal(game.processPlayerInput(1, 4), false);
+    assert.equal(game.headMovesThisTurn, 2);
+    assert.equal(game.board.slots[1].count, 13);
+});
+
+test('ilk turda özel olmayan çiftte baştan yalnız bir pul çıkar', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [5, 5, 5, 5],
+        pieces: [
+            { slot: 1, count: 15, owner: 1 }
+        ]
+    });
+    game.dice.values = [5, 5];
+    game.turnsCompleted = { 1: 0, 2: 0 };
+
+    assert.equal(game.processPlayerInput(1, 6), true);
+    assert.equal(game.processPlayerInput(1, 6), false);
+    assert.equal(game.headMovesThisTurn, 1);
+    assert.equal(game.board.slots[1].count, 14);
+});
+
+test('özel çift daha sonraki turlarda ikinci baş puluna izin vermez', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [6, 6, 6, 6],
+        pieces: [
+            { slot: 1, count: 15, owner: 1 }
+        ]
+    });
+    game.dice.values = [6, 6];
+    game.turnsCompleted = { 1: 1, 2: 1 };
+
+    assert.equal(game.processPlayerInput(1, 7), true);
+    assert.equal(game.processPlayerInput(1, 7), false);
+    assert.equal(game.headMovesThisTurn, 1);
+});
