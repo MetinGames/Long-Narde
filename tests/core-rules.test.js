@@ -310,3 +310,73 @@ test('özel çift daha sonraki turlarda ikinci baş puluna izin vermez', () => {
     assert.equal(game.processPlayerInput(1, 7), false);
     assert.equal(game.headMovesThisTurn, 1);
 });
+
+test('geri alma son hamlenin tahta ve zar durumunu birlikte düzeltir', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [3, 5],
+        pieces: [
+            { slot: 1, count: 2, owner: 1 }
+        ]
+    });
+
+    assert.equal(game.executeMove(1, 3), true);
+    assert.deepEqual(game.availableMoves, [5]);
+    assert.equal(game.headMovesThisTurn, 1);
+    assert.equal(game.board.slots[1].count, 1);
+    assert.deepEqual(game.board.slots[4], {
+        count: 1,
+        player: 1
+    });
+
+    assert.equal(game.undoTurnMoves(), true);
+    assert.deepEqual(game.availableMoves, [3, 5]);
+    assert.equal(game.headMovesThisTurn, 0);
+    assert.deepEqual(game.board.slots[1], {
+        count: 2,
+        player: 1
+    });
+    assert.deepEqual(game.board.slots[4], {
+        count: 0,
+        player: null
+    });
+    assert.equal(game.undoTurnMoves(), false);
+});
+
+test('toplanan pul geri alındığında toplama sayacı da geri döner', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [1],
+        pieces: [
+            { slot: 24, count: 1, owner: 1 }
+        ]
+    });
+
+    assert.equal(game.processPlayerInput(24, 25), true);
+    assert.equal(game.board.borneOff[1], 1);
+
+    assert.equal(game.undoTurnMoves(), true);
+    assert.equal(game.board.borneOff[1], 0);
+    assert.deepEqual(game.board.slots[24], {
+        count: 1,
+        player: 1
+    });
+    assert.deepEqual(game.availableMoves, [1]);
+});
+
+test('tur tamamlandıktan sonra önceki turun hamlesi geri alınamaz', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [3],
+        pieces: [
+            { slot: 2, count: 1, owner: 1 }
+        ]
+    });
+
+    assert.equal(game.executeMove(2, 3), true);
+    game.confirmTurnEnd();
+
+    assert.equal(game.undoTurnMoves(), false);
+    assert.deepEqual(game.moveHistory, []);
+    assert.equal(game.currentPlayer, 2);
+});
