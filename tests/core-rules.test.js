@@ -91,3 +91,38 @@ test('bot zorunlu büyük zarı seçer', () => {
     assert.equal(move.dice, 5);
     assert.equal(move.target, 18);
 });
+
+test('yeni oyun bütün kural durumunu başlangıca sıfırlar', () => {
+    const game = new NardeGame();
+
+    game.initGame();
+    game.currentPlayer = 2;
+    game.gameStatus = 'GAME_OVER';
+    game.dice.values = [4, 5];
+    game.availableMoves = [4, 5];
+    game.headMovesThisTurn = 2;
+    game.turnsCompleted = { 1: 4, 2: 3 };
+    game.moveHistory = [{ stale: true }];
+    game.board.borneOff = { 1: 7, 2: 9 };
+    game.board.slots[1] = { count: 0, player: null };
+    game.board.slots[13] = { count: 0, player: null };
+
+    game.initGame();
+
+    assert.equal(game.currentPlayer, 1);
+    assert.equal(game.gameStatus, 'WAITING_FOR_DICE');
+    assert.deepEqual(game.dice.values, []);
+    assert.deepEqual(game.availableMoves, []);
+    assert.equal(game.headMovesThisTurn, 0);
+    assert.deepEqual(game.turnsCompleted, { 1: 0, 2: 0 });
+    assert.deepEqual(game.moveHistory, []);
+    assert.deepEqual(game.board.borneOff, { 1: 0, 2: 0 });
+    assert.deepEqual(
+        game.board.slots[game.board.getHeadSlot(1)],
+        { count: 15, player: 1 }
+    );
+    assert.deepEqual(
+        game.board.slots[game.board.getHeadSlot(2)],
+        { count: 15, player: 2 }
+    );
+});
