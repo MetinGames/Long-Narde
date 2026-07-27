@@ -126,3 +126,38 @@ test('yeni oyun bütün kural durumunu başlangıca sıfırlar', () => {
         { count: 15, player: 2 }
     );
 });
+
+test('siyah pul 24 sınırından 1 hanesine doğru sarılır', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [4],
+        pieces: [
+            { slot: 23, count: 1, owner: 2 }
+        ]
+    });
+
+    assert.equal(game.board.calculateTargetSlot(2, 23, 4), 3);
+    assert.equal(game.processPlayerInput(23, 3), true);
+    assert.deepEqual(game.board.slots[3], {
+        count: 1,
+        player: 2
+    });
+});
+
+test('siyah ev bölgesinden taş toplarken yeniden 1 hanesine sarılmaz', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [4],
+        pieces: [
+            { slot: 9, count: 1, owner: 2 }
+        ]
+    });
+
+    assert.equal(game.board.calculateTargetSlot(2, 9, 4), 13);
+    assert.equal(game.processPlayerInput(9, 25), true);
+    assert.equal(game.board.borneOff[2], 1);
+    assert.deepEqual(game.board.slots[1], {
+        count: 0,
+        player: null
+    });
+});
