@@ -210,3 +210,52 @@ test('rakibin ileride pulu varsa altılı blok kurulabilir', () => {
         player: 1
     });
 });
+
+test('pul tam zar değeriyle toplanabilir', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [1],
+        pieces: [
+            { slot: 24, count: 1, owner: 1 }
+        ]
+    });
+
+    assert.equal(game.processPlayerInput(24, 25), true);
+    assert.equal(game.board.borneOff[1], 1);
+    assert.deepEqual(game.board.slots[24], {
+        count: 0,
+        player: null
+    });
+});
+
+test('daha geride pul yoksa büyük zarla toplama yapılabilir', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [3],
+        pieces: [
+            { slot: 23, count: 1, owner: 1 },
+            { slot: 24, count: 2, owner: 1 }
+        ]
+    });
+
+    assert.equal(game.processPlayerInput(23, 25), true);
+    assert.equal(game.board.borneOff[1], 1);
+});
+
+test('daha geride pul varsa öndeki pul büyük zarla toplanamaz', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [3],
+        pieces: [
+            { slot: 23, count: 1, owner: 1 },
+            { slot: 24, count: 1, owner: 1 }
+        ]
+    });
+
+    assert.equal(game.processPlayerInput(24, 25), false);
+    assert.equal(game.board.borneOff[1], 0);
+    assert.deepEqual(game.board.slots[24], {
+        count: 1,
+        player: 1
+    });
+});
