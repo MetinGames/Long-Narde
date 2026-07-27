@@ -161,3 +161,52 @@ test('siyah ev bölgesinden taş toplarken yeniden 1 hanesine sarılmaz', () => 
         player: null
     });
 });
+
+test('rakibin bütün pullarını geride bırakan altılı blok yasaktır', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [6],
+        pieces: [
+            { slot: 1, count: 1, owner: 1 },
+            { slot: 2, count: 1, owner: 1 },
+            { slot: 3, count: 1, owner: 1 },
+            { slot: 4, count: 1, owner: 1 },
+            { slot: 5, count: 1, owner: 1 },
+            { slot: 6, count: 1, owner: 1 },
+            { slot: 13, count: 15, owner: 2 }
+        ]
+    });
+
+    assert.equal(game.processPlayerInput(1, 7), false);
+    assert.deepEqual(game.board.slots[1], {
+        count: 1,
+        player: 1
+    });
+    assert.deepEqual(game.board.slots[7], {
+        count: 0,
+        player: null
+    });
+});
+
+test('rakibin ileride pulu varsa altılı blok kurulabilir', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [6],
+        pieces: [
+            { slot: 1, count: 1, owner: 1 },
+            { slot: 2, count: 1, owner: 1 },
+            { slot: 3, count: 1, owner: 1 },
+            { slot: 4, count: 1, owner: 1 },
+            { slot: 5, count: 1, owner: 1 },
+            { slot: 6, count: 1, owner: 1 },
+            { slot: 8, count: 1, owner: 2 },
+            { slot: 13, count: 14, owner: 2 }
+        ]
+    });
+
+    assert.equal(game.processPlayerInput(1, 7), true);
+    assert.deepEqual(game.board.slots[7], {
+        count: 1,
+        player: 1
+    });
+});
