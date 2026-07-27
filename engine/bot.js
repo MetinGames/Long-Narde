@@ -1,9 +1,10 @@
 // engine/bot.js
 
 export class NardeBot {
-    constructor(playerNumber = 2, difficulty = 'medium') {
+    constructor(playerNumber = 2, difficulty = 'medium', random = Math.random) {
         this.playerNumber = playerNumber;
         this.difficulty = difficulty;
+        this.random = random;
     }
 
     makeDecision(game) {
@@ -74,7 +75,7 @@ export class NardeBot {
         if (isBearOff) return 10000;
 
         if (this.difficulty === 'easy') {
-            return Math.random() * 100;
+            return this.random() * 100;
         }
 
         let score = diceValue * 0.5;
@@ -96,7 +97,7 @@ export class NardeBot {
             score += 20;
         }
 
-        score += Math.random() * 2;
+        score += this.random() * 2;
 
         if (this.difficulty === 'hard') {
             if (this.playerNumber === 1 && to >= 19) {
