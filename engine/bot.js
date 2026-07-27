@@ -42,19 +42,29 @@ export class NardeBot {
                 );
                 if (!result.valid) continue;
 
+                let score = this.evaluateMove(
+                    fromSlot,
+                    result.targetSlot,
+                    game,
+                    result.borneOffCount > 0,
+                    diceValue
+                );
+
+                if (this.difficulty === 'hard') {
+                    score += this.evaluateHardPosition(
+                        game,
+                        fromSlot,
+                        diceValue
+                    );
+                }
+
                 legalMoves.push({
                     from: fromSlot,
                     dice: diceValue,
                     target: result.borneOffCount > 0
                         ? 25
                         : result.targetSlot,
-                    score: this.evaluateMove(
-                        fromSlot,
-                        result.targetSlot,
-                        game,
-                        result.borneOffCount > 0,
-                        diceValue
-                    )
+                    score
                 });
             }
         }
@@ -63,6 +73,72 @@ export class NardeBot {
 
         legalMoves.sort((a, b) => b.score - a.score);
         return legalMoves[0];
+    }
+
+    getLongestPrime(game) {
+        let longest = 0;
+        let current = 0;
+
+        for (let progress = 0; progress < 24; progress++) {
+            const slotId = game.board.getSlotFromProgress(
+                this.playerNumber,
+                progress
+            );
+            const slot = game.board.slots[slotId];
+
+            if (
+                slot.player === this.playerNumber &&
+                slot.count > 0
+            ) {
+                current++;
+                longest = Math.max(longest, current);
+            } else {
+                current = 0;
+            }
+        }
+
+        return longest;
+    }
+
+    evaluateHardPosition(game, fromSlot, diceValue) {
+        const snapshot = game.createMoveStateSnapshot();
+
+        try {
+            if (!game.executeMove(fromSlot, diceValue, false)) {
+                return Number.NEGATIVE_INFINITY;
+            }
+
+            let score = 0;
+            let madePoints = 0;
+
+            for (let slotId = 1; slotId <= 24; slotId++) {
+                const slot = game.board.slots[slotId];
+                if (
+                    slot.player !== this.playerNumber ||
+                    slot.count <= 0
+                ) {
+                    continue;
+                }
+
+                score += game.board.getProgress(
+                    this.playerNumber,
+                    slotId
+                ) * slot.count * 0.15;
+
+                if (slot.count >= 2) madePoints++;
+                if (slot.count > 5) {
+                    score -= (slot.count - 5) * 2;
+                }
+            }
+
+            const longestPrime = this.getLongestPrime(game);
+            score += madePoints * 6;
+            score += longestPrime * longestPrime * 2;
+
+            return score;
+        } finally {
+            game.restoreMoveState(snapshot);
+        }
     }
 
     evaluateMove(
