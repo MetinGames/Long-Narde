@@ -490,3 +490,14 @@ body {
     -webkit-tap-highlight-color: transparent;
     cursor: pointer;
 }
+
+/* Masaüstünde oyun tahtasını ekran yüksekliğine sığdırır. */
+@media (min-width: 761px) {
+    #game-container {
+        width: min(
+            846px,
+            calc(100vw - 24px),
+            calc(133.333vh - 333px)
+        );
+    }
+}
