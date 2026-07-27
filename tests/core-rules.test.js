@@ -427,3 +427,74 @@ test('siyah on beşinci pulunu toplayınca doğru oyuncu kazanır', () => {
     assert.equal(game.checkWinCondition(), 2);
     assert.equal(game.gameStatus, 'GAME_OVER');
 });
+
+test('botun seçtiği hamle kural motoru tarafından uygulanabilir', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [3, 5],
+        pieces: [
+            { slot: 13, count: 15, owner: 2 }
+        ]
+    });
+    const bot = new NardeBot(2, 'medium');
+
+    const move = bot.makeDecision(game);
+
+    assert.ok(move);
+    assert.equal(game.executeMove(move.from, move.dice), true);
+    assert.equal(game.availableMoves.length, 1);
+});
+
+test('bot baştan çıkış sınırı dolduğunda ikinci baş pulu seçmez', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [5],
+        pieces: [
+            { slot: 13, count: 15, owner: 2 }
+        ]
+    });
+    game.dice.values = [5, 2];
+    game.headMovesThisTurn = 1;
+    game.turnsCompleted = { 1: 1, 2: 1 };
+    const bot = new NardeBot(2, 'hard');
+
+    assert.equal(game.hasValidMoves(), false);
+    assert.equal(bot.makeDecision(game), null);
+});
+
+test('bot mümkün olduğunda pul toplamayı seçer', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [1],
+        pieces: [
+            { slot: 12, count: 1, owner: 2 }
+        ]
+    });
+    game.board.borneOff = { 1: 0, 2: 14 };
+    const bot = new NardeBot(2, 'medium');
+
+    const move = bot.makeDecision(game);
+
+    assert.ok(move);
+    assert.equal(move.from, 12);
+    assert.equal(move.dice, 1);
+    assert.equal(move.target, 25);
+    assert.equal(game.executeMove(move.from, move.dice), true);
+    assert.equal(game.board.borneOff[2], 15);
+});
+
+test('botun yasal hamlesi yoksa karar üretmez', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [3, 5],
+        pieces: [
+            { slot: 13, count: 15, owner: 2 },
+            { slot: 16, count: 1, owner: 1 },
+            { slot: 18, count: 1, owner: 1 }
+        ]
+    });
+    const bot = new NardeBot(2, 'easy');
+
+    assert.equal(game.hasValidMoves(), false);
+    assert.equal(bot.makeDecision(game), null);
+});
