@@ -380,3 +380,50 @@ test('tur tamamlandıktan sonra önceki turun hamlesi geri alınamaz', () => {
     assert.deepEqual(game.moveHistory, []);
     assert.equal(game.currentPlayer, 2);
 });
+
+test('on beş pul toplanmadan oyun bitmez', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [1],
+        pieces: [
+            { slot: 24, count: 2, owner: 1 }
+        ]
+    });
+    game.board.borneOff = { 1: 13, 2: 0 };
+
+    assert.equal(game.processPlayerInput(24, 25), true);
+    assert.equal(game.board.borneOff[1], 14);
+    assert.equal(game.checkWinCondition(), 0);
+    assert.equal(game.gameStatus, 'PLAYING');
+});
+
+test('beyaz on beşinci pulunu toplayınca kazanır ve oyun durur', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [1],
+        pieces: [
+            { slot: 24, count: 1, owner: 1 }
+        ]
+    });
+    game.board.borneOff = { 1: 14, 2: 0 };
+
+    assert.equal(game.processPlayerInput(24, 25), true);
+    assert.equal(game.checkWinCondition(), 1);
+    assert.equal(game.gameStatus, 'GAME_OVER');
+    assert.equal(game.executeMove(24, 1), false);
+});
+
+test('siyah on beşinci pulunu toplayınca doğru oyuncu kazanır', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [1],
+        pieces: [
+            { slot: 12, count: 1, owner: 2 }
+        ]
+    });
+    game.board.borneOff = { 1: 0, 2: 14 };
+
+    assert.equal(game.processPlayerInput(12, 25), true);
+    assert.equal(game.checkWinCondition(), 2);
+    assert.equal(game.gameStatus, 'GAME_OVER');
+});
