@@ -559,3 +559,42 @@ test('zor bot ev bölgesine ilerleyen hamleye orta bottan fazla puan verir', () 
     assert.ok(hardScore > mediumScore);
     assert.equal(hardScore - mediumScore, 15);
 });
+
+test('zor bot tahta değerlendirmesinden sonra oyun durumunu değiştirmez', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [3, 6],
+        pieces: [
+            { slot: 13, count: 2, owner: 2 },
+            { slot: 14, count: 1, owner: 2 },
+            { slot: 15, count: 1, owner: 2 }
+        ]
+    });
+    const bot = new NardeBot(2, 'hard', () => 0);
+    const before = game.createMoveStateSnapshot();
+
+    const score = bot.evaluateHardPosition(game, 13, 3);
+
+    assert.ok(Number.isFinite(score));
+    assert.deepEqual(game.createMoveStateSnapshot(), before);
+});
+
+test('zor bot ardışık blok zincirini uzatan konumu tercih eder', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [3, 6],
+        pieces: [
+            { slot: 13, count: 2, owner: 2 },
+            { slot: 14, count: 1, owner: 2 },
+            { slot: 15, count: 1, owner: 2 }
+        ]
+    });
+    const bot = new NardeBot(2, 'hard', () => 0);
+
+    const extendPrimeScore =
+        bot.evaluateHardPosition(game, 13, 3);
+    const scatteredScore =
+        bot.evaluateHardPosition(game, 13, 6);
+
+    assert.ok(extendPrimeScore > scatteredScore);
+});
