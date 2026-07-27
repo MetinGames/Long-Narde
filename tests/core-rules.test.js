@@ -498,3 +498,64 @@ test('botun yasal hamlesi yoksa karar üretmez', () => {
     assert.equal(game.hasValidMoves(), false);
     assert.equal(bot.makeDecision(game), null);
 });
+
+test('kolay botun rastgele puanı denetlenebilir', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [3],
+        pieces: [
+            { slot: 14, count: 2, owner: 2 }
+        ]
+    });
+    const bot = new NardeBot(2, 'easy', () => 0.25);
+
+    assert.equal(
+        bot.evaluateMove(14, 17, game, false, 3),
+        25
+    );
+});
+
+test('orta bot kendi pullarını birleştiren hamleye ek puan verir', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [3],
+        pieces: [
+            { slot: 14, count: 2, owner: 2 },
+            { slot: 17, count: 1, owner: 2 }
+        ]
+    });
+    const bot = new NardeBot(2, 'medium', () => 0);
+
+    const mergeScore =
+        bot.evaluateMove(14, 17, game, false, 3);
+
+    game.board.slots[17] = {
+        count: 0,
+        player: null
+    };
+    const emptyScore =
+        bot.evaluateMove(14, 17, game, false, 3);
+
+    assert.ok(mergeScore > emptyScore);
+    assert.equal(mergeScore - emptyScore, 25);
+});
+
+test('zor bot ev bölgesine ilerleyen hamleye orta bottan fazla puan verir', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [6],
+        pieces: [
+            { slot: 1, count: 2, owner: 2 }
+        ]
+    });
+    const medium = new NardeBot(2, 'medium', () => 0);
+    const hard = new NardeBot(2, 'hard', () => 0);
+
+    const mediumScore =
+        medium.evaluateMove(1, 7, game, false, 6);
+    const hardScore =
+        hard.evaluateMove(1, 7, game, false, 6);
+
+    assert.ok(hardScore > mediumScore);
+    assert.equal(hardScore - mediumScore, 15);
+});
