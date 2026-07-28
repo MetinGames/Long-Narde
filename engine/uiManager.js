@@ -2,27 +2,50 @@
 
 export class UIManager {
     constructor() {
+        this.actionButtons = document.getElementById('action-buttons');
         this.undoButton = document.getElementById('undo-button');
         this.confirmButton = document.getElementById('confirm-button');
         this.timerDisplay = document.getElementById('timer-countdown');
     }
 
-    // Sıra insana (Beyaz) geçtiğinde buton düzenini ayarlar
+    setActionButtonsVisible(isVisible) {
+        if (!this.actionButtons) return;
+
+        this.actionButtons.classList.toggle(
+            'is-visible',
+            isVisible
+        );
+        this.actionButtons.setAttribute(
+            'aria-hidden',
+            String(!isVisible)
+        );
+
+        if (this.undoButton) {
+            this.undoButton.tabIndex = isVisible ? 0 : -1;
+        }
+        if (this.confirmButton) {
+            this.confirmButton.tabIndex = isVisible ? 0 : -1;
+        }
+    }
+
+    // Yeni insan turunda kontroller henüz görünmez.
     setHumanTurnLayout() {
-        if (this.undoButton) this.undoButton.style.display = "none";
-        if (this.confirmButton) this.confirmButton.style.display = "none";
+        this.setActionButtonsVisible(false);
     }
 
-    // İnsan zar attığında strateji butonlarını açar
+    // Zar atıldıktan sonra ilk başarılı hamleye kadar gizli kalır.
     setHumanPlayingLayout() {
-        if (this.undoButton) this.undoButton.style.display = "inline-block";
-        if (this.confirmButton) this.confirmButton.style.display = "inline-block";
+        this.setActionButtonsVisible(false);
     }
 
-    // Sıra bota (Siyah) geçtiğinde tüm butonları kilitler/gizler
+    // İlk başarılı hamleden sonra geçici kontroller belirir.
+    setHumanMoveLayout() {
+        this.setActionButtonsVisible(true);
+    }
+
+    // Sıra bota geçtiğinde geçici kontroller kaybolur.
     setBotTurnLayout() {
-        if (this.undoButton) this.undoButton.style.display = "none";
-        if (this.confirmButton) this.confirmButton.style.display = "none";
+        this.setActionButtonsVisible(false);
     }
 
     // Sayaç numarasını ekranda günceller

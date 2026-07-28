@@ -220,10 +220,10 @@ body {
 
 #game-container {
     background: #1e1b18; /* Tahtanın arkasında lüks bir ahşap gövde hissi */
-    padding: 20px;
-    border-radius: 14px;
+    padding: 12px;
+    border-radius: 10px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), inset 0 2px 5px rgba(255, 255, 255, 0.1);
-    border: 3px solid #4a3525;
+    border: 2px solid #4a3525;
 }
 
 #info-panel {
@@ -414,7 +414,6 @@ body {
 
 #board-wrapper {
     width: 100%;
-    padding-bottom: 46px;
     background: linear-gradient(to bottom, #2b1c13, #17100b);
     overflow: hidden;
 }
@@ -424,20 +423,36 @@ body {
 }
 
 #action-buttons {
-    left: 50%;
-    right: auto;
-    bottom: 8px;
-    width: auto;
-    transform: translateX(-50%);
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0 18%;
+    transform: none;
     flex-direction: row;
-    gap: 12px;
-    padding: 0;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 4;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 180ms ease,
+        visibility 0s linear 180ms;
+}
+
+#action-buttons.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
 }
 
 #action-buttons button {
-    width: 78px;
-    height: 30px;
-    border-radius: 7px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    font-size: 22px;
+    border: 1px solid rgba(255, 224, 172, 0.42);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
 }
 
 #action-buttons button:active {
@@ -452,7 +467,7 @@ body {
 
     #game-container {
         width: calc(100vw - 16px);
-        padding: 10px;
+        padding: 6px;
         gap: 10px;
     }
 
@@ -478,6 +493,16 @@ body {
         min-width: 0;
         max-width: 120px;
     }
+
+    #action-buttons {
+        padding: 0 15%;
+    }
+
+    #action-buttons button {
+        width: 48px;
+        height: 48px;
+        font-size: 23px;
+    }
 }
 
 
@@ -499,5 +524,103 @@ body {
             calc(100vw - 24px),
             calc(133.333vh - 333px)
         );
+    }
+}
+
+/* Masaüstü: tahta solda, oyun bilgileri dikey olarak sağda. */
+@media (min-width: 901px) {
+    body {
+        align-items: center;
+    }
+
+    #game-container {
+        display: grid;
+        grid-template-columns: minmax(0, 800px) 220px;
+        grid-template-areas: "board info";
+        align-items: stretch;
+        gap: 12px;
+        width: min(1058px, calc(100vw - 24px));
+    }
+
+    #board-wrapper {
+        grid-area: board;
+        align-self: center;
+    }
+
+    #info-panel {
+        grid-area: info;
+        width: 220px;
+        min-width: 0;
+        height: 100%;
+        align-content: start;
+        padding: 14px 12px;
+    }
+
+    #panel-controls {
+        grid-template-columns: minmax(0, 1fr);
+        align-content: start;
+        gap: 10px;
+    }
+
+    #turn-indicator,
+    #timer-container,
+    #dice-container,
+    #difficulty-container,
+    #language-container,
+    #theme-container {
+        width: 100%;
+    }
+
+    #turn-indicator,
+    #timer-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 42px;
+        text-align: center;
+    }
+
+    #difficulty-container,
+    #language-container,
+    #theme-container {
+        justify-content: space-between;
+    }
+
+    #bot-difficulty,
+    #language-select,
+    #theme-select {
+        min-width: 0;
+        max-width: 132px;
+    }
+
+    #dice-container,
+    #dice-display {
+        justify-content: center;
+    }
+
+    #status-message {
+        align-items: flex-start;
+        min-height: 76px;
+        margin-top: 2px;
+        text-align: center;
+    }
+}
+
+/* Tablet ve telefon: önce tahta, sonra katlanan bilgi paneli. */
+@media (max-width: 900px) {
+    #game-container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "board"
+            "info";
+    }
+
+    #board-wrapper {
+        grid-area: board;
+    }
+
+    #info-panel {
+        grid-area: info;
     }
 }

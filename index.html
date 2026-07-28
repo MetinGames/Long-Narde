@@ -57,10 +57,10 @@
         <div id="board-wrapper">
             <canvas id="game-canvas" width="800" height="600"></canvas>
             
-            <!-- Orta Çıtanın Üzerine Binen Minimalist Tuşlar -->
-            <div id="action-buttons">
-                <button id="undo-button" style="display: none;" title="Geri Al">↺</button>
-                <button id="confirm-button" style="display: none;" title="Hamleyi Bitir">✓</button>
+            <!-- İlk hamleden sonra kısa süreli görünen tahta kontrolleri -->
+            <div id="action-buttons" aria-hidden="true">
+                <button id="undo-button" type="button" title="Geri Al" aria-label="Geri Al" tabindex="-1">↺</button>
+                <button id="confirm-button" type="button" title="Hamleyi Bitir" aria-label="Hamleyi Bitir" tabindex="-1">✓</button>
             </div>
         </div>
     </div>

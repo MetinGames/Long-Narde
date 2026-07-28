@@ -314,6 +314,7 @@ function handleSlotClick(slotId) {
         selectedSlotId = null;
         totalMoveCounter++;
         updateScreen();
+        ui.setHumanMoveLayout();
 
         const winner = game.checkWinCondition();
         if (winner !== 0) {
@@ -389,6 +390,7 @@ function bindEvents() {
         ) {
             selectedSlotId = null;
             updateScreen();
+            ui.setHumanPlayingLayout();
             renderer.updateStatus(t('status.undo'));
         }
     });
