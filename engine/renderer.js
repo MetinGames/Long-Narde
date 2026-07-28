@@ -655,14 +655,14 @@ export class Renderer {
 
         this.ctx.textAlign = 'center';
         this.ctx.fillStyle = '#d4af37';
-        this.ctx.font = 'bold 10px sans-serif';
+        this.ctx.font = 'bold 14px sans-serif';
         this.ctx.fillText(
             `${bCollected}/15`,
             trayX + trayWidth / 2,
             blackTrayY + trayHeight / 2 - 10
         );
         this.ctx.fillStyle = '#e67e22';
-        this.ctx.font = 'bold 9px sans-serif';
+        this.ctx.font = 'bold 13px sans-serif';
         this.ctx.fillText(
             `${pips.blackPips}`,
             trayX + trayWidth / 2,
@@ -688,14 +688,14 @@ export class Renderer {
 
         this.ctx.textAlign = 'center';
         this.ctx.fillStyle = '#d4af37';
-        this.ctx.font = 'bold 10px sans-serif';
+        this.ctx.font = 'bold 14px sans-serif';
         this.ctx.fillText(
             `${wCollected}/15`,
             trayX + trayWidth / 2,
             whiteTrayY + trayHeight / 2 - 10
         );
         this.ctx.fillStyle = '#e67e22';
-        this.ctx.font = 'bold 9px sans-serif';
+        this.ctx.font = 'bold 13px sans-serif';
         this.ctx.fillText(
             `${pips.whitePips}`,
             trayX + trayWidth / 2,
