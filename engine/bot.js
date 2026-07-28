@@ -19,21 +19,14 @@ export class NardeBot {
 
             if (slot.player === this.playerNumber && slot.count > 0) {
                 
-                const headSlot = this.playerNumber === 1 ? 1 : 13;
+                const headSlot = game.board.getHeadSlot(this.playerNumber);
                 
                 // YENİ KURAL MOTORU ENTEGRASYONU: Bot artık baştan çıkış sınırına saygı duymak ZORUNDA!
-                if (fromSlot === headSlot) {
-                    if (game.headMovesThisTurn >= 1) {
-                        const isSpecialDouble = game.dice.values[0] === game.dice.values[1] && 
-                                               [3, 4, 6].includes(game.dice.values[0]);
-                        if (!isSpecialDouble || game.headMovesThisTurn >= 2) {
-                            continue; // Şarjör boşaltmak yasaklandı!
-                        }
-                    }
-                }
+                if (fromSlot === headSlot && !game.canMoveFromHead()) continue;
 
                 const uniqueMoves = [...new Set(game.availableMoves)];
                 for (let diceValue of uniqueMoves) {
+                    if (!game.canUseDiceValue(diceValue)) continue;
                     const toSlot = game.board.calculateTargetSlot(this.playerNumber, fromSlot, diceValue);
                     
                     if (game.board.isValidMove(this.playerNumber, fromSlot, toSlot)) {

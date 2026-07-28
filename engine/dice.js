@@ -40,4 +40,9 @@ export class Dice {
     hasMoves() {
         return this.movesLeft.length > 0;
     }
+
+    reset() {
+        this.values = [];
+        this.movesLeft = [];
+    }
 }

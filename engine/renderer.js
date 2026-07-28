@@ -144,7 +144,7 @@ export class Renderer {
         if (isTop) { this.ctx.moveTo(x, y); this.ctx.lineTo(x + width, y); this.ctx.lineTo(x + (width / 2), y + height); }
         else { this.ctx.moveTo(x, y); this.ctx.lineTo(x + width, y); this.ctx.lineTo(x + (width / 2), y - height); }
         this.ctx.closePath();
-        this.ctx.fillStyle = 'rgba(212, 175, 55, 0.45);'; 
+        this.ctx.fillStyle = 'rgba(212, 175, 55, 0.45)';
         this.ctx.fill();
     }
 
@@ -268,17 +268,12 @@ export class Renderer {
         if (selectedSlotId === null || game.gameStatus !== 'PLAYING') return;
 
         const headSlot = game.currentPlayer === 1 ? 1 : 13;
-        if (selectedSlotId === headSlot) {
-            if (game.headMovesThisTurn >= 1) {
-                const isSpecialDouble = game.dice.values[0] === game.dice.values[1] && 
-                                       [3, 4, 6].includes(game.dice.values[0]);
-                if (!isSpecialDouble || game.headMovesThisTurn >= 2) return;
-            }
-        }
+        if (selectedSlotId === headSlot && !game.canMoveFromHead()) return;
 
         const uniqueMoves = [...new Set(game.availableMoves)];
         
         for (let zar of uniqueMoves) {
+            if (!game.canUseDiceValue(zar)) continue;
             const target = game.board.calculateTargetSlot(game.currentPlayer, selectedSlotId, zar);
             if (game.board.isValidMove(game.currentPlayer, selectedSlotId, target)) {
                 const isBearOff = (game.currentPlayer === 1 && target > 24) || 

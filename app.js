@@ -89,7 +89,8 @@ window.addEventListener('DOMContentLoaded', () => {
             totalMoveCounter = 0; // Sayaç sıfırlanır
             updateScreen();
             ui.setHumanTurnLayout();
-            renderer.updateStatus("Yeni oyun başladı! Zar atın.");
+            renderer.updateStatus("Yeni oyun başladı. Zarlar hazırlanıyor...");
+            setTimeout(startAutomaticDiceRoll, 700);
         });
     }
 
@@ -154,6 +155,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (!bestMove) { endBotTurnSuccessfully(); return; }
 
         game.executeMove(bestMove.from, bestMove.dice); 
+        totalMoveCounter++;
         updateScreen();
         
         if (game.checkWinCondition() !== 0) { handleGameOver(); return; }
