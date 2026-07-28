@@ -90,6 +90,17 @@ export class Renderer {
         this.staticBoardDirty = true;
     }
 
+    getPlayfieldEdges() {
+        return {
+            top:
+                this.theme.playfield?.top ??
+                this.borderSize,
+            bottom:
+                this.theme.playfield?.bottom ??
+                (this.boardHeight - this.borderSize)
+        };
+    }
+
     drawBoardSurface(innerWidth, barX) {
         if (this.boardArtwork) {
             this.ctx.drawImage(
@@ -192,6 +203,9 @@ export class Renderer {
             (this.barWidth / 2);
         const usableWidth = innerWidth - this.barWidth;
         const slotWidth = usableWidth / 12;
+        const pointHeight =
+            this.theme.pointHeight || this.slotHeight;
+        const playfield = this.getPlayfieldEdges();
 
         this.ctx.clearRect(
             0,
@@ -206,9 +220,9 @@ export class Renderer {
             const x = getSlotX(columnIndex, slotWidth);
             this.drawMastermindTriangle(
                 x,
-                this.borderSize,
+                playfield.top,
                 slotWidth,
-                this.slotHeight,
+                pointHeight,
                 true,
                 slotId,
                 slotId % 2 === 0
@@ -220,9 +234,9 @@ export class Renderer {
             const x = getSlotX(columnIndex, slotWidth);
             this.drawMastermindTriangle(
                 x,
-                this.boardHeight - this.borderSize,
+                playfield.bottom,
                 slotWidth,
-                this.slotHeight,
+                pointHeight,
                 false,
                 slotId,
                 slotId % 2 === 0
@@ -275,6 +289,9 @@ export class Renderer {
             this.trayWidth;
         const usableWidth = innerWidth - this.barWidth;
         const slotWidth = usableWidth / 12;
+        const pointHeight =
+            this.theme.pointHeight || this.slotHeight;
+        const playfield = this.getPlayfieldEdges();
 
         for (let slotId = 12; slotId >= 1; slotId--) {
             const columnIndex = 12 - slotId;
@@ -283,15 +300,15 @@ export class Renderer {
             if (this.highlightedSlots.includes(slotId)) {
                 this.drawHighlightGlow(
                     x,
-                    this.borderSize,
+                    playfield.top,
                     slotWidth,
-                    (this.theme.pointHeight || this.slotHeight),
+                    pointHeight,
                     true
                 );
             }
             this.drawMastermindPieces(
                 x,
-                this.borderSize,
+                playfield.top,
                 slotWidth,
                 game.board.slots[slotId],
                 true,
@@ -302,14 +319,14 @@ export class Renderer {
         for (let slotId = 13; slotId <= 24; slotId++) {
             const columnIndex = slotId - 13;
             const x = getSlotX(columnIndex, slotWidth);
-            const y = this.boardHeight - this.borderSize;
+            const y = playfield.bottom;
 
             if (this.highlightedSlots.includes(slotId)) {
                 this.drawHighlightGlow(
                     x,
                     y,
                     slotWidth,
-                    (this.theme.pointHeight || this.slotHeight),
+                    pointHeight,
                     false
                 );
             }
