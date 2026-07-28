@@ -624,3 +624,8 @@ body {
         grid-area: info;
     }
 }
+
+/* Sağ paneli sade tutmak için durum mesajı görselden kaldırıldı. */
+#status-message {
+    display: none;
+}
