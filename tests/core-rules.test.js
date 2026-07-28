@@ -96,6 +96,9 @@ test('yeni oyun bütün kural durumunu başlangıca sıfırlar', () => {
     const game = new NardeGame();
 
     game.initGame();
+    game.mode = 'ranked';
+    game.timeoutStrikes = 2;
+    game.endReason = 'timeout';
     game.currentPlayer = 2;
     game.gameStatus = 'GAME_OVER';
     game.dice.values = [4, 5];
@@ -111,6 +114,9 @@ test('yeni oyun bütün kural durumunu başlangıca sıfırlar', () => {
 
     assert.equal(game.currentPlayer, 1);
     assert.equal(game.gameStatus, 'WAITING_FOR_DICE');
+    assert.equal(game.mode, 'casual');
+    assert.equal(game.timeoutStrikes, 0);
+    assert.equal(game.endReason, null);
     assert.deepEqual(game.dice.values, []);
     assert.deepEqual(game.availableMoves, []);
     assert.equal(game.headMovesThisTurn, 0);

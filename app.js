@@ -13,6 +13,7 @@ import {
 } from './engine/i18n.js';
 import { DiceRollAnimation } from './engine/animations.js';
 import { bindCanvasInput } from './engine/input.js';
+import { TurnTimeoutController } from './engine/timeoutController.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -23,9 +24,11 @@ const diceRollAnimation = new DiceRollAnimation();
 let selectedSlotId = null;
 let totalMoveCounter = 0;
 let turnTimerInterval = null;
-let turnEndTime = 0;
 let scheduledTimeouts = new Set();
 let isInitialStartPending = true;
+let isTimeoutResolutionInProgress = false;
+
+const timeoutController = new TurnTimeoutController();
 
 function schedule(callback, delay) {
     if (game.gameStatus === 'GAME_OVER') return null;
@@ -51,7 +54,7 @@ function clearRuntimeTasks() {
 
 function terminateGame() {
     clearRuntimeTasks();
-    turnEndTime = 0;
+    timeoutController.stopTurnDeadline();
 }
 
 function showStartScreen() {
@@ -76,7 +79,7 @@ function startGame() {
     game.initGame();
     selectedSlotId = null;
     totalMoveCounter = 0;
-    turnEndTime = 0;
+    timeoutController.resetAll();
 
     updateScreen();
     ui.setHumanTurnLayout();
@@ -90,7 +93,7 @@ function initializeBeforeStart() {
     game.initGame();
     selectedSlotId = null;
     totalMoveCounter = 0;
-    turnEndTime = 0;
+    timeoutController.resetAll();
 
     updateScreen();
     ui.setHumanTurnLayout();
@@ -108,50 +111,73 @@ function getHumanTurnDuration() {
     return Math.max(30, 60 - (completedTurns * 10));
 }
 
-function updateTimerFromClock() {
-    if (
-        !turnEndTime ||
-        game.currentPlayer !== 1 ||
-        game.gameStatus === 'GAME_OVER'
-    ) {
+function applyFinalTimeoutLoss() {
+    if (game.gameStatus === 'GAME_OVER') return;
+
+    const timeoutResult = game.recordHumanTimeout();
+    if (timeoutResult === 'gameOver' || game.gameStatus === 'GAME_OVER') {
+        showGameOver(2, 'game.timeExpiredGameOverMessage');
+    }
+}
+
+function synchronizeTimeoutState() {
+    if (isTimeoutResolutionInProgress) return;
+
+    if (isInitialStartPending || game.gameStatus === 'GAME_OVER') {
         return;
     }
 
-    const secondsLeft = Math.max(
-        0,
-        Math.ceil((turnEndTime - Date.now()) / 1000)
-    );
-    ui.updateTimerText(secondsLeft);
+    const evaluation = timeoutController.evaluate({
+        isStartScreen: isInitialStartPending,
+        gameStatus: game.gameStatus,
+        currentPlayer: game.currentPlayer,
+        timeoutStrikes: game.timeoutStrikes
+    });
 
-    if (secondsLeft === 0) {
+    if (
+        game.currentPlayer === 1 &&
+        game.gameStatus === 'PLAYING' &&
+        timeoutController.turnDeadlineAt > 0
+    ) {
+        ui.updateTimerText(evaluation.remainingSeconds);
+    }
+
+    if (evaluation.action === 'none') {
+        return;
+    }
+
+    isTimeoutResolutionInProgress = true;
+    try {
         clearInterval(turnTimerInterval);
         turnTimerInterval = null;
 
-        const timeoutResult = game.recordHumanTimeout();
-        if (timeoutResult === 'warning') {
-            renderer.updateStatus(t('status.timeoutWarning'));
-            finishCurrentTurn();
-            return;
+        if (evaluation.action === 'firstTimeout') {
+            const timeoutResult = game.recordHumanTimeout();
+            if (timeoutResult === 'warning') {
+                renderer.updateStatus(t('status.timeoutWarning'));
+                finishCurrentTurn();
+                return;
+            }
         }
 
-        if (timeoutResult === 'gameOver') {
-            showGameOver(2, 'game.timeExpiredGameOverMessage');
-            return;
-        }
-
-        renderer.updateStatus(t('status.timeExpired'));
-        finishCurrentTurn();
+        applyFinalTimeoutLoss();
+    } finally {
+        isTimeoutResolutionInProgress = false;
     }
 }
 
 function startHumanTimer() {
     clearInterval(turnTimerInterval);
 
-    const duration = getHumanTurnDuration();
-    turnEndTime = Date.now() + (duration * 1000);
-    ui.updateTimerText(duration);
+    if (isInitialStartPending || game.gameStatus === 'GAME_OVER') {
+        return;
+    }
 
-    turnTimerInterval = setInterval(updateTimerFromClock, 250);
+    const duration = getHumanTurnDuration();
+    timeoutController.startHumanTurn(duration, game.timeoutStrikes);
+    ui.updateTimerText(timeoutController.getRemainingSeconds());
+
+    turnTimerInterval = setInterval(synchronizeTimeoutState, 1000);
 }
 
 function finishCurrentTurn() {
@@ -159,7 +185,7 @@ function finishCurrentTurn() {
 
     clearInterval(turnTimerInterval);
     turnTimerInterval = null;
-    turnEndTime = 0;
+    timeoutController.stopTurnDeadline();
     selectedSlotId = null;
 
     game.confirmTurnEnd();
@@ -299,7 +325,7 @@ function restartGame() {
     game.initGame();
     selectedSlotId = null;
     totalMoveCounter = 0;
-    turnEndTime = 0;
+    timeoutController.resetAll();
 
     updateScreen();
     ui.setHumanTurnLayout();
@@ -393,6 +419,7 @@ function handleSlotClick(slotId) {
         }
 
         game.resetTimeoutStrikes();
+        timeoutController.clearForfeitWindow();
         selectedSlotId = null;
         totalMoveCounter++;
         updateScreen();
@@ -510,19 +537,17 @@ function bindEvents() {
     });
 
     document.addEventListener('visibilitychange', () => {
-        if (
-            document.visibilityState === 'visible' &&
-            turnTimerInterval &&
-            game.gameStatus !== 'GAME_OVER'
-        ) {
-            updateTimerFromClock();
+        if (document.visibilityState === 'visible') {
+            synchronizeTimeoutState();
         }
     });
 
     window.addEventListener('focus', () => {
-        if (game.gameStatus !== 'GAME_OVER') {
-            updateTimerFromClock();
-        }
+        synchronizeTimeoutState();
+    });
+
+    window.addEventListener('pageshow', () => {
+        synchronizeTimeoutState();
     });
 }
 

@@ -80,17 +80,6 @@ export class NardeGame {
         this.headMovesThisTurn = snapshot.headMoves;
     }
 
-    initGame() {
-        this.board.setupInitialPieces();
-        this.dice.reset();
-        this.currentPlayer = 1;
-        this.gameStatus = 'WAITING_FOR_DICE';
-        this.availableMoves = [];
-        this.headMovesThisTurn = 0;
-        this.turnsCompleted = { 1: 0, 2: 0 };
-        this.moveHistory = [];
-    }
-
     isCurrentPlayersFirstTurn() {
         return this.turnsCompleted[this.currentPlayer] === 0;
     }
