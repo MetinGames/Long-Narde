@@ -6,6 +6,34 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Additional consolidated fix: ensure theme select shows full text on mobile landscape */
+@media (max-width: 900px) and (orientation: landscape) {
+    /* Make theme container occupy the full row so long labels wrap/fit */
+    #info-panel #theme-container {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: flex-start;
+    }
+
+    /* Expand the select to the container width, allow wrapping and no min-width constraint */
+    #info-panel #theme-container #theme-select {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        white-space: normal;
+    }
+
+    /* If needed, keep language selector on its own row to avoid crowding */
+    #info-panel #language-container {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+}
+
 body {
     background-color: #2c3e50;
     display: flex;
@@ -13,7 +41,7 @@ body {
     align-items: center;
     min-height: 100vh;
     color: white;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 #game-container {
@@ -68,16 +96,14 @@ body {
     position: relative;
 }
 
-#timer-container::before {
-    content: 'Kalan Süre';
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
+/* Timer title element (explicit in HTML) */
+#timer-container .timer-title {
+    display: block;
     font-size: 0.72rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: rgba(255, 238, 190, 0.72);
+    margin-bottom: 6px;
 }
 
 #dice-container {
@@ -162,6 +188,7 @@ body {
     font-weight: 700;
     color: #f9ecb5;
 }
+    /* Removed device-specific override to consolidate layout in main landscape rules */
 
 #restart-button {
     background-color: #b18333;
@@ -185,6 +212,182 @@ body {
 #board-wrapper {
     position: relative;
     display: inline-block;
+}
+
+/* Responsive canvas sizing: keep logical canvas attributes, scale visually */
+#board-wrapper {
+    max-width: 100%;
+    width: min(1000px, 90vw);
+}
+
+#game-canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Prevent overflow from absolute positioned action buttons on small screens */
+#action-buttons {
+    pointer-events: none;
+}
+
+/* Rotate notice (portrait on small devices) */
+#rotate-notice {
+    display: none;
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: #fff8dd;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    z-index: 1100;
+    gap: 8px;
+    align-items: center;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+}
+
+/* Media: landscape phones and small tablets — stack board then controls */
+@media (max-width: 900px) and (orientation: landscape) {
+    #game-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+    }
+
+    #board-wrapper {
+        order: 0;
+        width: 100%;
+    }
+
+    /* Info panel becomes a two-column compact grid on landscape mobile */
+    #info-panel {
+        order: 1;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 6px;
+        box-sizing: border-box;
+    }
+
+    /* Give theme container full row so long labels wrap nicely */
+    #theme-container {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: flex-start;
+        min-height: 44px;
+    }
+
+    /* Timer and dice balance: timer shows title and value on separate lines */
+    #timer-container {
+        order: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 8px;
+        min-height: 64px;
+    }
+
+    /* using .timer-title element instead of pseudo-element */
+
+    #timer-countdown {
+        display: block;
+        font-size: 1.05rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    /* Align dice next to timer and keep balanced spacing */
+    #dice-container {
+        justify-self: center;
+        align-self: center;
+        margin-left: 4px;
+    }
+
+    /* Ensure touch targets are comfortable */
+    #bot-difficulty,
+    #theme-select,
+    #language-select {
+        min-height: 44px;
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+
+    /* Restart / action buttons larger for touch */
+    #restart-button, #undo-button, #confirm-button {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 8px 12px;
+        font-size: 15px;
+    }
+
+    /* Ensure controls have at least 6-8px between them */
+    #info-panel > * { padding: 4px 0; }
+
+    #action-buttons {
+        left: 50%;
+        bottom: -64px;
+        transform: translateX(-50%);
+        width: auto;
+        pointer-events: auto;
+    }
+}
+
+/* Media: portrait phones — gentle prompt to rotate, keep everything usable */
+@media (max-width: 600px) and (orientation: portrait) {
+    #rotate-notice {
+        display: flex;
+    }
+
+    #game-container {
+        padding: 6px;
+    }
+
+    #board-wrapper {
+        width: 100%;
+    }
+
+    #action-buttons {
+        left: 50%;
+        bottom: -76px;
+        transform: translateX(-50%);
+        pointer-events: auto;
+    }
+
+    .die {
+        width: 56px;
+        height: 56px;
+        min-width: 56px;
+        font-size: 1.2rem;
+    }
+
+    #restart-button {
+        padding: 12px 22px;
+        font-size: 18px;
+    }
+
+    #undo-button, #confirm-button {
+        width: 36px;
+        height: 36px;
+    }
+
+    #game-over-box {
+        width: 92%;
+        padding: 18px;
+    }
+}
+
+/* Small tweak to ensure overlays don't overflow on tiny screens */
+#game-over-overlay {
+    padding: 12px;
 }
 
 #action-buttons {
@@ -406,6 +609,8 @@ body {
 
 
 /* --- GÖRSEL UYUM VE OKUNAKLILIK PAKETİ --- */
+
+
 body {
     overflow: auto;
     padding: 18px;
@@ -474,17 +679,7 @@ body {
     position: relative;
 }
 
-#timer-container::before {
-    content: 'Kalan Süre';
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(255, 238, 190, 0.72);
-}
+/* timer title is provided by .timer-title element in HTML */
 
 #difficulty-container,
 #language-container,

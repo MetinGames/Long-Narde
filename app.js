@@ -494,5 +494,57 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     bindEvents();
+
+    // Shorten displayed theme name on mobile landscape without changing values or logic.
+    (function setupMobileShortTheme() {
+        const select = document.getElementById('theme-select');
+        if (!select) return;
+
+        const mq = window.matchMedia('(max-width: 900px) and (orientation: landscape)');
+
+        function restoreAll() {
+            for (const opt of select.options) {
+                if (opt.dataset.origText) {
+                    opt.textContent = opt.dataset.origText;
+                    delete opt.dataset.origText;
+                }
+            }
+        }
+
+        function applyShortening(m) {
+            // First restore any previously modified labels
+            for (const opt of select.options) {
+                if (opt.dataset.origText) opt.textContent = opt.dataset.origText;
+            }
+
+            if (!m.matches) return;
+
+            const sel = select.selectedOptions[0];
+            if (!sel) return;
+
+            // Only change the visible label for the selected option; keep value intact.
+            if (!sel.dataset.origText) sel.dataset.origText = sel.textContent;
+            if (sel.value === 'anatolian') {
+                sel.textContent = 'Anadolu';
+            }
+        }
+
+        // Initial apply
+        applyShortening(mq);
+
+        // React to orientation/size changes
+        try {
+            mq.addEventListener('change', () => applyShortening(mq));
+        } catch (e) {
+            // Older browsers
+            mq.addListener(() => applyShortening(mq));
+        }
+
+        // When user changes theme, restore labels and reapply shortening if needed
+        select.addEventListener('change', () => {
+            restoreAll();
+            applyShortening(mq);
+        });
+    })();
     restartGame();
 });
