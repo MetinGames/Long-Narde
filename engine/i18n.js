@@ -160,26 +160,71 @@ const translations = {
 };
 
 const supportedLanguages = ['tr', 'en', 'ru'];
-let currentLanguage = 'tr';
+let currentLanguage = 'en';
 
-if (typeof localStorage !== 'undefined') {
-    const savedLanguage = localStorage.getItem('narde-language');
-    if (supportedLanguages.includes(savedLanguage)) {
-        currentLanguage = savedLanguage;
-    }
+function isSupportedLanguage(language) {
+    return supportedLanguages.includes(language);
 }
+
+function getStoredLanguage() {
+    if (typeof localStorage === 'undefined') return null;
+    return localStorage.getItem('narde-language');
+}
+
+function detectBrowserLanguage() {
+    if (typeof navigator === 'undefined') return 'en';
+
+    const languageSource =
+        navigator.language ||
+        navigator.userLanguage ||
+        (Array.isArray(navigator.languages) && navigator.languages[0]) ||
+        'en';
+
+    const normalized = String(languageSource)
+        .slice(0, 2)
+        .toLowerCase();
+
+    return isSupportedLanguage(normalized) ? normalized : 'en';
+}
+
+export function initializeLanguage() {
+    const savedLanguage = getStoredLanguage();
+
+    if (savedLanguage !== null) {
+        if (isSupportedLanguage(savedLanguage)) {
+            currentLanguage = savedLanguage;
+        } else {
+            if (typeof localStorage !== 'undefined') {
+                localStorage.removeItem('narde-language');
+            }
+            currentLanguage = 'en';
+        }
+    } else {
+        currentLanguage = detectBrowserLanguage();
+    }
+
+    if (typeof document !== 'undefined') {
+        document.documentElement.lang = currentLanguage;
+    }
+
+    return currentLanguage;
+}
+
+initializeLanguage();
 
 export function getLanguage() {
     return currentLanguage;
 }
 
 export function setLanguage(language) {
-    currentLanguage = supportedLanguages.includes(language)
-        ? language
-        : 'tr';
+    currentLanguage = isSupportedLanguage(language) ? language : 'en';
 
     if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('narde-language', currentLanguage);
+        if (isSupportedLanguage(language)) {
+            localStorage.setItem('narde-language', currentLanguage);
+        } else {
+            localStorage.removeItem('narde-language');
+        }
     }
 
     if (typeof document !== 'undefined') {

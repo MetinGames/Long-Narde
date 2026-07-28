@@ -7,6 +7,7 @@ import { UIManager } from './engine/uiManager.js';
 import {
     applyTranslations,
     getLanguage,
+    initializeLanguage,
     setLanguage,
     t
 } from './engine/i18n.js';
@@ -526,8 +527,9 @@ function bindEvents() {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    setLanguage(getLanguage());
+    initializeLanguage();
     applyTranslations();
+    document.body.classList.add('i18n-ready');
     await renderer.initialize();
 
     const languageSelect =
