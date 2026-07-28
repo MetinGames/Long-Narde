@@ -9,7 +9,7 @@ import {
 const anatolianLayout = {
     ...BOARD_LAYOUT,
     leftField: { x: 20, width: 337.5 },
-    rightField: { x: 422, width: 303 }
+    rightField: { x: 434, width: 291 }
 };
 
 test('Anadolu temasında orta kasnak hamle alanı değildir', () => {
@@ -21,7 +21,7 @@ test('Anadolu temasında orta kasnak hamle alanı değildir', () => {
 
 test('Anadolu temasının sağ oyun alanı doğru haneyi seçer', () => {
     assert.equal(
-        getSlotFromCoordinates(430, 100, anatolianLayout),
+        getSlotFromCoordinates(440, 100, anatolianLayout),
         6
     );
     assert.equal(

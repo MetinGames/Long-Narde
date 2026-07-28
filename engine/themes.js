@@ -44,8 +44,8 @@ export const THEMES = Object.freeze({
                 width: 337.5
             }),
             rightField: Object.freeze({
-                x: 422,
-                width: 303
+                x: 434,
+                width: 291
             })
         }),
         pointStroke: 'rgba(116, 76, 31, 0.48)',
