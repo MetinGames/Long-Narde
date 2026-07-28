@@ -6,6 +6,7 @@ export class Board {
             count: 0,
             player: null
         }));
+
         this.borneOff = { 1: 0, 2: 0 };
     }
 
@@ -13,6 +14,7 @@ export class Board {
         for (let i = 1; i <= 24; i++) {
             this.slots[i] = { count: 0, player: null };
         }
+
         this.slots[1] = { count: 15, player: 1 };
         this.slots[13] = { count: 15, player: 2 };
         this.borneOff = { 1: 0, 2: 0 };
@@ -39,17 +41,20 @@ export class Board {
     }
 
     calculateTargetSlot(player, from, steps) {
-        if (player === 1) return from + steps;
+        if (player === 1) {
+            return from + steps;
+        }
 
-        // Siyah 13 → 24 → 1 → 12 yönünde ilerler. Ev bölgesinden
-        // çıkışta 12'nin ötesi toplama alanıdır ve yeniden sarılmaz.
+        // Siyah 13 → 24 → 1 → 12 yönünde ilerler.
+        // 7–12 evindeyken 12'nin ötesi pul toplamadır ve sarılmaz.
         if (steps >= 0) {
             if (from <= 12) return from + steps;
+
             const target = from + steps;
             return target > 24 ? target - 24 : target;
         }
 
-        // Botun komşu hane değerlendirmesi için geriye doğru okuma.
+        // Bot değerlendirmesinde komşu haneleri okuyabilmek için.
         const progress = this.getProgress(player, from);
         const wrappedProgress = (progress + steps + 24) % 24;
         return this.getSlotFromProgress(player, wrappedProgress);
@@ -66,49 +71,60 @@ export class Board {
 
     areAllPiecesInHomeBoard(player) {
         const home = new Set(this.getHomeSlots(player));
+
         for (let i = 1; i <= 24; i++) {
             const slot = this.slots[i];
             if (slot.player === player && slot.count > 0 && !home.has(i)) {
                 return false;
             }
         }
+
         return true;
     }
 
     hasFartherCheckerInHome(player, fromSlot) {
         const currentDistance = this.getBearOffDistance(player, fromSlot);
-        return this.getHomeSlots(player).some(slotId => {
+
+        for (const slotId of this.getHomeSlots(player)) {
             const slot = this.slots[slotId];
-            return slot.player === player &&
+            if (
+                slot.player === player &&
                 slot.count > 0 &&
-                this.getBearOffDistance(player, slotId) > currentDistance;
-        });
+                this.getBearOffDistance(player, slotId) > currentDistance
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     canBearOff(player, fromSlot, diceValue) {
         if (!this.areAllPiecesInHomeBoard(player)) return false;
+
         const required = this.getBearOffDistance(player, fromSlot);
         if (diceValue === required) return true;
+
         return diceValue > required &&
             !this.hasFartherCheckerInHome(player, fromSlot);
     }
 
     movePiece(from, to) {
         if (from < 1 || from > 24) return false;
+
         const source = this.slots[from];
         if (!source || source.count <= 0 || source.player === null) return false;
 
         const player = source.player;
-        const isBearingOff = this.isBearingOffMove(player, from, to);
-        if (!isBearingOff && (to < 1 || to > 24)) return false;
-
         source.count--;
         if (source.count === 0) source.player = null;
 
-        if (isBearingOff) {
+        if (this.isBearingOffMove(player, from, to)) {
             this.borneOff[player]++;
             return true;
         }
+
+        if (to < 1 || to > 24) return false;
 
         this.slots[to].count++;
         this.slots[to].player = player;
@@ -123,6 +139,7 @@ export class Board {
         if (simulated[fromSlot].count === 0) {
             simulated[fromSlot].player = null;
         }
+
         simulated[toSlot].count++;
         simulated[toSlot].player = player;
 
@@ -136,10 +153,12 @@ export class Board {
                     startProgress + offset
                 );
                 const slot = simulated[slotId];
+
                 if (slot.player !== player || slot.count <= 0) {
                     completePrime = false;
                     break;
                 }
+
                 primeSlots.push(slotId);
             }
 
@@ -150,6 +169,7 @@ export class Board {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -159,6 +179,8 @@ export class Board {
             this.getProgress(opponent, slotId)
         );
 
+        // Altı fiziksel hane rakibin yolunda 24 → 1 sınırını geçiyorsa
+        // değerleri aynı doğrusal eksene aç.
         for (let i = 1; i < primeProgress.length; i++) {
             while (primeProgress[i] <= primeProgress[i - 1]) {
                 primeProgress[i] += 24;
@@ -174,27 +196,39 @@ export class Board {
 
             let opponentProgress = this.getProgress(opponent, slotId);
             while (opponentProgress < primeStart) opponentProgress += 24;
+
+            // Rakibin gerçek yolu 0–23'tür; 23'ten sonrası toplama alanıdır.
             if (opponentProgress > primeEnd && opponentProgress <= 23) {
                 return true;
             }
         }
+
         return false;
     }
 
     isValidMove(player, from, to) {
         if (from < 1 || from > 24) return false;
+
         const source = this.slots[from];
-        if (!source || source.player !== player || source.count <= 0) {
+        if (
+            !source ||
+            source.player !== player ||
+            source.count <= 0
+        ) {
             return false;
         }
 
         if (this.isBearingOffMove(player, from, to)) {
             return this.canBearOff(player, from, to - from);
         }
+
         if (to < 1 || to > 24) return false;
 
         const target = this.slots[to];
-        if (target.player !== null && target.player !== player) return false;
+        if (target.player !== null && target.player !== player) {
+            return false;
+        }
+
         return !this.wouldCreateIllegalPrime(player, from, to);
     }
 
