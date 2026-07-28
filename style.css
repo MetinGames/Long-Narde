@@ -25,57 +25,90 @@ body {
 
 /* --- ÜST BİLGİ PANELİ --- */
 #info-panel {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 800px;
-    background-color: #34495e;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px 16px 12px;
+    background: linear-gradient(180deg, #3c2916 0%, #24180d 100%);
+    border: 1px solid rgba(219, 169, 80, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 14px 28px rgba(0, 0, 0, 0.32);
+    border-radius: 16px;
 }
 
 #turn-indicator {
-    font-size: 16px;
-    font-weight: bold;
+    line-height: 1.2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 52px;
+    padding: 14px 12px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #463524 0%, #2d1f15 100%);
+    border: 1px solid rgba(240, 200, 120, 0.28);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f9e6c3;
+    text-align: center;
 }
 
 #timer-container {
-    background-color: #c0392b;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: bold;
+    min-height: 58px;
+    padding: 16px 12px 12px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #2c1b11 0%, #4a3220 100%);
+    border: 1px solid rgba(229, 177, 96, 0.32);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    color: #ffebc5;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+#timer-container::before {
+    content: 'Kalan Süre';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 238, 190, 0.72);
 }
 
 #dice-container {
     display: flex;
-    align-items: center;
-    gap: 15px;
+    justify-content: center;
+    gap: 12px;
+    padding: 6px 0;
 }
 
 #dice-display {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
 .die {
-    background-color: white;
-    color: #2c3e50;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    border-radius: 4px;
-    font-size: 16px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #f9f0dc 0%, #d2b685 100%);
+    color: #2f1f10;
+    border: 1px solid rgba(148, 98, 32, 0.42);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.65), 0 6px 12px rgba(0, 0, 0, 0.22);
+    font-size: 1rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    min-width: 44px;
 }
 
 #status-message {
-    font-size: 14px;
-    color: #bdc3c7;
+    display: none;
 }
 
 /* --- GAME OVER OVERLAY --- */
@@ -364,35 +397,106 @@ body {
     grid-template-columns: minmax(0, 1fr);
     gap: 10px;
     padding: 12px 14px 10px;
+    background: linear-gradient(180deg, #3c2916 0%, #24180d 100%);
+    border: 1px solid rgba(219, 169, 80, 0.25);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 14px 28px rgba(0, 0, 0, 0.32);
+    border-radius: 16px;
 }
 
 #panel-controls {
     display: grid;
-    grid-template-columns:
-        minmax(92px, 1fr)
-        auto
-        auto
-        minmax(145px, auto)
-        auto
-        auto;
-    align-items: center;
-    gap: 9px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
     width: 100%;
+    align-items: stretch;
 }
 
 #turn-indicator,
-#timer-container {
-    white-space: nowrap;
+#timer-container,
+#dice-container,
+#difficulty-container,
+#language-container,
+#theme-container {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 224, 141, 0.08);
+    border: 1px solid rgba(215, 171, 97, 0.25);
+    color: #f7e6c3;
 }
 
 #turn-indicator {
-    line-height: 1.2;
+    background: linear-gradient(180deg, #463524 0%, #2d1f15 100%);
+    border-color: rgba(240, 200, 120, 0.28);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f9e6c3;
+    text-align: center;
+}
+
+#timer-container {
+    min-height: 58px;
+    padding-top: 18px;
+    background: linear-gradient(180deg, #2c1b11 0%, #4a3220 100%);
+    border-color: rgba(229, 177, 96, 0.32);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    color: #ffebc5;
+    flex-direction: column;
+    position: relative;
+}
+
+#timer-container::before {
+    content: 'Kalan Süre';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 238, 190, 0.72);
 }
 
 #difficulty-container,
 #language-container,
 #theme-container {
-    min-height: 36px;
+    justify-content: space-between;
+    gap: 10px;
+    background: rgba(255, 236, 176, 0.08);
+}
+
+#difficulty-container label,
+#language-container label,
+#theme-container label {
+    font-size: 0.88rem;
+    color: #f5e7c0;
+    white-space: nowrap;
+}
+
+#bot-difficulty,
+#language-select,
+#theme-select {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    background: rgba(29, 16, 8, 0.82);
+    color: #f7e5c7;
+    border: 1px solid rgba(215, 171, 97, 0.4);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 0.92rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+#bot-difficulty:hover,
+#language-select:hover,
+#theme-select:hover {
+    border-color: rgba(255, 216, 126, 0.55);
 }
 
 #theme-select {
