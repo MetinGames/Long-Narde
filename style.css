@@ -6,32 +6,10 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Additional consolidated fix: ensure theme select shows full text on mobile landscape */
-@media (max-width: 900px) and (orientation: landscape) {
-    /* Make theme container occupy the full row so long labels wrap/fit */
-    #info-panel #theme-container {
-        grid-column: 1 / -1;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        justify-content: flex-start;
-    }
-
-    /* Expand the select to the container width, allow wrapping and no min-width constraint */
-    #info-panel #theme-container #theme-select {
-        width: 100%;
-        min-width: 0;
-        max-width: none;
-        white-space: normal;
-    }
-
-    /* If needed, keep language selector on its own row to avoid crowding */
-    #info-panel #language-container {
-        grid-column: 1 / -1;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+html {
+    width: 100%;
+    min-width: 100%;
+    overflow-x: hidden;
 }
 
 body {
@@ -40,6 +18,9 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-width: 100%;
+    width: 100%;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     color: white;
     overflow-x: hidden;
 }
@@ -49,6 +30,9 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 15px;
+    width: min(100%, 100vw);
+    max-width: 100vw;
+    min-width: 0;
 }
 
 /* --- ÜST BİLGİ PANELİ --- */
@@ -235,18 +219,34 @@ body {
 #rotate-notice {
     display: none;
     position: fixed;
-    left: 50%;
-    bottom: 14px;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.7);
+    inset: auto 8px 16px 8px;
+    left: auto;
+    right: 8px;
+    width: min(92vw, 320px);
+    max-width: calc(100vw - 16px);
+    background: rgba(0,0,0,0.8);
     color: #fff8dd;
     padding: 10px 14px;
-    border-radius: 10px;
+    border-radius: 12px;
     font-weight: 700;
     z-index: 1100;
     gap: 8px;
     align-items: center;
     box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+    text-align: center;
+    line-height: 1.3;
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+    #rotate-notice {
+        display: flex;
+    }
+}
+
+@media (orientation: landscape) {
+    #rotate-notice {
+        display: none !important;
+    }
 }
 
 /* Media: landscape phones and small tablets — stack board then controls */
@@ -256,6 +256,9 @@ body {
         align-items: center;
         gap: 10px;
         padding: 8px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
     }
 
     #board-wrapper {
@@ -283,6 +286,23 @@ body {
         gap: 8px;
         justify-content: flex-start;
         min-height: 44px;
+        width: 100%;
+        min-width: 0;
+    }
+    #theme-select {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    #panel-controls,
+    #info-panel,
+    #theme-container,
+    #language-container,
+    #difficulty-container {
+        min-width: 0;
     }
 
     /* Timer and dice balance: timer shows title and value on separate lines */
@@ -353,6 +373,8 @@ body {
 
     #board-wrapper {
         width: 100%;
+        max-width: 100%;
+        min-width: 0;
     }
 
     #action-buttons {
@@ -392,14 +414,15 @@ body {
 
 #action-buttons {
     position: absolute;
-    left: 357px; 
-    bottom: 80px; 
-    width: 30px; 
+    left: auto;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    width: auto;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     gap: 20px;
     align-items: center;
-    pointer-events: none; 
+    pointer-events: none;
 }
 
 #action-buttons button {
@@ -961,14 +984,32 @@ select {
 
 @media (max-width: 600px) and (orientation: portrait) {
     body {
-        min-height: 100dvh;
-        height: 100dvh;
+        width: 100%;
+        min-width: 100%;
+        min-height: 100vh;
+        height: 100vh;
         padding:
             max(4px, env(safe-area-inset-top))
             max(4px, env(safe-area-inset-right))
             max(6px, env(safe-area-inset-bottom))
             max(4px, env(safe-area-inset-left));
         overflow: hidden;
+    }
+    #board-wrapper {
+        min-width: 0;
+        max-width: 100%;
+        width: 100%;
+    }
+    #game-container {
+        min-width: 0;
+        width: 100%;
+    }
+    #panel-controls,
+    #info-panel,
+    #theme-container,
+    #language-container,
+    #difficulty-container {
+        min-width: 0;
     }
 
     #game-container {
@@ -1020,6 +1061,20 @@ select {
 
     #theme-container {
         grid-area: theme;
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+    }
+
+    #theme-container #theme-select {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     #turn-indicator,
@@ -1102,32 +1157,31 @@ select {
     }
 
     #board-wrapper {
-        width: min(
-            100%,
-            calc(133.333dvh - 184px)
-        );
-        max-height: calc(100dvh - 138px);
+        width: 100%;
+        max-height: calc(100vh - 170px);
         justify-self: center;
         align-self: center;
     }
 
     #game-canvas {
         width: 100%;
-        max-height: calc(100dvh - 138px);
+        max-height: calc(100vh - 170px);
         object-fit: contain;
     }
 
     #info-panel {
-        max-height: 126px;
-        overflow: hidden;
+        max-height: none;
+        overflow: visible;
     }
 }
 
 /* Alçak ve yatay telefonlarda tahta solda, panel sağda kalır. */
 @media (max-height: 600px) and (orientation: landscape) {
     body {
-        min-height: 100dvh;
-        height: 100dvh;
+        width: 100%;
+        min-width: 100%;
+        min-height: 100vh;
+        height: 100vh;
         align-items: center;
         padding:
             max(4px, env(safe-area-inset-top))
@@ -1136,6 +1190,22 @@ select {
             max(4px, env(safe-area-inset-left));
         overflow: hidden;
         overscroll-behavior: none;
+    }
+    #board-wrapper {
+        min-width: 0;
+        max-width: 100%;
+        width: 100%;
+    }
+    #game-container {
+        min-width: 0;
+        width: 100%;
+    }
+    #panel-controls,
+    #info-panel,
+    #theme-container,
+    #language-container,
+    #difficulty-container {
+        min-width: 0;
     }
 
     #game-container {
@@ -1158,12 +1228,15 @@ select {
         align-self: center;
         border-width: 2px;
         width: 100%;
-        max-height: calc(100dvh - 18px);
+        max-width: 100%;
+        max-height: calc(100vh - 18px);
+        min-width: 0;
     }
 
     #game-canvas {
         width: 100%;
-        max-height: calc(100dvh - 18px);
+        max-width: 100%;
+        max-height: calc(100vh - 18px);
         object-fit: contain;
     }
 
@@ -1196,6 +1269,8 @@ select {
         min-height: 42px;
         padding: 3px;
         justify-content: space-between;
+        width: 100%;
+        min-width: 0;
     }
 
     #bot-difficulty,
@@ -1203,9 +1278,9 @@ select {
     #theme-select {
         width: 100%;
         min-width: 0;
-        max-width: 112px;
+        max-width: 100%;
         min-height: 38px;
-        padding: 3px;
+        padding: 3px 4px;
         font-size: 12px;
     }
 
@@ -1220,6 +1295,166 @@ select {
     #action-buttons button {
         width: 48px;
         height: 48px;
+    }
+}
+
+@media (width: 430px) and (height: 932px) and (orientation: portrait) {
+    #rotate-notice {
+        display: flex;
+    }
+    html, body, #game-container, #board-wrapper, #info-panel, #panel-controls {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+    #board-wrapper {
+        max-height: calc(100vh - 160px);
+    }
+    #game-canvas {
+        width: 100%;
+        max-width: 100%;
+        max-height: calc(100vh - 160px);
+    }
+    #theme-select {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
+@media (width: 932px) and (height: 430px) and (orientation: landscape) {
+    #rotate-notice {
+        display: none !important;
+    }
+    html, body, #game-container, #board-wrapper, #info-panel, #panel-controls {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+    #theme-select {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+    html, body {
+        width: 100%;
+        min-width: 0;
+        min-height: 100vh;
+        height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    body {
+        display: block;
+    }
+
+    #game-container,
+    #board-wrapper,
+    #info-panel,
+    #panel-controls {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    #board-wrapper,
+    #game-canvas {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        max-height: calc(100vh - 170px);
+    }
+
+    #info-panel {
+        max-height: none;
+        overflow: visible;
+    }
+
+    #rotate-notice {
+        display: flex;
+        position: fixed;
+        inset: auto 50% 14px auto;
+        transform: translateX(50%);
+        width: min(88vw, 320px);
+        max-width: calc(100vw - 16px);
+        white-space: normal;
+    }
+
+    #theme-select,
+    #language-select,
+    #bot-difficulty {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #action-buttons {
+        right: 12px;
+        left: auto;
+        width: auto;
+        pointer-events: none;
+    }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+    html, body,
+    #game-container,
+    #board-wrapper,
+    #info-panel,
+    #panel-controls {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    body {
+        overflow: hidden;
+    }
+
+    #board-wrapper,
+    #game-canvas {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        max-height: calc(100vh - 120px);
+    }
+
+    #rotate-notice {
+        display: none !important;
+    }
+
+    #theme-select,
+    #language-select,
+    #bot-difficulty {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    #action-buttons {
+        right: 12px;
+        left: auto;
+        width: auto;
+    }
+}
+
+@media (width: 430px) and (height: 932px) and (orientation: portrait) {
+    #rotate-notice {
+        display: flex;
+    }
+}
+
+@media (width: 932px) and (height: 430px) and (orientation: landscape) {
+    #rotate-notice {
+        display: none !important;
     }
 }
 

@@ -7,8 +7,9 @@ const root = path.resolve('./');
 
 test('style.css contains mobile media queries and canvas responsive rules', () => {
     const css = fs.readFileSync(path.join(root, 'style.css'), 'utf8');
-    assert.ok(css.includes('@media (max-width: 900px)'), 'Missing landscape mobile media query');
-    assert.ok(css.includes('@media (max-width: 600px)'), 'Missing portrait mobile media query');
+    assert.ok(css.includes('@media (max-width: 900px) and (orientation: landscape)'), 'Missing landscape mobile media query');
+    assert.ok(css.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Missing portrait mobile media query');
+    assert.ok(css.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Missing low landscape mobile media query');
     assert.ok(css.includes('#game-canvas') || css.includes('canvas'), 'Canvas responsive rules missing');
 });
 
@@ -16,4 +17,5 @@ test('index.html contains rotate notice element and restart button', () => {
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     assert.ok(html.includes('id="rotate-notice"'), 'Rotate notice element missing');
     assert.ok(html.includes('id="restart-button"'), 'Restart button missing');
+    assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
 });
