@@ -3,9 +3,13 @@
 const translations = {
     tr: {
         'page.title': 'Klasik Narde Oyunu',
+        'ui.rotateNotice': 'Daha iyi deneyim için telefonunuzu yatay çevirin',
         'ui.turn': 'Sıra:',
         'ui.bot': 'Bot:',
         'ui.time': 'Kalan Süre',
+        'ui.secondsShort': 'sn',
+        'ui.undo': 'Geri Al',
+        'ui.confirm': 'Hamleyi Bitir',
         'ui.matchSummary': '📊 Maç Özeti',
         'ui.totalMoves': 'Toplam Hamle:',
         'ui.playAgain': 'Yeniden Oyna',
@@ -24,6 +28,9 @@ const translations = {
         'ui.startTitle': 'Uzun Narde\'ye Hoş Geldiniz',
         'ui.startDescription': 'Tahta hazır. Oyuna başlamak için Oyuna Başla\'ya dokunun.',
         'ui.startButton': 'Oyuna Başla',
+        'language.tr': 'Türkçe',
+        'language.en': 'İngilizce',
+        'language.ru': 'Rusça',
         'status.starting': 'Yeni oyun başlıyor...',
         'status.readyToStart': 'Oyuna başlamak için Oyuna Başla düğmesine basın.',
         'status.yourTurn': 'Sıra sizde.',
@@ -40,6 +47,8 @@ const translations = {
         'status.headBlocked': 'Bu tur başlangıçtan başka pul çıkaramazsınız.',
         'status.pieceBlocked': 'Bu pul mevcut zarlarla oynanamıyor.',
         'status.timeoutWarning': 'Bir kez daha süre aşımı yaşarsanız oyunu kaybedeceksiniz.',
+        'status.dieAllUsed': 'Bu zarın tüm hamleleri kullanıldı',
+        'status.movesLeft': 'Kalan hamle: {count}',
         'game.timeExpiredGameOverMessage': 'Süreniz doldu — Oyunu kaybettiniz.',
         'status.selectTarget': 'Işıklı hedeflerden birini seçin.',
         'status.selectCollect': 'Pulu toplamak için sağdaki parlayan TOPLA alanına tıklayın.',
@@ -55,9 +64,13 @@ const translations = {
     },
     en: {
         'page.title': 'Classic Long Narde',
+        'ui.rotateNotice': 'Rotate your phone to landscape for a better experience',
         'ui.turn': 'Turn:',
         'ui.bot': 'Bot:',
         'ui.time': 'Time Left',
+        'ui.secondsShort': 'sec',
+        'ui.undo': 'Undo',
+        'ui.confirm': 'End Turn',
         'ui.matchSummary': '📊 Match Summary',
         'ui.totalMoves': 'Total Moves:',
         'ui.playAgain': 'Play Again',
@@ -76,6 +89,9 @@ const translations = {
         'ui.startTitle': 'Welcome to Long Narde',
         'ui.startDescription': 'The board is ready. Tap Start Game when you are ready.',
         'ui.startButton': 'Start Game',
+        'language.tr': 'Turkish',
+        'language.en': 'English',
+        'language.ru': 'Russian',
         'status.starting': 'A new game is starting...',
         'status.readyToStart': 'Tap Start Game when you are ready to begin.',
         'status.yourTurn': 'Your turn.',
@@ -92,6 +108,8 @@ const translations = {
         'status.headBlocked': 'You cannot move another checker from the head this turn.',
         'status.pieceBlocked': 'This checker cannot move with the current dice.',
         'status.timeoutWarning': 'If you timeout again, you will lose the game.',
+        'status.dieAllUsed': 'All moves for this die have been used',
+        'status.movesLeft': 'Moves left: {count}',
         'game.timeExpiredGameOverMessage': 'Your time expired — you lost the game.',
         'status.selectTarget': 'Choose one of the highlighted targets.',
         'status.selectCollect': 'Click the glowing BEAR OFF tray on the right.',
@@ -107,9 +125,13 @@ const translations = {
     },
     ru: {
         'page.title': 'Классические длинные нарды',
+        'ui.rotateNotice': 'Для лучшего опыта поверните телефон горизонтально',
         'ui.turn': 'Ход:',
         'ui.bot': 'Бот:',
         'ui.time': 'Осталось:',
+        'ui.secondsShort': 'сек',
+        'ui.undo': 'Отменить',
+        'ui.confirm': 'Завершить ход',
         'ui.matchSummary': '📊 Итоги матча',
         'ui.totalMoves': 'Всего ходов:',
         'ui.playAgain': 'Играть снова',
@@ -128,6 +150,9 @@ const translations = {
         'ui.startTitle': 'Добро пожаловать в длинные нарды',
         'ui.startDescription': 'Доска готова. Нажмите Начать игру, когда будете готовы.',
         'ui.startButton': 'Начать игру',
+        'language.tr': 'Турецкий',
+        'language.en': 'Английский',
+        'language.ru': 'Русский',
         'status.starting': 'Начинается новая игра...',
         'status.readyToStart': 'Нажмите Начать игру, когда будете готовы.',
         'status.yourTurn': 'Ваш ход.',
@@ -144,6 +169,8 @@ const translations = {
         'status.headBlocked': 'В этом ходу нельзя снять ещё одну шашку с головы.',
         'status.pieceBlocked': 'Эта шашка не может ходить с текущими костями.',
         'status.timeoutWarning': 'Если вы снова превысите время, вы проиграете матч.',
+        'status.dieAllUsed': 'Все ходы для этой кости уже использованы',
+        'status.movesLeft': 'Осталось ходов: {count}',
         'game.timeExpiredGameOverMessage': 'Ваше время истекло — вы проиграли игру.',
         'status.selectTarget': 'Выберите подсвеченную позицию.',
         'status.selectCollect': 'Нажмите на светящуюся зону СНЯТЬ справа.',
@@ -161,6 +188,9 @@ const translations = {
 
 const supportedLanguages = ['tr', 'en', 'ru'];
 let currentLanguage = 'en';
+
+// Test helper: allows key parity and fallback behavior checks.
+export const __translations = translations;
 
 function isSupportedLanguage(language) {
     return supportedLanguages.includes(language);
@@ -234,10 +264,10 @@ export function setLanguage(language) {
 
 export function t(key, values = {}) {
     const dictionary =
-        translations[currentLanguage] || translations.tr;
+        translations[currentLanguage] || translations.en;
     let text =
         dictionary[key] ??
-        translations.tr[key] ??
+        translations.en[key] ??
         key;
 
     for (const [name, value] of Object.entries(values)) {
@@ -250,6 +280,14 @@ export function t(key, values = {}) {
 export function applyTranslations(root = document) {
     root.querySelectorAll('[data-i18n]').forEach(element => {
         element.textContent = t(element.dataset.i18n);
+    });
+
+    root.querySelectorAll('[data-i18n-title]').forEach(element => {
+        element.setAttribute('title', t(element.dataset.i18nTitle));
+    });
+
+    root.querySelectorAll('[data-i18n-aria-label]').forEach(element => {
+        element.setAttribute('aria-label', t(element.dataset.i18nAriaLabel));
     });
 
     document.title = t('page.title');

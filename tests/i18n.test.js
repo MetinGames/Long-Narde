@@ -94,6 +94,10 @@ test('saves new valid language selection to localStorage', async () => {
     const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
     const i18n = await import(modulePath.href);
 
+    i18n.setLanguage('ru');
+    assert.equal(i18n.getLanguage(), 'ru');
+    assert.equal(savedStorage.getItem('narde-language'), 'ru');
+
     i18n.setLanguage('tr');
     assert.equal(i18n.getLanguage(), 'tr');
     assert.equal(savedStorage.getItem('narde-language'), 'tr');
@@ -101,6 +105,94 @@ test('saves new valid language selection to localStorage', async () => {
     i18n.setLanguage('de');
     assert.equal(i18n.getLanguage(), 'en');
     assert.equal(savedStorage.getItem('narde-language'), null);
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
+test('detects Russian browser language when there is no saved preference', async () => {
+    const savedStorage = new FakeStorage();
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'ru-RU',
+        languages: ['ru-RU', 'en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    assert.equal(i18n.getLanguage(), 'ru');
+    assert.equal(savedStorage.getItem('narde-language'), null);
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
+test('all supported languages expose the same translation keys', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    const languageKeys = Object.fromEntries(
+        Object.entries(i18n.__translations).map(([lang, dict]) => [
+            lang,
+            Object.keys(dict).sort()
+        ])
+    );
+
+    assert.deepEqual(languageKeys.tr, languageKeys.en);
+    assert.deepEqual(languageKeys.ru, languageKeys.en);
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
+test('falls back to English when current language misses a key', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'ru' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'ru-RU',
+        languages: ['ru-RU']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    const originalRu = i18n.__translations.ru['ui.startTitle'];
+    delete i18n.__translations.ru['ui.startTitle'];
+
+    assert.equal(i18n.t('ui.startTitle'), 'Welcome to Long Narde');
+
+    i18n.__translations.ru['ui.startTitle'] = originalRu;
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
+test('important Russian UI strings are localized with Cyrillic text', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'ru' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'ru-RU',
+        languages: ['ru-RU']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    assert.equal(i18n.t('ui.startTitle'), 'Добро пожаловать в длинные нарды');
+    assert.equal(i18n.t('ui.rotateNotice'), 'Для лучшего опыта поверните телефон горизонтально');
+    assert.equal(i18n.t('status.timeoutWarning'), 'Если вы снова превысите время, вы проиграете матч.');
+    assert.equal(i18n.t('game.timeExpiredGameOverMessage'), 'Ваше время истекло — вы проиграли игру.');
+    assert.equal(i18n.t('ui.matchSummary'), '📊 Итоги матча');
+    assert.equal(i18n.t('ui.startNewGame'), 'Начать новую игру');
+    assert.equal(i18n.t('ui.secondsShort'), 'сек');
 
     restoreGlobalProperty('localStorage', originalLocalStorage);
     restoreGlobalProperty('navigator', originalNavigator);

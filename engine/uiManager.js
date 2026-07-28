@@ -1,5 +1,7 @@
 // engine/uiManager.js
 
+import { t } from './i18n.js';
+
 export class UIManager {
     constructor() {
         this.actionButtons = document.getElementById('action-buttons');
@@ -51,7 +53,7 @@ export class UIManager {
     // Sayaç numarasını ekranda günceller
     updateTimerText(seconds) {
         if (this.timerDisplay) {
-            this.timerDisplay.textContent = `${seconds} sn`;
+            this.timerDisplay.textContent = `${seconds} ${t('ui.secondsShort')}`;
         }
     }
 }

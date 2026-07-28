@@ -428,8 +428,8 @@ export class Renderer {
             this.setDieUsed(this.die2Text, allUsed);
 
             const title = allUsed
-                ? 'Bu zarın tüm hamleleri kullanıldı'
-                : `Kalan hamle: ${movesLeft}`;
+                ? t('status.dieAllUsed')
+                : t('status.movesLeft', { count: movesLeft });
             if (this.die1Text) this.die1Text.title = title;
             if (this.die2Text) this.die2Text.title = title;
             return;
