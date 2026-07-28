@@ -24,6 +24,7 @@ let totalMoveCounter = 0;
 let turnTimerInterval = null;
 let turnEndTime = 0;
 let scheduledTimeouts = new Set();
+let isInitialStartPending = true;
 
 function schedule(callback, delay) {
     if (game.gameStatus === 'GAME_OVER') return null;
@@ -50,6 +51,51 @@ function clearRuntimeTasks() {
 function terminateGame() {
     clearRuntimeTasks();
     turnEndTime = 0;
+}
+
+function showStartScreen() {
+    const overlay = document.getElementById('start-screen');
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    overlay.setAttribute('aria-hidden', 'false');
+}
+
+function hideStartScreen() {
+    const overlay = document.getElementById('start-screen');
+    if (!overlay) return;
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+}
+
+function startGame() {
+    if (!isInitialStartPending) return;
+
+    isInitialStartPending = false;
+    hideStartScreen();
+    game.initGame();
+    selectedSlotId = null;
+    totalMoveCounter = 0;
+    turnEndTime = 0;
+
+    updateScreen();
+    ui.setHumanTurnLayout();
+    ui.updateTimerText(getHumanTurnDuration());
+    renderer.updateStatus(t('status.starting'));
+    schedule(startAutomaticDiceRoll, 650);
+}
+
+function initializeBeforeStart() {
+    isInitialStartPending = true;
+    game.initGame();
+    selectedSlotId = null;
+    totalMoveCounter = 0;
+    turnEndTime = 0;
+
+    updateScreen();
+    ui.setHumanTurnLayout();
+    ui.updateTimerText(getHumanTurnDuration());
+    renderer.updateStatus(t('status.readyToStart'));
+    showStartScreen();
 }
 
 function updateScreen() {
@@ -385,6 +431,8 @@ function bindEvents() {
         document.getElementById('bot-difficulty');
     const restartButton =
         document.getElementById('restart-button');
+    const startButton =
+        document.getElementById('start-button');
     const canvas =
         document.getElementById('game-canvas');
     const languageSelect =
@@ -417,6 +465,7 @@ function bindEvents() {
     });
 
     restartButton?.addEventListener('click', restartGame);
+    startButton?.addEventListener('click', startGame);
 
     ui.undoButton?.addEventListener('click', () => {
         if (
@@ -546,5 +595,5 @@ window.addEventListener('DOMContentLoaded', async () => {
             applyShortening(mq);
         });
     })();
-    restartGame();
+    initializeBeforeStart();
 });

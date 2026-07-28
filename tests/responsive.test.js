@@ -13,9 +13,11 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#game-canvas') || css.includes('canvas'), 'Canvas responsive rules missing');
 });
 
-test('index.html contains rotate notice element and restart button', () => {
+test('index.html contains rotate notice element, start screen, and restart button', () => {
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     assert.ok(html.includes('id="rotate-notice"'), 'Rotate notice element missing');
+    assert.ok(html.includes('id="start-screen"'), 'Start screen overlay missing');
+    assert.ok(html.includes('id="start-button"'), 'Start button missing');
     assert.ok(html.includes('id="restart-button"'), 'Restart button missing');
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
 });
