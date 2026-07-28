@@ -3,6 +3,7 @@
 import { t } from './i18n.js';
 import {
     BOARD_LAYOUT,
+    getBearOffTrayRect,
     getSlotX,
     getSlotWidthForColumn
 } from './layout.js';
@@ -112,7 +113,8 @@ export class Renderer {
         return {
             ...BOARD_LAYOUT,
             leftField: playfield.leftField,
-            rightField: playfield.rightField
+            rightField: playfield.rightField,
+            trayArea: playfield.tray
         };
     }
 
@@ -621,13 +623,16 @@ export class Renderer {
         const bCollected = game.board.borneOff?.[2] ?? 0;
         const pips = this.calculatePipCount(game);
 
-        const trayX =
-            this.boardWidth - this.borderSize - this.trayWidth + 5;
-        const trayHeight =
-            (this.boardHeight - (this.borderSize * 2)) / 2 - 10;
-        const blackTrayY = this.borderSize;
-        const whiteTrayY =
-            this.borderSize + trayHeight + 20;
+        const boardLayout = this.getBoardLayout();
+        const blackTray =
+            getBearOffTrayRect(2, boardLayout);
+        const whiteTray =
+            getBearOffTrayRect(1, boardLayout);
+        const trayX = blackTray.x;
+        const trayWidth = blackTray.width;
+        const trayHeight = blackTray.height;
+        const blackTrayY = blackTray.y;
+        const whiteTrayY = whiteTray.y;
         const canCollect =
             this.highlightedSlots.includes(25);
 
@@ -635,7 +640,7 @@ export class Renderer {
         this.drawTraySurface(
             trayX,
             blackTrayY,
-            this.trayWidth,
+            trayWidth,
             trayHeight
         );
 
@@ -643,23 +648,24 @@ export class Renderer {
             this.drawCollectPrompt(
                 trayX,
                 blackTrayY,
-                this.trayWidth,
+                trayWidth,
                 trayHeight
             );
         }
 
-        this.ctx.textAlign = 'left';
+        this.ctx.textAlign = 'center';
         this.ctx.fillStyle = '#d4af37';
-        this.ctx.font = 'bold 12px sans-serif';
+        this.ctx.font = 'bold 10px sans-serif';
         this.ctx.fillText(
             `${bCollected}/15`,
-            trayX + 10,
+            trayX + trayWidth / 2,
             blackTrayY + trayHeight / 2 - 10
         );
         this.ctx.fillStyle = '#e67e22';
+        this.ctx.font = 'bold 9px sans-serif';
         this.ctx.fillText(
-            `${pips.blackPips} 🎯`,
-            trayX + 8,
+            `${pips.blackPips}`,
+            trayX + trayWidth / 2,
             blackTrayY + trayHeight / 2 + 10
         );
 
@@ -667,7 +673,7 @@ export class Renderer {
         this.drawTraySurface(
             trayX,
             whiteTrayY,
-            this.trayWidth,
+            trayWidth,
             trayHeight
         );
 
@@ -675,23 +681,24 @@ export class Renderer {
             this.drawCollectPrompt(
                 trayX,
                 whiteTrayY,
-                this.trayWidth,
+                trayWidth,
                 trayHeight
             );
         }
 
-        this.ctx.textAlign = 'left';
+        this.ctx.textAlign = 'center';
         this.ctx.fillStyle = '#d4af37';
-        this.ctx.font = 'bold 12px sans-serif';
+        this.ctx.font = 'bold 10px sans-serif';
         this.ctx.fillText(
             `${wCollected}/15`,
-            trayX + 10,
+            trayX + trayWidth / 2,
             whiteTrayY + trayHeight / 2 - 10
         );
         this.ctx.fillStyle = '#e67e22';
+        this.ctx.font = 'bold 9px sans-serif';
         this.ctx.fillText(
-            `${pips.whitePips} 🎯`,
-            trayX + 8,
+            `${pips.whitePips}`,
+            trayX + trayWidth / 2,
             whiteTrayY + trayHeight / 2 + 10
         );
     }

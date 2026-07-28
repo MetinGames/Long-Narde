@@ -8,20 +8,26 @@ import {
 
 const anatolianLayout = {
     ...BOARD_LAYOUT,
-    leftField: { x: 20, width: 337.5 },
-    rightField: { x: 434, width: 291 }
+    leftField: { x: 43, width: 331 },
+    rightField: { x: 423, width: 331 },
+    trayArea: {
+        x: 758,
+        width: 40,
+        top: 42,
+        bottom: 566
+    }
 };
 
 test('Anadolu temasında orta kasnak hamle alanı değildir', () => {
     assert.equal(
-        getSlotFromCoordinates(390, 100, anatolianLayout),
+        getSlotFromCoordinates(400, 100, anatolianLayout),
         null
     );
 });
 
 test('Anadolu temasının sağ oyun alanı doğru haneyi seçer', () => {
     assert.equal(
-        getSlotFromCoordinates(440, 100, anatolianLayout),
+        getSlotFromCoordinates(430, 100, anatolianLayout),
         6
     );
     assert.equal(

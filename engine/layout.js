@@ -80,21 +80,26 @@ export function getSlotFromCoordinates(
         tray
     } = layout;
 
-    if (
-        x >= width - border - tray &&
-        x <= width - border &&
-        y >= border &&
-        y <= height - border
-    ) {
+    const trayArea = layout.trayArea;
+    const isInTray = trayArea
+        ? (
+            x >= trayArea.x &&
+            x <= trayArea.x + trayArea.width &&
+            y >= (trayArea.top ?? border) &&
+            y <= (trayArea.bottom ?? height - border)
+        )
+        : (
+            x >= width - border - tray &&
+            x <= width - border &&
+            y >= border &&
+            y <= height - border
+        );
+
+    if (isInTray) {
         return 25;
     }
 
-    if (
-        x < border ||
-        x > width - border - tray ||
-        y < border ||
-        y > height - border
-    ) {
+    if (y < border || y > height - border) {
         return null;
     }
 
@@ -146,6 +151,26 @@ export function getBearOffTrayRect(
     player,
     layout = BOARD_LAYOUT
 ) {
+    if (layout.trayArea) {
+        const verticalGap = 20;
+        const top = layout.trayArea.top ?? layout.border;
+        const bottom =
+            layout.trayArea.bottom ??
+            (layout.height - layout.border);
+        const height =
+            (bottom - top - verticalGap) /
+            2;
+
+        return {
+            x: layout.trayArea.x,
+            y: player === 2
+                ? top
+                : top + height + verticalGap,
+            width: layout.trayArea.width,
+            height
+        };
+    }
+
     const height =
         (layout.height - (layout.border * 2)) / 2 - 10;
     const x =

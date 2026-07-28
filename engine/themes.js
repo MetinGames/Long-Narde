@@ -40,12 +40,18 @@ export const THEMES = Object.freeze({
             top: 42,
             bottom: 566,
             leftField: Object.freeze({
-                x: 20,
-                width: 337.5
+                x: 43,
+                width: 331
             }),
             rightField: Object.freeze({
-                x: 434,
-                width: 291
+                x: 423,
+                width: 331
+            }),
+            tray: Object.freeze({
+                x: 758,
+                width: 40,
+                top: 42,
+                bottom: 566
             })
         }),
         pointStroke: 'rgba(116, 76, 31, 0.48)',
