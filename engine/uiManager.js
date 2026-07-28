@@ -51,7 +51,7 @@ export class UIManager {
     // Sayaç numarasını ekranda günceller
     updateTimerText(seconds) {
         if (this.timerDisplay) {
-            this.timerDisplay.textContent = seconds;
+            this.timerDisplay.textContent = `${seconds} sn`;
         }
     }
 }
