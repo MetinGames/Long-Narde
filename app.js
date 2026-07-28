@@ -420,6 +420,7 @@ function bindEvents() {
         canInteract: () =>
             game.currentPlayer === 1 &&
             game.gameStatus === 'PLAYING',
+        layout: () => renderer.getBoardLayout(),
         onSlotClick: handleSlotClick
     });
 

@@ -22,16 +22,47 @@ export function getSlotWidth(layout = BOARD_LAYOUT) {
     return getUsableWidth(layout) / layout.slotCountPerRow;
 }
 
+export function getSlotWidthForColumn(
+    columnIndex,
+    layout = BOARD_LAYOUT
+) {
+    if (layout.leftField && layout.rightField) {
+        const field = columnIndex < 6
+            ? layout.leftField
+            : layout.rightField;
+        return field.width / 6;
+    }
+
+    return getSlotWidth(layout);
+}
+
 export function getMiddleBarX(layout = BOARD_LAYOUT) {
+    if (layout.leftField) {
+        return layout.leftField.x + layout.leftField.width;
+    }
+
     return layout.border + (getUsableWidth(layout) / 2);
 }
 
 export function getSlotX(
     columnIndex,
-    slotWidth = getSlotWidth(),
+    slotWidth = null,
     layout = BOARD_LAYOUT
 ) {
-    let x = layout.border + (columnIndex * slotWidth);
+    if (layout.leftField && layout.rightField) {
+        const field = columnIndex < 6
+            ? layout.leftField
+            : layout.rightField;
+        const fieldColumn = columnIndex % 6;
+        return field.x + (
+            fieldColumn *
+            getSlotWidthForColumn(columnIndex, layout)
+        );
+    }
+
+    const resolvedSlotWidth =
+        slotWidth ?? getSlotWidth(layout);
+    let x = layout.border + (columnIndex * resolvedSlotWidth);
     if (columnIndex >= 6) x += layout.bar;
     return x;
 }
@@ -69,14 +100,35 @@ export function getSlotFromCoordinates(
 
     const slotWidth = getSlotWidth(layout);
     const middleBarX = getMiddleBarX(layout);
+    let columnIndex;
 
-    if (x >= middleBarX && x < middleBarX + bar) {
-        return null;
+    if (layout.leftField && layout.rightField) {
+        const fields = [
+            { ...layout.leftField, offset: 0 },
+            { ...layout.rightField, offset: 6 }
+        ];
+        const field = fields.find(candidate =>
+            x >= candidate.x &&
+            x < candidate.x + candidate.width
+        );
+
+        if (!field) return null;
+
+        columnIndex =
+            field.offset +
+            Math.floor(
+                (x - field.x) /
+                (field.width / 6)
+            );
+    } else {
+        if (x >= middleBarX && x < middleBarX + bar) {
+            return null;
+        }
+
+        columnIndex = x < middleBarX
+            ? Math.floor((x - border) / slotWidth)
+            : Math.floor((x - border - bar) / slotWidth);
     }
-
-    const columnIndex = x < middleBarX
-        ? Math.floor((x - border) / slotWidth)
-        : Math.floor((x - border - bar) / slotWidth);
 
     if (
         columnIndex < 0 ||

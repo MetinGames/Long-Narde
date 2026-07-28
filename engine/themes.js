@@ -38,7 +38,15 @@ export const THEMES = Object.freeze({
         pointHeight: 178,
         playfield: Object.freeze({
             top: 42,
-            bottom: 566
+            bottom: 566,
+            leftField: Object.freeze({
+                x: 20,
+                width: 337.5
+            }),
+            rightField: Object.freeze({
+                x: 422,
+                width: 303
+            })
         }),
         pointStroke: 'rgba(116, 76, 31, 0.48)',
         numberColor: '#f7dc8a',

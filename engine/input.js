@@ -35,8 +35,12 @@ export function bindCanvasInput(
 
         const { x, y } =
             getCanvasCoordinates(canvas, event);
+        const activeLayout =
+            typeof layout === 'function'
+                ? layout()
+                : layout;
         const slotId =
-            getSlotFromCoordinates(x, y, layout);
+            getSlotFromCoordinates(x, y, activeLayout);
 
         if (slotId !== null) onSlotClick(slotId);
     };

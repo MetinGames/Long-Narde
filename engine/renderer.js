@@ -3,7 +3,8 @@
 import { t } from './i18n.js';
 import {
     BOARD_LAYOUT,
-    getSlotX
+    getSlotX,
+    getSlotWidthForColumn
 } from './layout.js';
 import { getTheme } from './themes.js';
 import { assets } from './assets.js';
@@ -98,6 +99,20 @@ export class Renderer {
             bottom:
                 this.theme.playfield?.bottom ??
                 (this.boardHeight - this.borderSize)
+        };
+    }
+
+    getBoardLayout() {
+        const playfield = this.theme.playfield;
+
+        if (!playfield?.leftField || !playfield?.rightField) {
+            return BOARD_LAYOUT;
+        }
+
+        return {
+            ...BOARD_LAYOUT,
+            leftField: playfield.leftField,
+            rightField: playfield.rightField
         };
     }
 
@@ -201,11 +216,10 @@ export class Renderer {
             this.borderSize +
             (innerWidth / 2) -
             (this.barWidth / 2);
-        const usableWidth = innerWidth - this.barWidth;
-        const slotWidth = usableWidth / 12;
         const pointHeight =
             this.theme.pointHeight || this.slotHeight;
         const playfield = this.getPlayfieldEdges();
+        const boardLayout = this.getBoardLayout();
 
         this.ctx.clearRect(
             0,
@@ -217,7 +231,13 @@ export class Renderer {
 
         for (let slotId = 12; slotId >= 1; slotId--) {
             const columnIndex = 12 - slotId;
-            const x = getSlotX(columnIndex, slotWidth);
+            const slotWidth =
+                getSlotWidthForColumn(columnIndex, boardLayout);
+            const x = getSlotX(
+                columnIndex,
+                slotWidth,
+                boardLayout
+            );
             this.drawMastermindTriangle(
                 x,
                 playfield.top,
@@ -231,7 +251,13 @@ export class Renderer {
 
         for (let slotId = 13; slotId <= 24; slotId++) {
             const columnIndex = slotId - 13;
-            const x = getSlotX(columnIndex, slotWidth);
+            const slotWidth =
+                getSlotWidthForColumn(columnIndex, boardLayout);
+            const x = getSlotX(
+                columnIndex,
+                slotWidth,
+                boardLayout
+            );
             this.drawMastermindTriangle(
                 x,
                 playfield.bottom,
@@ -287,15 +313,20 @@ export class Renderer {
             this.boardWidth -
             (this.borderSize * 2) -
             this.trayWidth;
-        const usableWidth = innerWidth - this.barWidth;
-        const slotWidth = usableWidth / 12;
         const pointHeight =
             this.theme.pointHeight || this.slotHeight;
         const playfield = this.getPlayfieldEdges();
+        const boardLayout = this.getBoardLayout();
 
         for (let slotId = 12; slotId >= 1; slotId--) {
             const columnIndex = 12 - slotId;
-            const x = getSlotX(columnIndex, slotWidth);
+            const slotWidth =
+                getSlotWidthForColumn(columnIndex, boardLayout);
+            const x = getSlotX(
+                columnIndex,
+                slotWidth,
+                boardLayout
+            );
 
             if (this.highlightedSlots.includes(slotId)) {
                 this.drawHighlightGlow(
@@ -318,7 +349,13 @@ export class Renderer {
 
         for (let slotId = 13; slotId <= 24; slotId++) {
             const columnIndex = slotId - 13;
-            const x = getSlotX(columnIndex, slotWidth);
+            const slotWidth =
+                getSlotWidthForColumn(columnIndex, boardLayout);
+            const x = getSlotX(
+                columnIndex,
+                slotWidth,
+                boardLayout
+            );
             const y = playfield.bottom;
 
             if (this.highlightedSlots.includes(slotId)) {
