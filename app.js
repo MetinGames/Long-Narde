@@ -26,6 +26,8 @@ let turnEndTime = 0;
 let scheduledTimeouts = new Set();
 
 function schedule(callback, delay) {
+    if (game.gameStatus === 'GAME_OVER') return null;
+
     const timeoutId = setTimeout(() => {
         scheduledTimeouts.delete(timeoutId);
         callback();
@@ -45,6 +47,11 @@ function clearRuntimeTasks() {
     scheduledTimeouts.clear();
 }
 
+function terminateGame() {
+    clearRuntimeTasks();
+    turnEndTime = 0;
+}
+
 function updateScreen() {
     renderer.render(game, selectedSlotId);
 }
@@ -55,7 +62,13 @@ function getHumanTurnDuration() {
 }
 
 function updateTimerFromClock() {
-    if (!turnEndTime || game.currentPlayer !== 1) return;
+    if (
+        !turnEndTime ||
+        game.currentPlayer !== 1 ||
+        game.gameStatus === 'GAME_OVER'
+    ) {
+        return;
+    }
 
     const secondsLeft = Math.max(
         0,
@@ -66,6 +79,19 @@ function updateTimerFromClock() {
     if (secondsLeft === 0) {
         clearInterval(turnTimerInterval);
         turnTimerInterval = null;
+
+        const timeoutResult = game.recordHumanTimeout();
+        if (timeoutResult === 'warning') {
+            renderer.updateStatus(t('status.timeoutWarning'));
+            finishCurrentTurn();
+            return;
+        }
+
+        if (timeoutResult === 'gameOver') {
+            showGameOver(2, 'game.timeExpiredGameOverMessage');
+            return;
+        }
+
         renderer.updateStatus(t('status.timeExpired'));
         finishCurrentTurn();
     }
@@ -184,8 +210,8 @@ function runBotMove() {
     schedule(runBotMove, 550);
 }
 
-function showGameOver(winner) {
-    clearRuntimeTasks();
+function showGameOver(winner, messageKey = null) {
+    terminateGame();
     selectedSlotId = null;
     updateScreen();
     ui.setBotTurnLayout();
@@ -201,19 +227,27 @@ function showGameOver(winner) {
     }
     if (message) {
         message.textContent =
-            winner === 1
-                ? t('game.winMessage')
-                : t('game.loseMessage');
+            messageKey
+                ? t(messageKey)
+                : winner === 1
+                    ? t('game.winMessage')
+                    : t('game.loseMessage');
     }
     if (statMoves) statMoves.textContent = totalMoveCounter;
-    if (overlay) overlay.style.display = 'flex';
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden', 'false');
+    }
 }
 
 function restartGame() {
     clearRuntimeTasks();
 
     const overlay = document.getElementById('game-over-overlay');
-    if (overlay) overlay.style.display = 'none';
+    if (overlay) {
+        overlay.style.display = 'none';
+        overlay.setAttribute('aria-hidden', 'true');
+    }
 
     game.initGame();
     selectedSlotId = null;
@@ -311,6 +345,7 @@ function handleSlotClick(slotId) {
             return;
         }
 
+        game.resetTimeoutStrikes();
         selectedSlotId = null;
         totalMoveCounter++;
         updateScreen();
@@ -427,13 +462,18 @@ function bindEvents() {
     document.addEventListener('visibilitychange', () => {
         if (
             document.visibilityState === 'visible' &&
-            turnTimerInterval
+            turnTimerInterval &&
+            game.gameStatus !== 'GAME_OVER'
         ) {
             updateTimerFromClock();
         }
     });
 
-    window.addEventListener('focus', updateTimerFromClock);
+    window.addEventListener('focus', () => {
+        if (game.gameStatus !== 'GAME_OVER') {
+            updateTimerFromClock();
+        }
+    });
 }
 
 window.addEventListener('DOMContentLoaded', async () => {

@@ -7,7 +7,55 @@ export class NardeGame {
         this.board = new Board();
         this.dice = new Dice();
         this.currentPlayer = 1;
-        this.gameStatus = 'WAITING_FOR_DICE';
+        this.status = 'WAITING_FOR_DICE';
+        this.mode = 'casual';
+        this.timeoutStrikes = 0;
+        this.endReason = null;
+        this.availableMoves = [];
+        this.headMovesThisTurn = 0;
+        this.turnsCompleted = { 1: 0, 2: 0 };
+        this.moveHistory = [];
+    }
+
+    get gameStatus() {
+        return this.status;
+    }
+
+    set gameStatus(value) {
+        this.status = value;
+    }
+
+    setMode(mode) {
+        this.mode = mode === 'ranked' ? 'ranked' : 'casual';
+    }
+
+    recordHumanTimeout() {
+        if (this.mode !== 'casual') {
+            return null;
+        }
+
+        this.timeoutStrikes = Math.min(2, this.timeoutStrikes + 1);
+        if (this.timeoutStrikes === 1) {
+            return 'warning';
+        }
+
+        this.status = 'GAME_OVER';
+        this.endReason = 'timeout';
+        return 'gameOver';
+    }
+
+    resetTimeoutStrikes() {
+        this.timeoutStrikes = 0;
+    }
+
+    initGame() {
+        this.board.setupInitialPieces();
+        this.dice.reset();
+        this.currentPlayer = 1;
+        this.status = 'WAITING_FOR_DICE';
+        this.mode = 'casual';
+        this.timeoutStrikes = 0;
+        this.endReason = null;
         this.availableMoves = [];
         this.headMovesThisTurn = 0;
         this.turnsCompleted = { 1: 0, 2: 0 };
@@ -101,12 +149,14 @@ export class NardeGame {
 
     checkWinCondition() {
         if (this.board.hasPlayerWon(1)) {
-            this.gameStatus = 'GAME_OVER';
+            this.status = 'GAME_OVER';
+            this.endReason = 'white_win';
             return 1;
         }
 
         if (this.board.hasPlayerWon(2)) {
-            this.gameStatus = 'GAME_OVER';
+            this.status = 'GAME_OVER';
+            this.endReason = 'black_win';
             return 2;
         }
 

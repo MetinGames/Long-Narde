@@ -127,6 +127,54 @@ test('yeni oyun bütün kural durumunu başlangıca sıfırlar', () => {
     );
 });
 
+test('kazanan kontrolü kazanan belirlenince gameStatus GAME_OVER olarak ayarlar', () => {
+    const game = prepareGame();
+
+    game.board.borneOff = { 1: 15, 2: 0 };
+    game.gameStatus = 'PLAYING';
+
+    const winner = game.checkWinCondition();
+
+    assert.equal(winner, 1);
+    assert.equal(game.gameStatus, 'GAME_OVER');
+    assert.equal(game.endReason, 'white_win');
+});
+
+test('casual modda ilk zaman aşımı uyarı verir, ikinci zaman aşımında kaybettirir', () => {
+    const game = prepareGame();
+    game.mode = 'casual';
+    game.status = 'PLAYING';
+
+    assert.equal(game.timeoutStrikes, 0);
+    assert.equal(game.recordHumanTimeout(), 'warning');
+    assert.equal(game.timeoutStrikes, 1);
+    assert.equal(game.gameStatus, 'PLAYING');
+
+    assert.equal(game.recordHumanTimeout(), 'gameOver');
+    assert.equal(game.gameStatus, 'GAME_OVER');
+    assert.equal(game.endReason, 'timeout');
+});
+
+test('başarılı hamle timeout strikes değerini sıfırlar', () => {
+    const game = prepareGame();
+    game.timeoutStrikes = 1;
+
+    game.resetTimeoutStrikes();
+    assert.equal(game.timeoutStrikes, 0);
+});
+
+test('rakip bütün pulları aldığında gameStatus GAME_OVER olur', () => {
+    const game = prepareGame();
+
+    game.board.borneOff = { 1: 0, 2: 15 };
+    game.gameStatus = 'PLAYING';
+
+    const winner = game.checkWinCondition();
+
+    assert.equal(winner, 2);
+    assert.equal(game.gameStatus, 'GAME_OVER');
+});
+
 test('siyah pul 24 sınırından 1 hanesine doğru sarılır', () => {
     const game = prepareGame({
         player: 2,
