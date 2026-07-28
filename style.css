@@ -639,15 +639,18 @@ select {
 @media (max-width: 600px) and (orientation: portrait) {
     body {
         min-height: 100dvh;
+        height: 100dvh;
         padding:
             max(4px, env(safe-area-inset-top))
             max(4px, env(safe-area-inset-right))
             max(6px, env(safe-area-inset-bottom))
             max(4px, env(safe-area-inset-left));
+        overflow: hidden;
     }
 
     #game-container {
         width: 100%;
+        max-height: 100%;
         padding: 4px;
         gap: 6px;
         border-width: 1px;
@@ -759,10 +762,49 @@ select {
     }
 }
 
+/* Tüm mobil/tablet dikey ekranlarda oyun tek sahneye sığar. */
+@media (max-width: 900px) and (orientation: portrait) {
+    body {
+        width: 100%;
+        height: 100dvh;
+        min-height: 100dvh;
+        overflow: hidden;
+        overscroll-behavior: none;
+    }
+
+    #game-container {
+        grid-template-rows: minmax(0, 1fr) auto;
+        width: 100%;
+        max-height: 100%;
+    }
+
+    #board-wrapper {
+        width: min(
+            100%,
+            calc(133.333dvh - 184px)
+        );
+        max-height: calc(100dvh - 138px);
+        justify-self: center;
+        align-self: center;
+    }
+
+    #game-canvas {
+        width: 100%;
+        max-height: calc(100dvh - 138px);
+        object-fit: contain;
+    }
+
+    #info-panel {
+        max-height: 126px;
+        overflow: hidden;
+    }
+}
+
 /* Alçak ve yatay telefonlarda tahta solda, panel sağda kalır. */
 @media (max-height: 600px) and (orientation: landscape) {
     body {
         min-height: 100dvh;
+        height: 100dvh;
         align-items: center;
         padding:
             max(4px, env(safe-area-inset-top))
@@ -770,14 +812,20 @@ select {
             max(4px, env(safe-area-inset-bottom))
             max(4px, env(safe-area-inset-left));
         overflow: hidden;
+        overscroll-behavior: none;
     }
 
     #game-container {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(170px, 24vw);
+        grid-template-columns:
+            minmax(0, calc(133.333dvh - 24px))
+            minmax(170px, 190px);
         grid-template-areas: "board info";
-        width: 100%;
-        max-width: calc(133.333dvh + 230px);
+        width: min(
+            100%,
+            calc(133.333dvh + 172px)
+        );
+        height: min(100%, calc(100dvh - 8px));
         padding: 4px;
         gap: 6px;
     }
@@ -786,6 +834,14 @@ select {
         grid-area: board;
         align-self: center;
         border-width: 2px;
+        width: 100%;
+        max-height: calc(100dvh - 18px);
+    }
+
+    #game-canvas {
+        width: 100%;
+        max-height: calc(100dvh - 18px);
+        object-fit: contain;
     }
 
     #info-panel {
@@ -794,6 +850,7 @@ select {
         height: 100%;
         padding: 6px;
         align-content: center;
+        overflow: hidden;
     }
 
     #panel-controls {
