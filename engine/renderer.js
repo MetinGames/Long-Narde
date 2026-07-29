@@ -40,6 +40,7 @@ export class Renderer {
         this.highlightedSlots = [];
         this.staticBoardCanvas = null;
         this.staticBoardDirty = true;
+        this.victoryMomentState = null;
 
         this.prepareCanvas();
     }
@@ -98,6 +99,35 @@ export class Renderer {
 
         localStorage.setItem('narde-theme', this.theme.id);
         this.staticBoardDirty = true;
+    }
+
+    startVictoryMoment({
+        winner,
+        durationMs,
+        settleDurationMs,
+        flashDurationMs,
+        reducedMotion
+    }) {
+        this.victoryMomentState = {
+            winner,
+            durationMs,
+            settleDurationMs,
+            flashDurationMs,
+            reducedMotion,
+            progress: 0
+        };
+    }
+
+    setVictoryMomentProgress(progress) {
+        if (!this.victoryMomentState) return;
+        this.victoryMomentState.progress = Math.max(
+            0,
+            Math.min(1, progress)
+        );
+    }
+
+    clearVictoryMoment() {
+        this.victoryMomentState = null;
     }
 
     getPlayfieldEdges() {
@@ -690,12 +720,35 @@ export class Renderer {
             trayRect
         );
 
-        for (const slice of slices) {
+        const victoryState = this.victoryMomentState;
+        const isWinnerTray =
+            victoryState &&
+            victoryState.winner === player &&
+            collected > 0;
+        let animatedSliceIndex = -1;
+        let settleOffset = 0;
+
+        if (isWinnerTray) {
+            const settleProgress = Math.min(
+                1,
+                victoryState.progress /
+                Math.max(0.001, victoryState.settleDurationMs / victoryState.durationMs)
+            );
+            settleOffset = (1 - settleProgress) * 7;
+            animatedSliceIndex = slices.length - 1;
+        }
+
+        for (let index = 0; index < slices.length; index++) {
+            const slice = slices[index];
+            const y =
+                index === animatedSliceIndex
+                    ? slice.y - settleOffset
+                    : slice.y;
             const grad = this.ctx.createLinearGradient(
                 slice.x,
-                slice.y,
+                y,
                 slice.x + slice.width,
-                slice.y + slice.height
+                y + slice.height
             );
 
             if (player === 1) {
@@ -711,18 +764,73 @@ export class Renderer {
             this.ctx.fillStyle = grad;
             this.ctx.fillRect(
                 slice.x,
-                slice.y,
+                y,
                 slice.width,
                 slice.height
             );
             this.ctx.lineWidth = 0.7;
             this.ctx.strokeRect(
                 slice.x,
-                slice.y,
+                y,
                 slice.width,
                 slice.height
             );
         }
+    }
+
+    drawVictoryTrayFlash(trayRect) {
+        const state = this.victoryMomentState;
+        if (!state) return;
+
+        const flashWindow = Math.max(
+            0.001,
+            state.flashDurationMs / state.durationMs
+        );
+        if (state.progress >= flashWindow) return;
+
+        const intensity = 1 - (state.progress / flashWindow);
+        const centerX = trayRect.x + (trayRect.width / 2);
+        const centerY = trayRect.y + (trayRect.height / 2);
+        const maxRadius = Math.max(trayRect.width, trayRect.height) * 0.78;
+        const ringRadius = (Math.max(trayRect.width, trayRect.height) * 0.52) + (8 * (1 - intensity));
+
+        this.ctx.save();
+        this.ctx.shadowColor = `rgba(255, 214, 122, ${0.36 * intensity})`;
+        this.ctx.shadowBlur = state.reducedMotion ? 5 : 10;
+
+        const halo = this.ctx.createRadialGradient(
+            centerX,
+            centerY,
+            0,
+            centerX,
+            centerY,
+            maxRadius
+        );
+        halo.addColorStop(0, `rgba(255, 233, 166, ${0.28 * intensity})`);
+        halo.addColorStop(0.62, `rgba(255, 208, 109, ${0.16 * intensity})`);
+        halo.addColorStop(1, 'rgba(255, 208, 109, 0)');
+        this.ctx.fillStyle = halo;
+        this.ctx.fillRect(
+            trayRect.x - 3,
+            trayRect.y - 3,
+            trayRect.width + 6,
+            trayRect.height + 6
+        );
+
+        this.ctx.strokeStyle = `rgba(255, 223, 150, ${0.30 * intensity})`;
+        this.ctx.lineWidth = state.reducedMotion ? 1.1 : 1.5;
+        this.ctx.beginPath();
+        this.ctx.ellipse(
+            centerX,
+            centerY,
+            ringRadius * 0.48,
+            ringRadius,
+            0,
+            0,
+            Math.PI * 2
+        );
+        this.ctx.stroke();
+        this.ctx.restore();
     }
 
     drawBearOffTrays(game) {
@@ -755,6 +863,13 @@ export class Renderer {
             bCollected,
             blackTray
         );
+
+        if (
+            this.victoryMomentState &&
+            this.victoryMomentState.winner === 2
+        ) {
+            this.drawVictoryTrayFlash(blackTray);
+        }
 
         if (game.currentPlayer === 2 && canCollect) {
             this.drawCollectPrompt(
@@ -793,6 +908,13 @@ export class Renderer {
             wCollected,
             whiteTray
         );
+
+        if (
+            this.victoryMomentState &&
+            this.victoryMomentState.winner === 1
+        ) {
+            this.drawVictoryTrayFlash(whiteTray);
+        }
 
         if (game.currentPlayer === 1 && canCollect) {
             this.drawCollectPrompt(

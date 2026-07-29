@@ -14,6 +14,11 @@ import {
 import { DiceRollAnimation } from './engine/animations.js';
 import { bindCanvasInput } from './engine/input.js';
 import { TurnTimeoutController } from './engine/timeoutController.js';
+import {
+    getVictoryMomentProfile,
+    shouldRunVictoryMoment,
+    triggerVictoryMomentHook
+} from './engine/victoryMoment.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -27,6 +32,8 @@ let turnTimerInterval = null;
 let scheduledTimeouts = new Set();
 let isInitialStartPending = true;
 let isTimeoutResolutionInProgress = false;
+let hasVictoryMomentPlayed = false;
+let victoryMomentHook = null;
 
 const timeoutController = new TurnTimeoutController();
 
@@ -79,6 +86,8 @@ function startGame() {
     game.initGame();
     selectedSlotId = null;
     totalMoveCounter = 0;
+    hasVictoryMomentPlayed = false;
+    renderer.clearVictoryMoment();
     timeoutController.resetAll();
 
     updateScreen();
@@ -93,6 +102,8 @@ function initializeBeforeStart() {
     game.initGame();
     selectedSlotId = null;
     totalMoveCounter = 0;
+    hasVictoryMomentPlayed = false;
+    renderer.clearVictoryMoment();
     timeoutController.resetAll();
 
     updateScreen();
@@ -268,7 +279,7 @@ function startAutomaticDiceRoll() {
     });
 }
 
-function runBotMove() {
+async function runBotMove() {
     if (
         game.gameStatus === 'GAME_OVER' ||
         game.currentPlayer !== 2
@@ -295,6 +306,10 @@ function runBotMove() {
 
     const winner = game.checkWinCondition();
     if (winner !== 0) {
+        await playVictoryMomentIfEligible({
+            winner,
+            targetId: move.target
+        });
         showGameOver(winner);
         return;
     }
@@ -332,6 +347,85 @@ function showGameOver(winner, messageKey = null) {
     }
 }
 
+function prefersReducedMotion() {
+    if (
+        typeof window === 'undefined' ||
+        typeof window.matchMedia !== 'function'
+    ) {
+        return false;
+    }
+
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function animateForDuration(durationMs, onProgress) {
+    const now =
+        typeof performance !== 'undefined' && performance.now
+            ? () => performance.now()
+            : () => Date.now();
+
+    return new Promise(resolve => {
+        const startAt = now();
+        const raf =
+            typeof requestAnimationFrame === 'function'
+                ? requestAnimationFrame
+                : callback => setTimeout(callback, 16);
+
+        function step() {
+            const elapsed = now() - startAt;
+            const progress = Math.max(0, Math.min(1, elapsed / durationMs));
+            onProgress(progress);
+
+            if (progress >= 1) {
+                resolve();
+                return;
+            }
+
+            raf(step);
+        }
+
+        raf(step);
+    });
+}
+
+async function playVictoryMomentIfEligible({ winner, targetId }) {
+    const shouldPlay = shouldRunVictoryMoment({
+        winner,
+        endReason: game.endReason,
+        targetId,
+        alreadyTriggered: hasVictoryMomentPlayed
+    });
+
+    if (!shouldPlay) return;
+
+    hasVictoryMomentPlayed = true;
+
+    const reducedMotion = prefersReducedMotion();
+    const profile = getVictoryMomentProfile(reducedMotion);
+
+    triggerVictoryMomentHook(victoryMomentHook, {
+        winner,
+        endReason: game.endReason,
+        profile
+    });
+
+    renderer.startVictoryMoment({
+        winner,
+        durationMs: profile.durationMs,
+        settleDurationMs: profile.settleDurationMs,
+        flashDurationMs: profile.flashDurationMs,
+        reducedMotion
+    });
+
+    await animateForDuration(profile.durationMs, progress => {
+        renderer.setVictoryMomentProgress(progress);
+        updateScreen();
+    });
+
+    renderer.clearVictoryMoment();
+    updateScreen();
+}
+
 function restartGame() {
     clearRuntimeTasks();
 
@@ -344,6 +438,8 @@ function restartGame() {
     game.initGame();
     selectedSlotId = null;
     totalMoveCounter = 0;
+    hasVictoryMomentPlayed = false;
+    renderer.clearVictoryMoment();
     timeoutController.resetAll();
 
     updateScreen();
@@ -396,7 +492,7 @@ function selectPlayableSlot(slotId) {
     return true;
 }
 
-function handleSlotClick(slotId) {
+async function handleSlotClick(slotId) {
     if (
         game.gameStatus !== 'PLAYING' ||
         game.currentPlayer !== 1
@@ -446,6 +542,10 @@ function handleSlotClick(slotId) {
 
         const winner = game.checkWinCondition();
         if (winner !== 0) {
+            await playVictoryMomentIfEligible({
+                winner,
+                targetId: slotId
+            });
             showGameOver(winner);
             return;
         }
