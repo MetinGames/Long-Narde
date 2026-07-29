@@ -261,6 +261,110 @@ body.i18n-ready {
     z-index: 1010;
 }
 
+#player-stats-modal {
+    position: absolute;
+    inset: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    background: rgba(12, 6, 2, 0.76);
+    z-index: 1010;
+}
+
+#player-stats-card {
+    width: min(100%, 560px);
+    max-height: min(86vh, 700px);
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #4a2b1d 0%, #28140f 100%);
+    border: 1px solid rgba(236, 189, 97, 0.34);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.58), inset 0 1px 0 rgba(255, 233, 192, 0.12);
+}
+
+#player-stats-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#player-stats-title {
+    color: #f4dc9a;
+    font-size: 1.28rem;
+    line-height: 1.2;
+}
+
+#stats-empty-state {
+    color: #f0dfc2;
+    text-align: center;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px dashed rgba(236, 189, 97, 0.35);
+    background: rgba(24, 12, 8, 0.45);
+}
+
+#player-stats-cards {
+    overflow-y: auto;
+    display: grid;
+    gap: 10px;
+    padding-right: 2px;
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.stats-row.stats-row-small {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stats-mini-card {
+    border-radius: 12px;
+    border: 1px solid rgba(236, 189, 97, 0.24);
+    background: rgba(30, 14, 9, 0.56);
+    padding: 10px;
+    min-height: 74px;
+    display: grid;
+    gap: 6px;
+    align-content: center;
+}
+
+.stats-label {
+    color: #f4d9a5;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+}
+
+.stats-value {
+    color: #fff0cf;
+    font-size: 1.02rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+#player-stats-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+#stats-close-footer-button {
+    min-height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(236, 189, 97, 0.34);
+    background: rgba(63, 35, 23, 0.96);
+    color: #f0dbb2;
+    font-weight: 700;
+    cursor: pointer;
+}
+
 #how-to-play-card {
     width: min(100%, 640px);
     max-height: min(88vh, 740px);
@@ -391,6 +495,16 @@ body.i18n-ready {
 
     #guide-page-counter {
         grid-column: 1 / -1;
+    }
+
+    #player-stats-card {
+        max-height: min(90vh, 760px);
+        padding: 14px;
+    }
+
+    .stats-row,
+    .stats-row.stats-row-small {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
