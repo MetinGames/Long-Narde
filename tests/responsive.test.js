@@ -19,5 +19,6 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="start-screen"'), 'Start screen overlay missing');
     assert.ok(html.includes('id="start-button"'), 'Start button missing');
     assert.ok(html.includes('id="restart-button"'), 'Restart button missing');
+    assert.ok(html.includes('id="sound-toggle"'), 'Sound toggle button missing');
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
 });

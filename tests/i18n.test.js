@@ -267,3 +267,30 @@ test('uses natural Russian bot difficulty labels', async () => {
     restoreGlobalProperty('localStorage', originalLocalStorage);
     restoreGlobalProperty('navigator', originalNavigator);
 });
+
+test('localizes sound toggle labels in all supported languages', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    i18n.setLanguage('tr');
+    assert.equal(i18n.t('ui.soundOn'), 'Ses: Açık');
+    assert.equal(i18n.t('ui.soundOff'), 'Ses: Kapalı');
+
+    i18n.setLanguage('en');
+    assert.equal(i18n.t('ui.soundOn'), 'Sound: On');
+    assert.equal(i18n.t('ui.soundOff'), 'Sound: Off');
+
+    i18n.setLanguage('ru');
+    assert.equal(i18n.t('ui.soundOn'), 'Звук: вкл');
+    assert.equal(i18n.t('ui.soundOff'), 'Звук: выкл');
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});

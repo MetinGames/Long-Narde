@@ -389,7 +389,8 @@ body.i18n-ready {
     /* Ensure touch targets are comfortable */
     #bot-difficulty,
     #theme-select,
-    #language-select {
+    #language-select,
+    #sound-toggle {
         min-height: 44px;
         padding: 8px 10px;
         font-size: 14px;
@@ -649,7 +650,8 @@ body {
 
 /* Dil seçimi bot seviyesiyle aynı görsel dili kullanır. */
 #language-container,
-#theme-container {
+#theme-container,
+#sound-container {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -670,6 +672,25 @@ body {
     border-radius: 6px;
     padding: 7px 9px;
     cursor: pointer;
+}
+
+#sound-toggle {
+    background: #294966;
+    color: #ffffff;
+    border: 1px solid #66829c;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+#sound-toggle:hover {
+    border-color: #e67e22;
+}
+
+#sound-toggle:focus-visible {
+    outline: 2px solid #f0c77c;
+    outline-offset: 2px;
 }
 
 
@@ -877,21 +898,44 @@ body {
 
     #turn-indicator,
     #timer-container,
-    #dice-container {
+    #dice-container,
+    #theme-container,
+    #sound-container {
         justify-self: stretch;
     }
 
     #difficulty-container,
     #language-container,
-    #theme-container {
+    #theme-container,
+    #sound-container {
         justify-content: space-between;
     }
 
     #bot-difficulty,
     #language-select,
-    #theme-select {
+    #theme-select,
+    #sound-toggle {
         min-width: 0;
         max-width: 120px;
+    }
+
+    #sound-toggle {
+        background: #294966;
+        color: #ffffff;
+        border: 1px solid #66829c;
+        border-radius: 6px;
+        padding: 7px 10px;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    #sound-toggle:hover {
+        border-color: #e67e22;
+    }
+
+    #sound-toggle:focus-visible {
+        outline: 2px solid #f0c77c;
+        outline-offset: 2px;
     }
 
     #action-buttons {

@@ -14,12 +14,14 @@ import {
 import { DiceRollAnimation } from './engine/animations.js';
 import { bindCanvasInput } from './engine/input.js';
 import { TurnTimeoutController } from './engine/timeoutController.js';
+import { SoundManager } from './engine/sound.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
 const bot = new NardeBot(2, 'medium');
 const ui = new UIManager();
 const diceRollAnimation = new DiceRollAnimation();
+const sound = new SoundManager();
 
 let selectedSlotId = null;
 let totalMoveCounter = 0;
@@ -29,6 +31,27 @@ let isInitialStartPending = true;
 let isTimeoutResolutionInProgress = false;
 
 const timeoutController = new TurnTimeoutController();
+
+function updateSoundToggleUI() {
+    const soundToggleButton = document.getElementById('sound-toggle');
+    if (!soundToggleButton) return;
+
+    const isSoundEnabled = sound.isEnabled();
+    soundToggleButton.textContent =
+        t(isSoundEnabled ? 'ui.soundOn' : 'ui.soundOff');
+    soundToggleButton.setAttribute(
+        'aria-label',
+        t(
+            isSoundEnabled
+                ? 'ui.soundToggleAriaOn'
+                : 'ui.soundToggleAriaOff'
+        )
+    );
+    soundToggleButton.setAttribute(
+        'aria-pressed',
+        String(isSoundEnabled)
+    );
+}
 
 function schedule(callback, delay) {
     if (game.gameStatus === 'GAME_OVER') return null;
@@ -71,9 +94,10 @@ function hideStartScreen() {
     overlay.setAttribute('aria-hidden', 'true');
 }
 
-function startGame() {
+async function startGame() {
     if (!isInitialStartPending) return;
 
+    await sound.activateFromUserGesture();
     isInitialStartPending = false;
     hideStartScreen();
     game.initGame();
@@ -154,6 +178,7 @@ function synchronizeTimeoutState() {
         if (evaluation.action === 'firstTimeout') {
             const timeoutResult = game.recordHumanTimeout();
             if (timeoutResult === 'warning') {
+                sound.playTimeoutWarning();
                 renderer.updateStatus(t('status.timeoutWarning'));
                 finishCurrentTurn();
                 return;
@@ -221,6 +246,7 @@ function startAutomaticDiceRoll() {
     const die1 = document.getElementById('die1');
     const die2 = document.getElementById('die2');
 
+    sound.playDiceRoll();
     diceRollAnimation.start(die1, die2, () => {
         const diceValues = game.rollDice();
         selectedSlotId = null;
@@ -271,6 +297,7 @@ function runBotMove() {
         return;
     }
 
+    sound.playPiecePlace();
     totalMoveCounter++;
     updateScreen();
 
@@ -311,6 +338,12 @@ function showGameOver(winner, messageKey = null) {
         overlay.style.display = 'flex';
         overlay.setAttribute('aria-hidden', 'false');
     }
+
+    if (winner === 1) {
+        sound.playResultWin();
+    } else {
+        sound.playResultLose();
+    }
 }
 
 function restartGame() {
@@ -350,6 +383,8 @@ function explainUnplayableSlot(slotId) {
             t('status.pieceBlocked')
         );
     }
+
+    sound.playInvalidMove();
 }
 
 function selectPlayableSlot(slotId) {
@@ -412,12 +447,14 @@ function handleSlotClick(slotId) {
     // Hedefte kendi pulumuz olsa bile önce hamleyi uygula.
     if (legalTargets.includes(slotId)) {
         if (!game.processPlayerInput(selectedSlotId, slotId)) {
+            sound.playInvalidMove();
             renderer.updateStatus(
                 t('status.applyFailed')
             );
             return;
         }
 
+        sound.playPiecePlace();
         game.resetTimeoutStrikes();
         timeoutController.clearForfeitWindow();
         selectedSlotId = null;
@@ -452,6 +489,7 @@ function handleSlotClick(slotId) {
     renderer.updateStatus(
         t('status.targetRequired')
     );
+    sound.playInvalidMove();
 }
 
 function bindEvents() {
@@ -467,6 +505,8 @@ function bindEvents() {
         document.getElementById('language-select');
     const themeSelect =
         document.getElementById('theme-select');
+    const soundToggleButton =
+        document.getElementById('sound-toggle');
 
     difficultySelect?.addEventListener('change', event => {
         bot.difficulty = event.target.value;
@@ -478,8 +518,17 @@ function bindEvents() {
     languageSelect?.addEventListener('change', event => {
         setLanguage(event.target.value);
         applyTranslations();
+        updateSoundToggleUI();
         updateScreen();
         renderer.updateStatus(t('status.languageChanged'));
+    });
+
+    soundToggleButton?.addEventListener('click', async () => {
+        await sound.toggleEnabled({ fromUserGesture: true });
+        if (sound.isEnabled()) {
+            sound.playToggleOnConfirm();
+        }
+        updateSoundToggleUI();
     });
 
     themeSelect?.addEventListener('change', event => {
@@ -493,7 +542,9 @@ function bindEvents() {
     });
 
     restartButton?.addEventListener('click', restartGame);
-    startButton?.addEventListener('click', startGame);
+    startButton?.addEventListener('click', async () => {
+        await startGame();
+    });
 
     ui.undoButton?.addEventListener('click', () => {
         if (
@@ -570,6 +621,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     bindEvents();
+    updateSoundToggleUI();
 
     // Shorten displayed theme name on mobile landscape without changing values or logic.
     (function setupMobileShortTheme() {
