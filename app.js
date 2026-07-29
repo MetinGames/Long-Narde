@@ -14,6 +14,7 @@ import {
 import { DiceRollAnimation } from './engine/animations.js';
 import { bindCanvasInput } from './engine/input.js';
 import { TurnTimeoutController } from './engine/timeoutController.js';
+import { HowToPlayGuide } from './engine/howToPlayGuide.js';
 import {
     getVictoryMomentProfile,
     shouldRunVictoryMoment,
@@ -34,6 +35,7 @@ let isInitialStartPending = true;
 let isTimeoutResolutionInProgress = false;
 let hasVictoryMomentPlayed = false;
 let victoryMomentHook = null;
+let howToPlayGuide = null;
 
 const timeoutController = new TurnTimeoutController();
 
@@ -76,12 +78,14 @@ function hideStartScreen() {
     if (!overlay) return;
     overlay.style.display = 'none';
     overlay.setAttribute('aria-hidden', 'true');
+    howToPlayGuide?.close({ returnFocus: false });
 }
 
 function startGame() {
     if (!isInitialStartPending) return;
 
     isInitialStartPending = false;
+    howToPlayGuide?.close({ returnFocus: false });
     hideStartScreen();
     game.initGame();
     selectedSlotId = null;
@@ -586,6 +590,37 @@ function bindEvents() {
         document.getElementById('language-select');
     const themeSelect =
         document.getElementById('theme-select');
+    const howToPlayButton =
+        document.getElementById('how-to-play-button');
+    const howToPlayModal =
+        document.getElementById('how-to-play-modal');
+    const guidePrevButton =
+        document.getElementById('guide-prev-button');
+    const guideNextButton =
+        document.getElementById('guide-next-button');
+    const guideStartButton =
+        document.getElementById('guide-start-button');
+    const guidePageCounter =
+        document.getElementById('guide-page-counter');
+    const guideCloseButtons = [
+        document.getElementById('guide-close-button'),
+        document.getElementById('guide-close-footer-button')
+    ].filter(Boolean);
+    const guidePages = howToPlayModal
+        ? Array.from(howToPlayModal.querySelectorAll('[data-guide-page]'))
+        : [];
+
+    howToPlayGuide = new HowToPlayGuide({
+        modal: howToPlayModal,
+        openButton: howToPlayButton,
+        closeButtons: guideCloseButtons,
+        previousButton: guidePrevButton,
+        nextButton: guideNextButton,
+        startButton: guideStartButton,
+        pageCounter: guidePageCounter,
+        pageElements: guidePages,
+        onStart: startGame
+    });
 
     difficultySelect?.addEventListener('change', event => {
         bot.difficulty = event.target.value;
@@ -597,6 +632,7 @@ function bindEvents() {
     languageSelect?.addEventListener('change', event => {
         setLanguage(event.target.value);
         applyTranslations();
+        howToPlayGuide?.refreshForLanguage();
         updateScreen();
         renderer.updateStatus(t('status.languageChanged'));
     });

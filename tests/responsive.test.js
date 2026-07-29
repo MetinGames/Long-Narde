@@ -14,6 +14,9 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#info-panel > #turn-indicator.is-white-turn'), 'Compact turn strip white-state style missing');
     assert.ok(css.includes('#info-panel > #turn-indicator.is-dark-turn'), 'Compact turn strip dark-state style missing');
     assert.ok(css.includes('#turn-indicator .turn-dot'), 'Turn strip dot style missing');
+    assert.ok(css.includes('#how-to-play-modal'), 'How-to-play modal style missing');
+    assert.ok(css.includes('#how-to-play-pages'), 'How-to-play pages container style missing');
+    assert.ok(css.includes('#how-to-play-footer'), 'How-to-play footer style missing');
 });
 
 test('index.html contains rotate notice element, start screen, and restart button', () => {
@@ -21,6 +24,11 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="rotate-notice"'), 'Rotate notice element missing');
     assert.ok(html.includes('id="start-screen"'), 'Start screen overlay missing');
     assert.ok(html.includes('id="start-button"'), 'Start button missing');
+    assert.ok(html.includes('id="how-to-play-button"'), 'How-to-play button missing');
+    assert.ok(/id="how-to-play-modal"[^>]*aria-modal="true"/i.test(html), 'How-to-play modal aria-modal missing');
+    assert.ok(html.includes('id="guide-prev-button"'), 'Guide previous button missing');
+    assert.ok(html.includes('id="guide-next-button"'), 'Guide next button missing');
+    assert.ok(html.includes('id="guide-start-button"'), 'Guide start button missing');
     assert.ok(html.includes('id="restart-button"'), 'Restart button missing');
     assert.ok(html.includes('id="die-right-1"'), 'Double move indicator 1 missing');
     assert.ok(html.includes('id="die-right-4"'), 'Double move indicator 4 missing');

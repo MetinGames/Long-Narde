@@ -92,7 +92,108 @@
         <div id="start-screen-box">
             <h2 data-i18n="ui.startTitle">Uzun Narde'ye Hoş Geldiniz</h2>
             <p data-i18n="ui.startDescription">Tahta hazır. Oyuna başlamak için Oyuna Başla'ya dokunun.</p>
-            <button id="start-button" data-i18n="ui.startButton" type="button">Oyuna Başla</button>
+            <div id="start-screen-actions">
+                <button id="start-button" data-i18n="ui.startButton" type="button">Oyuna Başla</button>
+                <button
+                    id="how-to-play-button"
+                    class="secondary-start-button"
+                    data-i18n="ui.howToPlayButton"
+                    data-i18n-aria-label="ui.howToPlayButton"
+                    type="button"
+                    aria-label="Nasıl Oynanır?"
+                >Nasıl Oynanır?</button>
+            </div>
+        </div>
+
+        <div
+            id="how-to-play-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-hidden="true"
+            aria-labelledby="how-to-play-title"
+            aria-describedby="guide-page-counter"
+        >
+            <div id="how-to-play-card">
+                <div id="how-to-play-header">
+                    <h3 id="how-to-play-title" data-i18n="guide.title">Nasıl Oynanır?</h3>
+                    <button
+                        id="guide-close-button"
+                        class="guide-close"
+                        type="button"
+                        data-i18n-aria-label="guide.close"
+                        aria-label="Kapat"
+                    >×</button>
+                </div>
+
+                <div id="how-to-play-pages" tabindex="-1">
+                    <section class="guide-page" data-guide-page="0">
+                        <h4 data-i18n="guide.section1.title">1. Amaç ve taşların ilerleme yönü</h4>
+                        <p data-i18n="guide.section1.body">Amaç 15 pulu kendi ev bölgesine getirip toplamaktır. Beyaz 1→24, siyah 13→24→1→12 yönünde ilerler.</p>
+                    </section>
+
+                    <section class="guide-page" data-guide-page="1" hidden aria-hidden="true">
+                        <h4 data-i18n="guide.section2.title">2. Zarların ayrı ayrı kullanılması</h4>
+                        <p data-i18n="guide.section2.body">Her zar ayrı bir hamledir. İki zar da oynanabiliyorsa turda ikisini de kullanmalısınız.</p>
+                    </section>
+
+                    <section class="guide-page" data-guide-page="2" hidden aria-hidden="true">
+                        <h4 data-i18n="guide.section3.title">3. Tek zar oynanabiliyorsa büyük zar</h4>
+                        <p data-i18n="guide.section3.body">Sadece tek bir zarla hamle mümkünse daha büyük zar değeri zorunludur.</p>
+                    </section>
+
+                    <section class="guide-page" data-guide-page="3" hidden aria-hidden="true">
+                        <h4 data-i18n="guide.section4.title">4. Çift zar ve altın hak ışıkları</h4>
+                        <p data-i18n="guide.section4.body">Çift zar geldiğinde aynı değeri dört kez oynarsınız. Kalan haklar zarların yanındaki altın ışıklarla gösterilir.</p>
+                    </section>
+
+                    <section class="guide-page" data-guide-page="4" hidden aria-hidden="true">
+                        <h4 data-i18n="guide.section5.title">5. Ev bölgesi ve pul toplama</h4>
+                        <p data-i18n="guide.section5.body">Toplama için tüm pullarınız ev bölgesinde olmalıdır. Tam zarla veya kurala uygunsa büyük zarla pul toplayabilirsiniz.</p>
+                    </section>
+
+                    <section class="guide-page" data-guide-page="5" hidden aria-hidden="true">
+                        <h4 data-i18n="guide.important.title">Onemli kurallar</h4>
+                        <ul>
+                            <li data-i18n="guide.important.headRule">Bir turda baştan en fazla 1 pul çıkar; ilk turdaki özel 3-3, 4-4, 6-6 için bu sınır 2 olur.</li>
+                            <li data-i18n="guide.important.primeRule">Rakibin tüm pullarını geride bırakacak altılı blok kuramazsınız.</li>
+                            <li data-i18n="guide.important.blockRule">Rakibin bulunduğu haneye inemezsiniz; sadece boş veya kendi hanenize oynarsınız.</li>
+                        </ul>
+                    </section>
+                </div>
+
+                <div id="how-to-play-footer">
+                    <button
+                        id="guide-prev-button"
+                        type="button"
+                        data-i18n="guide.prev"
+                        data-i18n-aria-label="guide.prev"
+                        aria-label="Geri"
+                    >Geri</button>
+                    <span id="guide-page-counter" aria-live="polite">1 / 6</span>
+                    <button
+                        id="guide-next-button"
+                        type="button"
+                        data-i18n="guide.next"
+                        data-i18n-aria-label="guide.next"
+                        aria-label="Ileri"
+                    >Ileri</button>
+                    <button
+                        id="guide-close-footer-button"
+                        class="secondary-start-button"
+                        type="button"
+                        data-i18n="guide.close"
+                        data-i18n-aria-label="guide.close"
+                        aria-label="Kapat"
+                    >Kapat</button>
+                    <button
+                        id="guide-start-button"
+                        type="button"
+                        data-i18n="ui.startButton"
+                        data-i18n-aria-label="ui.startButton"
+                        aria-label="Oyuna Basla"
+                    >Oyuna Basla</button>
+                </div>
+            </div>
         </div>
     </div>
 
