@@ -13,6 +13,8 @@ import { assets } from './assets.js';
 export class Renderer {
     constructor() {
         this.canvas = document.getElementById('game-canvas');
+        this.turnIndicator =
+            document.getElementById('turn-indicator');
         this.currentPlayerText =
             document.getElementById('current-player');
         this.die1Text = document.getElementById('die1');
@@ -42,6 +44,37 @@ export class Renderer {
         this.staticBoardDirty = true;
 
         this.prepareCanvas();
+    }
+
+    updateTurnIndicator(currentPlayer) {
+        const playerKey =
+            currentPlayer === 1
+                ? 'player.white'
+                : 'player.black';
+        const playerName = t(playerKey);
+
+        if (this.currentPlayerText) {
+            this.currentPlayerText.textContent = playerName;
+            this.currentPlayerText.dataset.i18n = playerKey;
+        }
+
+        if (!this.turnIndicator) return;
+
+        const isWhiteTurn = currentPlayer === 1;
+        this.turnIndicator.classList.toggle(
+            'is-white-turn',
+            isWhiteTurn
+        );
+        this.turnIndicator.classList.toggle(
+            'is-dark-turn',
+            !isWhiteTurn
+        );
+        this.turnIndicator.dataset.activePlayer =
+            isWhiteTurn ? 'white' : 'black';
+        this.turnIndicator.setAttribute(
+            'aria-label',
+            `${t('ui.turn')} ${playerName}`
+        );
     }
 
     prepareCanvas() {
@@ -389,12 +422,7 @@ export class Renderer {
 
         this.drawBearOffTrays(game);
 
-        if (this.currentPlayerText) {
-            this.currentPlayerText.textContent =
-                game.currentPlayer === 1
-                    ? t('player.white')
-                    : t('player.black');
-        }
+        this.updateTurnIndicator(game.currentPlayer);
 
         if (
             game.dice.values &&

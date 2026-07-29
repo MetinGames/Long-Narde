@@ -11,6 +11,9 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Missing portrait mobile media query');
     assert.ok(css.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Missing low landscape mobile media query');
     assert.ok(css.includes('#game-canvas') || css.includes('canvas'), 'Canvas responsive rules missing');
+    assert.ok(css.includes('#info-panel > #turn-indicator.is-white-turn'), 'Compact turn strip white-state style missing');
+    assert.ok(css.includes('#info-panel > #turn-indicator.is-dark-turn'), 'Compact turn strip dark-state style missing');
+    assert.ok(css.includes('#turn-indicator .turn-dot'), 'Turn strip dot style missing');
 });
 
 test('index.html contains rotate notice element, start screen, and restart button', () => {
@@ -21,5 +24,6 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="restart-button"'), 'Restart button missing');
     assert.ok(html.includes('id="die-right-1"'), 'Double move indicator 1 missing');
     assert.ok(html.includes('id="die-right-4"'), 'Double move indicator 4 missing');
+    assert.ok(/id="turn-indicator"[^>]*aria-live="polite"/i.test(html), 'Turn indicator aria-live polite missing');
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
 });
