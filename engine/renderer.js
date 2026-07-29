@@ -17,6 +17,14 @@ export class Renderer {
             document.getElementById('current-player');
         this.die1Text = document.getElementById('die1');
         this.die2Text = document.getElementById('die2');
+        this.doubleRights = [
+            document.getElementById('die-right-1'),
+            document.getElementById('die-right-2'),
+            document.getElementById('die-right-3'),
+            document.getElementById('die-right-4')
+        ];
+        this.diceDisplay =
+            document.getElementById('dice-display');
         this.statusMessage =
             document.getElementById('status-message');
 
@@ -406,6 +414,7 @@ export class Renderer {
             if (this.die2Text) this.die2Text.textContent = '-';
             this.setDieUsed(this.die1Text, false);
             this.setDieUsed(this.die2Text, false);
+            this.updateDoubleMoveRights(0, false);
         }
     }
 
@@ -423,9 +432,15 @@ export class Renderer {
                 value => value === die1
             ).length;
             const allUsed = movesLeft === 0;
+            const usedMoveRights =
+                Math.max(0, 4 - movesLeft);
 
             this.setDieUsed(this.die1Text, allUsed);
             this.setDieUsed(this.die2Text, allUsed);
+            this.updateDoubleMoveRights(
+                usedMoveRights,
+                true
+            );
 
             const title = allUsed
                 ? t('status.dieAllUsed')
@@ -435,6 +450,8 @@ export class Renderer {
             return;
         }
 
+        this.updateDoubleMoveRights(0, false);
+
         this.setDieUsed(
             this.die1Text,
             !remaining.includes(die1)
@@ -443,6 +460,21 @@ export class Renderer {
             this.die2Text,
             !remaining.includes(die2)
         );
+    }
+
+    updateDoubleMoveRights(usedMoveRights, isVisible) {
+        if (this.diceDisplay) {
+            this.diceDisplay.classList.toggle(
+                'is-double-roll',
+                isVisible
+            );
+        }
+
+        this.doubleRights.forEach((indicator, index) => {
+            if (!indicator) return;
+            const isSpent = index < usedMoveRights;
+            indicator.classList.toggle('is-spent', isSpent);
+        });
     }
 
     // SEDEF KAKMALI VE ALTIN YALDIZLI MASTERMIND ÜÇGENLERİ
@@ -618,6 +650,81 @@ export class Renderer {
         this.ctx.strokeRect(x + 7, y + 8, width - 14, height - 16);
     }
 
+    getCollectedSliceLayout(collected, trayRect) {
+        const safeCollected = Math.max(
+            0,
+            Math.min(15, collected)
+        );
+        const laneWidth = Math.max(
+            5,
+            Math.min(8, trayRect.width - 22)
+        );
+        const laneX =
+            trayRect.x + trayRect.width - laneWidth - 6;
+        const laneTop = trayRect.y + 12;
+        const laneBottom = trayRect.y + trayRect.height - 12;
+        const laneHeight = Math.max(20, laneBottom - laneTop);
+        const sliceHeight = Math.max(
+            2,
+            Math.floor((laneHeight - 4) / 15)
+        );
+        const stackBottom = laneBottom - 2;
+        const slices = [];
+
+        for (let i = 0; i < safeCollected; i++) {
+            const y = stackBottom - ((i + 1) * sliceHeight);
+            slices.push({
+                x: laneX,
+                y,
+                width: laneWidth,
+                height: sliceHeight - 1
+            });
+        }
+
+        return slices;
+    }
+
+    drawCollectedSlices(player, collected, trayRect) {
+        const slices = this.getCollectedSliceLayout(
+            collected,
+            trayRect
+        );
+
+        for (const slice of slices) {
+            const grad = this.ctx.createLinearGradient(
+                slice.x,
+                slice.y,
+                slice.x + slice.width,
+                slice.y + slice.height
+            );
+
+            if (player === 1) {
+                grad.addColorStop(0, '#f9eed2');
+                grad.addColorStop(1, '#b79a65');
+                this.ctx.strokeStyle = 'rgba(90, 64, 32, 0.65)';
+            } else {
+                grad.addColorStop(0, '#4f433a');
+                grad.addColorStop(1, '#16100d');
+                this.ctx.strokeStyle = 'rgba(218, 189, 137, 0.25)';
+            }
+
+            this.ctx.fillStyle = grad;
+            this.ctx.fillRect(
+                slice.x,
+                slice.y,
+                slice.width,
+                slice.height
+            );
+            this.ctx.lineWidth = 0.7;
+            this.ctx.strokeRect(
+                slice.x,
+                slice.y,
+                slice.width,
+                slice.height
+            );
+        }
+    }
+
     drawBearOffTrays(game) {
         const wCollected = game.board.borneOff?.[1] ?? 0;
         const bCollected = game.board.borneOff?.[2] ?? 0;
@@ -642,6 +749,11 @@ export class Renderer {
             blackTrayY,
             trayWidth,
             trayHeight
+        );
+        this.drawCollectedSlices(
+            2,
+            bCollected,
+            blackTray
         );
 
         if (game.currentPlayer === 2 && canCollect) {
@@ -675,6 +787,11 @@ export class Renderer {
             whiteTrayY,
             trayWidth,
             trayHeight
+        );
+        this.drawCollectedSlices(
+            1,
+            wCollected,
+            whiteTray
         );
 
         if (game.currentPlayer === 1 && canCollect) {

@@ -20,5 +20,7 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="start-button"'), 'Start button missing');
     assert.ok(html.includes('id="restart-button"'), 'Restart button missing');
     assert.ok(html.includes('id="sound-toggle"'), 'Sound toggle button missing');
+    assert.ok(html.includes('id="die-right-1"'), 'Double move indicator 1 missing');
+    assert.ok(html.includes('id="die-right-4"'), 'Double move indicator 4 missing');
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
 });

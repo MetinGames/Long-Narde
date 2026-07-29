@@ -110,6 +110,38 @@ body.i18n-ready {
     gap: 10px;
 }
 
+.die-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.die-rights {
+    display: none;
+    gap: 4px;
+    height: 8px;
+}
+
+#dice-display.is-double-roll .die-rights {
+    display: flex;
+}
+
+.die-right {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 32%, #fff6ca 0%, #f5d369 45%, #c89227 100%);
+    box-shadow: 0 0 6px rgba(245, 208, 96, 0.75);
+    transition: opacity 140ms ease, filter 140ms ease;
+}
+
+.die-right.is-spent {
+    opacity: 0.2;
+    filter: saturate(0.35) brightness(0.8);
+    box-shadow: none;
+}
+
 .die {
     width: 44px;
     height: 44px;
@@ -499,6 +531,11 @@ body.i18n-ready {
     transition: all 0.2s ease;
 }
 
+#undo-button:disabled,
+#confirm-button:disabled {
+    cursor: default;
+}
+
 #action-buttons button:active {
     transform: translateY(2px) scale(0.95); 
 }
@@ -631,9 +668,24 @@ body {
     background: linear-gradient(to bottom, #27ae60, #1e8449);
 }
 
+#confirm-button:disabled,
+#confirm-button[aria-disabled='true'] {
+    background: linear-gradient(to bottom, #4f5b52, #3d463f);
+    border-color: rgba(211, 224, 203, 0.2);
+    color: rgba(231, 239, 226, 0.58);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    text-shadow: none;
+}
+
 #confirm-button:hover {
     background: linear-gradient(to bottom, #2ecc71, #27ae60);
     box-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
+}
+
+#confirm-button:disabled:hover,
+#confirm-button[aria-disabled='true']:hover {
+    background: linear-gradient(to bottom, #4f5b52, #3d463f);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.08);
 }
 
 /* Kullanılmış zarın artık oynanamayacağını açıkça gösterir. */

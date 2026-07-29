@@ -127,7 +127,26 @@ function initializeBeforeStart() {
 }
 
 function updateScreen() {
+    syncActionButtonStates();
     renderer.render(game, selectedSlotId);
+}
+
+function syncActionButtonStates() {
+    const isHumanPlayingTurn =
+        game.currentPlayer === 1 &&
+        game.gameStatus === 'PLAYING';
+    const canUndo =
+        isHumanPlayingTurn &&
+        game.moveHistory.length > 0;
+    const canConfirm =
+        isHumanPlayingTurn &&
+        !(
+            game.availableMoves.length > 0 &&
+            game.hasValidMoves()
+        );
+
+    ui.setUndoEnabled(canUndo);
+    ui.setConfirmEnabled(canConfirm);
 }
 
 function getHumanTurnDuration() {
