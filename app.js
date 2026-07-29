@@ -16,6 +16,10 @@ import { bindCanvasInput } from './engine/input.js';
 import { TurnTimeoutController } from './engine/timeoutController.js';
 import { HowToPlayGuide } from './engine/howToPlayGuide.js';
 import {
+    applyPostUndoLayout,
+    getActionButtonState
+} from './engine/undoActionButtons.js';
+import {
     getVictoryMomentProfile,
     shouldRunVictoryMoment,
     triggerVictoryMomentHook
@@ -123,18 +127,10 @@ function updateScreen() {
 }
 
 function syncActionButtonStates() {
-    const isHumanPlayingTurn =
-        game.currentPlayer === 1 &&
-        game.gameStatus === 'PLAYING';
-    const canUndo =
-        isHumanPlayingTurn &&
-        game.moveHistory.length > 0;
-    const canConfirm =
-        isHumanPlayingTurn &&
-        !(
-            game.availableMoves.length > 0 &&
-            game.hasValidMoves()
-        );
+    const {
+        canUndo,
+        canConfirm
+    } = getActionButtonState(game);
 
     ui.setUndoEnabled(canUndo);
     ui.setConfirmEnabled(canConfirm);
@@ -657,7 +653,7 @@ function bindEvents() {
         ) {
             selectedSlotId = null;
             updateScreen();
-            ui.setHumanPlayingLayout();
+            applyPostUndoLayout({ game, ui });
             renderer.updateStatus(t('status.undo'));
         }
     });
