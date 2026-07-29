@@ -10,6 +10,39 @@ import {
 import { getTheme } from './themes.js';
 import { assets } from './assets.js';
 
+const DEFAULT_THEME_ID = 'anatolian';
+
+function readStoredThemeId() {
+    if (typeof localStorage === 'undefined') return null;
+
+    try {
+        return localStorage.getItem('narde-theme');
+    } catch {
+        return null;
+    }
+}
+
+function persistThemeId(themeId) {
+    if (typeof localStorage === 'undefined') return;
+
+    try {
+        localStorage.setItem('narde-theme', themeId);
+    } catch {
+        // Theme still changes in memory/canvas even if persistence fails.
+    }
+}
+
+function resolveThemeId(themeId) {
+    if (typeof themeId !== 'string' || themeId.length === 0) {
+        return DEFAULT_THEME_ID;
+    }
+
+    const resolved = getTheme(themeId);
+    return resolved.id === themeId
+        ? themeId
+        : DEFAULT_THEME_ID;
+}
+
 export class Renderer {
     constructor() {
         this.canvas = document.getElementById('game-canvas');
@@ -118,19 +151,19 @@ export class Renderer {
             // Görsel yüklenemezse çizim tabanlı tema çalışmaya devam eder.
         }
 
-        const savedTheme =
-            localStorage.getItem('narde-theme') || 'anatolian';
-        this.setTheme(savedTheme);
+        const savedThemeId = readStoredThemeId();
+        this.setTheme(savedThemeId || DEFAULT_THEME_ID);
     }
 
     setTheme(themeId) {
-        this.theme = getTheme(themeId);
+        const resolvedThemeId = resolveThemeId(themeId);
+        this.theme = getTheme(resolvedThemeId);
         this.boardArtwork =
             this.theme.artwork
                 ? assets.getImage('board.anatolian')
                 : null;
 
-        localStorage.setItem('narde-theme', this.theme.id);
+        persistThemeId(this.theme.id);
         this.staticBoardDirty = true;
     }
 
