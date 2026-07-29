@@ -50,8 +50,20 @@
             
             <div id="dice-container">
                 <div id="dice-display">
-                    <span class="die" id="die1">-</span>
-                    <span class="die" id="die2">-</span>
+                    <div class="die-stack">
+                        <span class="die" id="die1">-</span>
+                        <div class="die-rights" aria-hidden="true">
+                            <span class="die-right" id="die-right-1"></span>
+                            <span class="die-right" id="die-right-2"></span>
+                        </div>
+                    </div>
+                    <div class="die-stack">
+                        <span class="die" id="die2">-</span>
+                        <div class="die-rights" aria-hidden="true">
+                            <span class="die-right" id="die-right-3"></span>
+                            <span class="die-right" id="die-right-4"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
             

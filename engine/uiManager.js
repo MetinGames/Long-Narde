@@ -50,6 +50,26 @@ export class UIManager {
         this.setActionButtonsVisible(false);
     }
 
+    setUndoEnabled(isEnabled) {
+        if (!this.undoButton) return;
+
+        this.undoButton.disabled = !isEnabled;
+        this.undoButton.setAttribute(
+            'aria-disabled',
+            String(!isEnabled)
+        );
+    }
+
+    setConfirmEnabled(isEnabled) {
+        if (!this.confirmButton) return;
+
+        this.confirmButton.disabled = !isEnabled;
+        this.confirmButton.setAttribute(
+            'aria-disabled',
+            String(!isEnabled)
+        );
+    }
+
     // Sayaç numarasını ekranda günceller
     updateTimerText(seconds) {
         if (this.timerDisplay) {
