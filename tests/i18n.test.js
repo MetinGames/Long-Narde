@@ -192,7 +192,77 @@ test('important Russian UI strings are localized with Cyrillic text', async () =
     assert.equal(i18n.t('game.timeExpiredGameOverMessage'), 'Ваше время истекло — вы проиграли игру.');
     assert.equal(i18n.t('ui.matchSummary'), '📊 Итоги матча');
     assert.equal(i18n.t('ui.startNewGame'), 'Начать новую игру');
-    assert.equal(i18n.t('ui.secondsShort'), 'сек');
+    assert.equal(i18n.t('ui.secondsShort'), 'с');
+    assert.equal(i18n.t('difficulty.easy'), 'Лёгкий');
+    assert.equal(i18n.t('difficulty.medium'), 'Средний');
+    assert.equal(i18n.t('difficulty.hard'), 'Сложный');
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
+test('uses correct short timer unit for each language', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    i18n.setLanguage('tr');
+    assert.equal(i18n.t('ui.secondsShort'), 'sn');
+
+    i18n.setLanguage('en');
+    assert.equal(i18n.t('ui.secondsShort'), 's');
+
+    i18n.setLanguage('ru');
+    assert.equal(i18n.t('ui.secondsShort'), 'с');
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
+test('formats timer text with locale-specific short units', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    i18n.setLanguage('tr');
+    assert.equal(`37 ${i18n.t('ui.secondsShort')}`, '37 sn');
+
+    i18n.setLanguage('en');
+    assert.equal(`37 ${i18n.t('ui.secondsShort')}`, '37 s');
+
+    i18n.setLanguage('ru');
+    assert.equal(`37 ${i18n.t('ui.secondsShort')}`, '37 с');
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
+test('uses natural Russian bot difficulty labels', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'ru' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'ru-RU',
+        languages: ['ru-RU']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    assert.equal(i18n.t('difficulty.easy'), 'Лёгкий');
+    assert.equal(i18n.t('difficulty.medium'), 'Средний');
+    assert.equal(i18n.t('difficulty.hard'), 'Сложный');
 
     restoreGlobalProperty('localStorage', originalLocalStorage);
     restoreGlobalProperty('navigator', originalNavigator);
