@@ -11,9 +11,13 @@
     <div id="game-container">
         <!-- Üst Bilgi Paneli -->
         <div id="info-panel">
+            <div id="turn-indicator" role="status" aria-live="polite" aria-atomic="true">
+                <span class="turn-dot" aria-hidden="true"></span>
+                <span class="turn-prefix" data-i18n="ui.turn">Sıra:</span>
+                <span id="current-player" data-i18n="player.white">Beyaz</span>
+            </div>
             <div id="panel-controls">
-            <div id="turn-indicator"><span data-i18n="ui.turn">Sıra:</span> <span id="current-player" data-i18n="player.white">Beyaz</span></div>
-            
+
             <!-- YENİ: Zorluk Seviyesi Seçici -->
             <div id="difficulty-container">
                 <label for="bot-difficulty" data-i18n="ui.bot">Bot:</label>

@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 
 import { Renderer } from '../engine/renderer.js';
 import { UIManager } from '../engine/uiManager.js';
+import {
+    getLanguage,
+    setLanguage,
+    t
+} from '../engine/i18n.js';
 
 class FakeClassList {
     constructor() {
@@ -67,6 +72,9 @@ function installMockDocument(map) {
     const previousWindow = globalThis.window;
 
     globalThis.document = {
+        documentElement: {
+            lang: 'en'
+        },
         getElementById(id) {
             return map[id] || null;
         },
@@ -219,6 +227,69 @@ test('toplanan pullar için dilim düzeni hazne içinde üretilir', () => {
         assert.ok(layout[0].x + layout[0].width <= trayRect.x + trayRect.width);
         assert.ok(layout[0].y > layout[1].y);
     } finally {
+        restore();
+    }
+});
+
+test('kompakt sira seridi aktif oyuncu rengini ve erisilebilir metni gunceller', () => {
+    const elements = {
+        'game-canvas': createCanvasElement(),
+        'turn-indicator': createElement(),
+        'current-player': createElement(),
+        die1: createElement(),
+        die2: createElement(),
+        'die-right-1': createElement(),
+        'die-right-2': createElement(),
+        'die-right-3': createElement(),
+        'die-right-4': createElement(),
+        'dice-display': createElement(),
+        'status-message': createElement()
+    };
+    const restore = installMockDocument(elements);
+    const previousLanguage = getLanguage();
+
+    try {
+        setLanguage('en');
+        const renderer = new Renderer();
+
+        renderer.updateTurnIndicator(1);
+        assert.equal(
+            elements['current-player'].textContent,
+            t('player.white')
+        );
+        assert.equal(
+            elements['turn-indicator'].classList.contains('is-white-turn'),
+            true
+        );
+        assert.equal(
+            elements['turn-indicator'].classList.contains('is-dark-turn'),
+            false
+        );
+        assert.equal(
+            elements['turn-indicator'].getAttribute('aria-label'),
+            `${t('ui.turn')} ${t('player.white')}`
+        );
+
+        setLanguage('ru');
+        renderer.updateTurnIndicator(2);
+        assert.equal(
+            elements['current-player'].textContent,
+            t('player.black')
+        );
+        assert.equal(
+            elements['turn-indicator'].classList.contains('is-dark-turn'),
+            true
+        );
+        assert.equal(
+            elements['turn-indicator'].classList.contains('is-white-turn'),
+            false
+        );
+        assert.equal(
+            elements['turn-indicator'].getAttribute('aria-label'),
+            `${t('ui.turn')} ${t('player.black')}`
+        );
+    } finally {
+        setLanguage(previousLanguage);
         restore();
     }
 });
