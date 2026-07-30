@@ -117,3 +117,42 @@ test('sürükleme hareketini hamle olarak işlemez', () => {
     assert.deepEqual(clicked, []);
     delete globalThis.window;
 });
+
+test('etkilesim kapaliyken engellenen dokunmayi callback ile bildirir', () => {
+    globalThis.window = { PointerEvent: class {} };
+
+    const canvas = new FakeCanvas({
+        left: 0,
+        top: 0,
+        width: 800,
+        height: 600
+    });
+    let blockedCount = 0;
+    const clicked = [];
+
+    bindCanvasInput(canvas, {
+        canInteract: () => false,
+        onBlockedInteraction: () => {
+            blockedCount++;
+        },
+        onSlotClick: slotId => clicked.push(slotId)
+    });
+
+    canvas.emit('pointerdown', {
+        pointerId: 2,
+        pointerType: 'touch',
+        isPrimary: true,
+        clientX: 120,
+        clientY: 60
+    });
+    canvas.emit('pointerup', {
+        pointerId: 2,
+        clientX: 121,
+        clientY: 61,
+        preventDefault() {}
+    });
+
+    assert.equal(blockedCount, 1);
+    assert.deepEqual(clicked, []);
+    delete globalThis.window;
+});

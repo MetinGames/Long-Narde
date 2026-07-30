@@ -24,6 +24,15 @@ import {
     shouldRunVictoryMoment,
     triggerVictoryMomentHook
 } from './engine/victoryMoment.js';
+import {
+    applyBotMoveFeedback,
+    endBotMoveFeedback,
+    resetBotMoveFeedback,
+    startBotMoveFeedback
+} from './engine/botMoveFeedback.js';
+import { BotTurnTouchFeedback } from './engine/botTurnTouchFeedback.js';
+import { RestartButtonLock } from './engine/restartButtonLock.js';
+import { GameFeedbackToast } from './engine/gameFeedbackToast.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -40,6 +49,10 @@ let isTimeoutResolutionInProgress = false;
 let hasVictoryMomentPlayed = false;
 let victoryMomentHook = null;
 let howToPlayGuide = null;
+let restartButtonLock = null;
+let gameFeedbackToast = null;
+
+const botTurnTouchFeedback = new BotTurnTouchFeedback();
 
 const timeoutController = new TurnTimeoutController();
 
@@ -63,6 +76,14 @@ function clearRuntimeTasks() {
         clearTimeout(timeoutId);
     }
     scheduledTimeouts.clear();
+
+    restartButtonLock?.clearPendingUnlock();
+    gameFeedbackToast?.hide();
+}
+
+function setStatus(message) {
+    renderer.updateStatus(message);
+    return true;
 }
 
 function terminateGame() {
@@ -96,12 +117,14 @@ function startGame() {
     totalMoveCounter = 0;
     hasVictoryMomentPlayed = false;
     renderer.clearVictoryMoment();
+    resetBotMoveFeedback(renderer);
+    botTurnTouchFeedback.reset();
     timeoutController.resetAll();
 
     updateScreen();
     ui.setHumanTurnLayout();
     ui.updateTimerText(getHumanTurnDuration());
-    renderer.updateStatus(t('status.starting'));
+    setStatus(t('status.starting'), { force: true });
     schedule(startAutomaticDiceRoll, 650);
 }
 
@@ -112,12 +135,14 @@ function initializeBeforeStart() {
     totalMoveCounter = 0;
     hasVictoryMomentPlayed = false;
     renderer.clearVictoryMoment();
+    resetBotMoveFeedback(renderer);
+    botTurnTouchFeedback.reset();
     timeoutController.resetAll();
 
     updateScreen();
     ui.setHumanTurnLayout();
     ui.updateTimerText(getHumanTurnDuration());
-    renderer.updateStatus(t('status.readyToStart'));
+    setStatus(t('status.readyToStart'), { force: true });
     showStartScreen();
 }
 
@@ -184,7 +209,7 @@ function synchronizeTimeoutState() {
         if (evaluation.action === 'firstTimeout') {
             const timeoutResult = game.recordHumanTimeout();
             if (timeoutResult === 'warning') {
-                renderer.updateStatus(t('status.timeoutWarning'));
+                setStatus(t('status.timeoutWarning'), { force: true });
                 finishCurrentTurn();
                 return;
             }
@@ -227,11 +252,15 @@ function beginCurrentTurn() {
     if (game.gameStatus === 'GAME_OVER') return;
 
     if (game.currentPlayer === 1) {
+        botTurnTouchFeedback.reset();
+        gameFeedbackToast?.hide();
         ui.setHumanTurnLayout();
-        renderer.updateStatus(t('status.yourTurn'));
+        setStatus(t('status.yourTurn'), { force: true });
     } else {
+        botTurnTouchFeedback.reset();
+        gameFeedbackToast?.hide();
         ui.setBotTurnLayout();
-        renderer.updateStatus(t('status.botTurn'));
+        setStatus(t('status.botTurn'), { force: true });
     }
 
     schedule(startAutomaticDiceRoll, 650);
@@ -242,10 +271,11 @@ function startAutomaticDiceRoll() {
 
     const rollingPlayer = game.currentPlayer;
     ui.setBotTurnLayout();
-    renderer.updateStatus(
+    setStatus(
         rollingPlayer === 1
             ? t('status.rollingYou')
-            : t('status.rollingBot')
+            : t('status.rollingBot'),
+        { force: true }
     );
 
     const die1 = document.getElementById('die1');
@@ -258,21 +288,23 @@ function startAutomaticDiceRoll() {
 
         if (rollingPlayer === 1) {
             ui.setHumanPlayingLayout();
-            renderer.updateStatus(
+            setStatus(
                 t('status.rolledYou', {
                     dice: diceValues.join(', ')
-                })
+                }),
+                { force: true }
             );
             startHumanTimer();
 
             if (!game.hasValidMoves()) {
-                renderer.updateStatus(t('status.noMoves'));
+                setStatus(t('status.noMoves'), { force: true });
             }
         } else {
-            renderer.updateStatus(
+            setStatus(
                 t('status.rolledBot', {
                     dice: diceValues.join(', ')
-                })
+                }),
+                { force: true }
             );
             schedule(runBotMove, 550);
         }
@@ -291,15 +323,25 @@ async function runBotMove() {
         game.availableMoves.length === 0 ||
         !game.hasValidMoves()
     ) {
+        endBotMoveFeedback(renderer);
         finishCurrentTurn();
         return;
     }
 
+    startBotMoveFeedback(renderer);
+
     const move = bot.makeDecision(game);
     if (!move || !game.executeMove(move.from, move.dice)) {
+        endBotMoveFeedback(renderer);
         finishCurrentTurn();
         return;
     }
+
+    applyBotMoveFeedback(renderer, {
+        fromSlot: move.from,
+        targetSlot: move.target,
+        reducedMotion: prefersReducedMotion()
+    });
 
     totalMoveCounter++;
     updateScreen();
@@ -320,6 +362,9 @@ async function runBotMove() {
 function showGameOver(winner, messageKey = null) {
     terminateGame();
     selectedSlotId = null;
+    botTurnTouchFeedback.reset();
+    gameFeedbackToast?.hide();
+    endBotMoveFeedback(renderer);
     updateScreen();
     ui.setBotTurnLayout();
 
@@ -345,6 +390,8 @@ function showGameOver(winner, messageKey = null) {
         overlay.style.display = 'flex';
         overlay.setAttribute('aria-hidden', 'false');
     }
+
+    restartButtonLock?.lock();
 }
 
 function prefersReducedMotion() {
@@ -427,6 +474,10 @@ async function playVictoryMomentIfEligible({ winner, targetId }) {
 }
 
 function restartGame() {
+    if (restartButtonLock?.isLocked()) {
+        return;
+    }
+
     clearRuntimeTasks();
 
     const overlay = document.getElementById('game-over-overlay');
@@ -440,12 +491,16 @@ function restartGame() {
     totalMoveCounter = 0;
     hasVictoryMomentPlayed = false;
     renderer.clearVictoryMoment();
+    resetBotMoveFeedback(renderer);
+    botTurnTouchFeedback.reset();
+    gameFeedbackToast?.hide();
+    restartButtonLock?.unlock();
     timeoutController.resetAll();
 
     updateScreen();
     ui.setHumanTurnLayout();
     ui.updateTimerText(getHumanTurnDuration());
-    renderer.updateStatus(t('status.starting'));
+    setStatus(t('status.starting'), { force: true });
 
     schedule(startAutomaticDiceRoll, 650);
 }
@@ -457,11 +512,11 @@ function explainUnplayableSlot(slotId) {
         slotId === headSlot &&
         !game.canMoveFromHead()
     ) {
-        renderer.updateStatus(
+        setStatus(
             t('status.headBlocked')
         );
     } else {
-        renderer.updateStatus(
+        setStatus(
             t('status.pieceBlocked')
         );
     }
@@ -481,11 +536,11 @@ function selectPlayableSlot(slotId) {
     updateScreen();
 
     if (legalTargets.includes(25)) {
-        renderer.updateStatus(
+        setStatus(
             t('status.selectCollect')
         );
     } else {
-        renderer.updateStatus(
+        setStatus(
             t('status.selectTarget')
         );
     }
@@ -517,7 +572,7 @@ async function handleSlotClick(slotId) {
     if (selectedSlotId === slotId) {
         selectedSlotId = null;
         updateScreen();
-        renderer.updateStatus(t('status.deselected'));
+        setStatus(t('status.deselected'));
         return;
     }
 
@@ -527,7 +582,7 @@ async function handleSlotClick(slotId) {
     // Hedefte kendi pulumuz olsa bile önce hamleyi uygula.
     if (legalTargets.includes(slotId)) {
         if (!game.processPlayerInput(selectedSlotId, slotId)) {
-            renderer.updateStatus(
+            setStatus(
                 t('status.applyFailed')
             );
             return;
@@ -554,7 +609,7 @@ async function handleSlotClick(slotId) {
             game.availableMoves.length === 0 ||
             !game.hasValidMoves()
         ) {
-            renderer.updateStatus(t('status.moveComplete'));
+            setStatus(t('status.moveComplete'));
         }
         return;
     }
@@ -568,7 +623,7 @@ async function handleSlotClick(slotId) {
         return;
     }
 
-    renderer.updateStatus(
+    setStatus(
         t('status.targetRequired')
     );
 }
@@ -582,6 +637,8 @@ function bindEvents() {
         document.getElementById('start-button');
     const canvas =
         document.getElementById('game-canvas');
+    const boardWrapper =
+        document.getElementById('board-wrapper');
     const languageSelect =
         document.getElementById('language-select');
     const themeSelect =
@@ -620,8 +677,9 @@ function bindEvents() {
 
     difficultySelect?.addEventListener('change', event => {
         bot.difficulty = event.target.value;
-        renderer.updateStatus(
-            t('status.difficulty', { level: event.target.selectedOptions[0].text })
+        setStatus(
+            t('status.difficulty', { level: event.target.selectedOptions[0].text }),
+            { force: true }
         );
     });
 
@@ -630,21 +688,31 @@ function bindEvents() {
         applyTranslations();
         howToPlayGuide?.refreshForLanguage();
         updateScreen();
-        renderer.updateStatus(t('status.languageChanged'));
+        setStatus(t('status.languageChanged'), { force: true });
     });
 
     themeSelect?.addEventListener('change', event => {
         renderer.setTheme(event.target.value);
         updateScreen();
-        renderer.updateStatus(
+        setStatus(
             t('status.themeChanged', {
                 theme: event.target.selectedOptions[0].text
-            })
+            }),
+            { force: true }
         );
     });
 
     restartButton?.addEventListener('click', restartGame);
     startButton?.addEventListener('click', startGame);
+    restartButtonLock = new RestartButtonLock({
+        button: restartButton,
+        delayMs: 700
+    });
+    gameFeedbackToast = new GameFeedbackToast({
+        container: boardWrapper,
+        durationMs: 1400
+    });
+    gameFeedbackToast.ensureElement();
 
     ui.undoButton?.addEventListener('click', () => {
         if (
@@ -654,7 +722,7 @@ function bindEvents() {
             selectedSlotId = null;
             updateScreen();
             applyPostUndoLayout({ game, ui });
-            renderer.updateStatus(t('status.undo'));
+            setStatus(t('status.undo'));
         }
     });
 
@@ -670,7 +738,7 @@ function bindEvents() {
             game.availableMoves.length > 0 &&
             game.hasValidMoves()
         ) {
-            renderer.updateStatus(
+            setStatus(
                 t('status.useDice')
             );
             return;
@@ -683,6 +751,19 @@ function bindEvents() {
         canInteract: () =>
             game.currentPlayer === 1 &&
             game.gameStatus === 'PLAYING',
+        onBlockedInteraction: () => {
+            if (
+                botTurnTouchFeedback.shouldShowWaitMessage({
+                    isStartScreen: isInitialStartPending,
+                    gameStatus: game.gameStatus,
+                    currentPlayer: game.currentPlayer
+                })
+            ) {
+                gameFeedbackToast?.show(t('status.waitForBotTurn'), {
+                    durationMs: 1400
+                });
+            }
+        },
         layout: () => renderer.getBoardLayout(),
         onSlotClick: handleSlotClick
     });

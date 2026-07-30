@@ -293,3 +293,78 @@ test('kompakt sira seridi aktif oyuncu rengini ve erisilebilir metni gunceller',
         restore();
     }
 });
+
+test('bot son hamle vurgusu ayarlanir, sure sonunda temizlenir', () => {
+    const elements = {
+        'game-canvas': createCanvasElement(),
+        'turn-indicator': createElement(),
+        'current-player': createElement(),
+        die1: createElement(),
+        die2: createElement(),
+        'die-right-1': createElement(),
+        'die-right-2': createElement(),
+        'die-right-3': createElement(),
+        'die-right-4': createElement(),
+        'dice-display': createElement(),
+        'status-message': createElement()
+    };
+    const restore = installMockDocument(elements);
+
+    try {
+        const renderer = new Renderer();
+        renderer.setBotMoveHighlight({
+            fromSlot: 13,
+            targetSlot: 18,
+            reducedMotion: true,
+            durationMs: 500
+        });
+
+        const activeNow = renderer.resolveActiveBotMoveHighlight(100);
+        assert.equal(activeNow.fromSlot, 13);
+        assert.equal(activeNow.targetSlot, 18);
+        assert.equal(activeNow.reducedMotion, true);
+
+        const stateBeforeExpiry = renderer.botMoveHighlightState;
+        assert.ok(stateBeforeExpiry);
+
+        const expired = renderer.resolveActiveBotMoveHighlight(
+            stateBeforeExpiry.expiresAt + 1
+        );
+        assert.equal(expired, null);
+        assert.equal(renderer.botMoveHighlightState, null);
+    } finally {
+        restore();
+    }
+});
+
+test('bot hamle vurgusu manuel olarak temizlenebilir', () => {
+    const elements = {
+        'game-canvas': createCanvasElement(),
+        'turn-indicator': createElement(),
+        'current-player': createElement(),
+        die1: createElement(),
+        die2: createElement(),
+        'die-right-1': createElement(),
+        'die-right-2': createElement(),
+        'die-right-3': createElement(),
+        'die-right-4': createElement(),
+        'dice-display': createElement(),
+        'status-message': createElement()
+    };
+    const restore = installMockDocument(elements);
+
+    try {
+        const renderer = new Renderer();
+        renderer.setBotMoveHighlight({
+            fromSlot: 8,
+            targetSlot: 25,
+            durationMs: 900
+        });
+
+        assert.ok(renderer.resolveActiveBotMoveHighlight(0));
+        renderer.clearBotMoveHighlight();
+        assert.equal(renderer.resolveActiveBotMoveHighlight(0), null);
+    } finally {
+        restore();
+    }
+});

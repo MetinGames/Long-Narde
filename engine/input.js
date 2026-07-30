@@ -22,6 +22,7 @@ export function bindCanvasInput(
     canvas,
     {
         canInteract = () => true,
+        onBlockedInteraction,
         onSlotClick,
         layout = BOARD_LAYOUT
     }
@@ -31,7 +32,10 @@ export function bindCanvasInput(
     }
 
     const dispatchSlot = event => {
-        if (!canInteract()) return;
+        if (!canInteract()) {
+            onBlockedInteraction?.(event);
+            return;
+        }
 
         const { x, y } =
             getCanvasCoordinates(canvas, event);

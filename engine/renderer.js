@@ -12,6 +12,14 @@ import { assets } from './assets.js';
 
 const DEFAULT_THEME_ID = 'anatolian';
 
+function getNowMs() {
+    return (
+        typeof performance !== 'undefined' && typeof performance.now === 'function'
+            ? performance.now()
+            : Date.now()
+    );
+}
+
 function readStoredThemeId() {
     if (typeof localStorage === 'undefined') return null;
 
@@ -76,6 +84,7 @@ export class Renderer {
         this.staticBoardCanvas = null;
         this.staticBoardDirty = true;
         this.victoryMomentState = null;
+        this.botMoveHighlightState = null;
 
         this.prepareCanvas();
     }
@@ -194,6 +203,44 @@ export class Renderer {
 
     clearVictoryMoment() {
         this.victoryMomentState = null;
+    }
+
+    setBotMoveHighlight({
+        fromSlot,
+        targetSlot,
+        reducedMotion = false,
+        durationMs = 1200
+    }) {
+        if (
+            !Number.isInteger(fromSlot) ||
+            !Number.isInteger(targetSlot)
+        ) {
+            this.botMoveHighlightState = null;
+            return;
+        }
+
+        const safeDuration = Math.max(0, Number(durationMs) || 0);
+        this.botMoveHighlightState = {
+            fromSlot,
+            targetSlot,
+            reducedMotion,
+            expiresAt: getNowMs() + safeDuration
+        };
+    }
+
+    clearBotMoveHighlight() {
+        this.botMoveHighlightState = null;
+    }
+
+    resolveActiveBotMoveHighlight(nowMs = getNowMs()) {
+        if (!this.botMoveHighlightState) return null;
+
+        if (nowMs >= this.botMoveHighlightState.expiresAt) {
+            this.botMoveHighlightState = null;
+            return null;
+        }
+
+        return this.botMoveHighlightState;
     }
 
     getPlayfieldEdges() {
@@ -326,6 +373,16 @@ export class Renderer {
             this.theme.pointHeight || this.slotHeight;
         const playfield = this.getPlayfieldEdges();
         const boardLayout = this.getBoardLayout();
+        const botMoveHighlight =
+            this.resolveActiveBotMoveHighlight();
+
+        if (botMoveHighlight) {
+            this.drawBotMoveHighlight(botMoveHighlight, {
+                boardLayout,
+                playfield,
+                pointHeight
+            });
+        }
 
         this.ctx.clearRect(
             0,
@@ -621,6 +678,116 @@ export class Renderer {
         this.ctx.closePath();
         this.ctx.fillStyle = 'rgba(212, 175, 55, 0.45)'; 
         this.ctx.fill();
+    }
+
+    getSlotHighlightAnchor(slotId, boardLayout, playfield, pointHeight) {
+        if (slotId === 25) {
+            const trayRect = getBearOffTrayRect(2, boardLayout);
+            return {
+                type: 'tray',
+                x: trayRect.x + (trayRect.width / 2),
+                y: trayRect.y + (trayRect.height / 2),
+                radius: Math.min(trayRect.width, trayRect.height) * 0.45,
+                trayRect
+            };
+        }
+
+        if (slotId < 1 || slotId > 24) return null;
+
+        const isTop = slotId <= 12;
+        const columnIndex = isTop
+            ? 12 - slotId
+            : slotId - 13;
+        const slotWidth = getSlotWidthForColumn(columnIndex, boardLayout);
+        const x = getSlotX(columnIndex, slotWidth, boardLayout);
+        const y = isTop ? playfield.top : playfield.bottom;
+
+        return {
+            type: 'slot',
+            isTop,
+            x,
+            y,
+            slotWidth,
+            pointHeight
+        };
+    }
+
+    drawBotMoveHighlight(state, { boardLayout, playfield, pointHeight }) {
+        const fromAnchor = this.getSlotHighlightAnchor(
+            state.fromSlot,
+            boardLayout,
+            playfield,
+            pointHeight
+        );
+        const targetAnchor = this.getSlotHighlightAnchor(
+            state.targetSlot,
+            boardLayout,
+            playfield,
+            pointHeight
+        );
+
+        if (fromAnchor) {
+            this.drawBotMoveMarker(fromAnchor, {
+                isSource: true,
+                reducedMotion: state.reducedMotion
+            });
+        }
+
+        if (targetAnchor) {
+            this.drawBotMoveMarker(targetAnchor, {
+                isSource: false,
+                reducedMotion: state.reducedMotion
+            });
+        }
+    }
+
+    drawBotMoveMarker(anchor, { isSource, reducedMotion }) {
+        this.ctx.save();
+
+        const fillAlpha = isSource ? 0.16 : 0.23;
+        const strokeAlpha = isSource ? 0.30 : 0.42;
+        this.ctx.fillStyle = `rgba(247, 203, 112, ${fillAlpha})`;
+        this.ctx.strokeStyle = `rgba(255, 227, 160, ${strokeAlpha})`;
+        this.ctx.lineWidth = reducedMotion ? 1.3 : 1.8;
+
+        if (anchor.type === 'tray') {
+            const rect = anchor.trayRect;
+            this.ctx.fillRect(
+                rect.x + 4,
+                rect.y + 4,
+                rect.width - 8,
+                rect.height - 8
+            );
+            this.ctx.strokeRect(
+                rect.x + 4,
+                rect.y + 4,
+                rect.width - 8,
+                rect.height - 8
+            );
+            this.ctx.restore();
+            return;
+        }
+
+        this.ctx.beginPath();
+        if (anchor.isTop) {
+            this.ctx.moveTo(anchor.x, anchor.y);
+            this.ctx.lineTo(anchor.x + anchor.slotWidth, anchor.y);
+            this.ctx.lineTo(
+                anchor.x + (anchor.slotWidth / 2),
+                anchor.y + anchor.pointHeight
+            );
+        } else {
+            this.ctx.moveTo(anchor.x, anchor.y);
+            this.ctx.lineTo(anchor.x + anchor.slotWidth, anchor.y);
+            this.ctx.lineTo(
+                anchor.x + (anchor.slotWidth / 2),
+                anchor.y - anchor.pointHeight
+            );
+        }
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+        this.ctx.restore();
     }
 
     // CİLALI, PARLAK FİDİŞİ VE ABANOZ PULLAR

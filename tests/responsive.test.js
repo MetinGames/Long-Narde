@@ -17,6 +17,8 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#how-to-play-modal'), 'How-to-play modal style missing');
     assert.ok(css.includes('#how-to-play-pages'), 'How-to-play pages container style missing');
     assert.ok(css.includes('#how-to-play-footer'), 'How-to-play footer style missing');
+    assert.ok(css.includes('#game-feedback-toast'), 'Game feedback toast style missing');
+    assert.ok(css.includes('#game-feedback-toast.is-visible'), 'Game feedback toast visibility style missing');
 });
 
 test('index.html contains rotate notice element, start screen, and restart button', () => {
@@ -34,4 +36,5 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="die-right-4"'), 'Double move indicator 4 missing');
     assert.ok(/id="turn-indicator"[^>]*aria-live="polite"/i.test(html), 'Turn indicator aria-live polite missing');
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
+    assert.ok(html.includes('id="board-wrapper"'), 'Board wrapper missing for toast attachment');
 });
