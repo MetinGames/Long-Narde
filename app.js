@@ -6,6 +6,7 @@ import { NardeBot } from './engine/bot.js';
 import { UIManager } from './engine/uiManager.js';
 import {
     applyTranslations,
+    getLanguage,
     initializeLanguage,
     t
 } from './engine/i18n.js';
@@ -39,6 +40,7 @@ import { BotTurnTouchFeedback } from './engine/botTurnTouchFeedback.js';
 import { RestartButtonLock } from './engine/restartButtonLock.js';
 import { GameFeedbackToast } from './engine/gameFeedbackToast.js';
 import { createAppRuntimeState } from './engine/appRuntimeState.js';
+import { createRuntimeDiagnostics } from './engine/runtimeDiagnostics.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -47,6 +49,15 @@ const ui = new UIManager();
 const diceRollAnimation = new DiceRollAnimation();
 
 const runtimeState = createAppRuntimeState();
+const runtimeDiagnostics = createRuntimeDiagnostics({
+    appVersion: 'unknown',
+    getContext: () => ({
+        gameStatus: game.gameStatus,
+        currentPlayer: game.currentPlayer,
+        language: getLanguage(),
+        theme: renderer.theme?.id ?? 'unknown'
+    })
+});
 let victoryMomentHook = null;
 let howToPlayGuide = null;
 let playerStatsModal = null;
@@ -64,17 +75,45 @@ const matchStatsRecorder = new MatchStatsRecorder({
     humanPlayer: 1
 });
 
-function schedule(callback, delay) {
+function schedule(callback, delay, meta = null) {
     if (game.gameStatus === 'GAME_OVER') return null;
 
     const scheduledToken = runtimeState.captureSessionToken();
+
+    if (meta?.kind === 'bot-callback') {
+        runtimeDiagnostics.recordBotCallbackScheduled(`delayMs=${delay}`);
+    }
 
     const timeoutId = setTimeout(() => {
         runtimeState.removeScheduledTimeout(timeoutId);
         if (!runtimeState.isSessionTokenCurrent(scheduledToken)) {
             return;
         }
-        callback();
+
+        if (meta?.kind === 'bot-callback') {
+            runtimeDiagnostics.recordBotCallbackStart(`delayMs=${delay}`);
+        }
+
+        try {
+            const result = callback();
+            if (result && typeof result.then === 'function') {
+                result.finally(() => {
+                    if (meta?.kind === 'bot-callback') {
+                        runtimeDiagnostics.recordBotCallbackEnd(`delayMs=${delay}`);
+                    }
+                });
+                return;
+            }
+        } catch (error) {
+            if (meta?.kind === 'bot-callback') {
+                runtimeDiagnostics.recordBotCallbackEnd(`delayMs=${delay}`);
+            }
+            throw error;
+        }
+
+        if (meta?.kind === 'bot-callback') {
+            runtimeDiagnostics.recordBotCallbackEnd(`delayMs=${delay}`);
+        }
     }, delay);
     runtimeState.addScheduledTimeout(timeoutId);
     return timeoutId;
@@ -127,6 +166,7 @@ function startGame() {
     hideStartScreen();
     game.initGame();
     runtimeState.resetForSession({ initialStartPending: false });
+    runtimeDiagnostics.recordGameStart('startGame');
     renderer.clearVictoryMoment();
     resetBotMoveFeedback(renderer);
     botTurnTouchFeedback.reset();
@@ -180,6 +220,7 @@ function applyFinalTimeoutLoss() {
 
     const timeoutResult = game.recordHumanTimeout();
     if (timeoutResult === 'gameOver' || game.gameStatus === 'GAME_OVER') {
+        runtimeDiagnostics.recordFinalTimeoutLoss('final-timeout-loss');
         showGameOver(2, 'game.timeExpiredGameOverMessage');
     }
 }
@@ -216,6 +257,7 @@ function synchronizeTimeoutState() {
         runtimeState.clearTurnTimerInterval();
 
         if (evaluation.action === 'firstTimeout') {
+            runtimeDiagnostics.recordFirstTimeout('first-timeout');
             const timeoutResult = game.recordHumanTimeout();
             if (timeoutResult === 'warning') {
                 setStatus(t('status.timeoutWarning'), { force: true });
@@ -272,6 +314,8 @@ function beginCurrentTurn() {
         setStatus(t('status.botTurn'), { force: true });
     }
 
+    runtimeDiagnostics.recordTurnChange(`currentPlayer=${game.currentPlayer}`);
+
     schedule(startAutomaticDiceRoll, 650);
 }
 
@@ -315,7 +359,7 @@ function startAutomaticDiceRoll() {
                 }),
                 { force: true }
             );
-            schedule(runBotMove, 550);
+            schedule(runBotMove, 550, { kind: 'bot-callback' });
         }
     });
 }
@@ -365,12 +409,15 @@ async function runBotMove() {
         return;
     }
 
-    schedule(runBotMove, 550);
+    schedule(runBotMove, 550, { kind: 'bot-callback' });
 }
 
 function showGameOver(winner, messageKey = null) {
     terminateGame();
     runtimeState.clearSelectedSlotId();
+    runtimeDiagnostics.recordGameEnd(
+        `winner=${winner} | reason=${game.endReason} | status=${game.gameStatus}`
+    );
     matchStatsRecorder.recordIfGameOver({
         winner,
         endReason: game.endReason,
@@ -505,6 +552,7 @@ function restartGame() {
 
     game.initGame();
     runtimeState.resetForSession({ initialStartPending: false });
+    runtimeDiagnostics.recordGameStart('restartGame');
     renderer.clearVictoryMoment();
     resetBotMoveFeedback(renderer);
     botTurnTouchFeedback.reset();
@@ -740,6 +788,37 @@ function bindEvents() {
         closeButtons: [feedbackCloseButton]
     });
 
+    const diagnosticsCopyButton =
+        document.getElementById('feedback-diagnostics-copy-button');
+    const diagnosticsClearButton =
+        document.getElementById('feedback-diagnostics-clear-button');
+    const diagnosticsMessage =
+        document.getElementById('feedback-diagnostics-message');
+
+    function setDiagnosticsMessage(messageKey) {
+        if (diagnosticsMessage) {
+            diagnosticsMessage.textContent = t(messageKey);
+        }
+    }
+
+    diagnosticsCopyButton?.addEventListener('click', async () => {
+        const copied = await runtimeDiagnostics.copyReportToClipboard({});
+        setDiagnosticsMessage(
+            copied
+                ? 'status.diagnosticsCopied'
+                : 'status.diagnosticsCopyFailed'
+        );
+    });
+
+    diagnosticsClearButton?.addEventListener('click', () => {
+        try {
+            runtimeDiagnostics.clearRecords();
+            setDiagnosticsMessage('status.diagnosticsCleared');
+        } catch {
+            setDiagnosticsMessage('status.diagnosticsClearFailed');
+        }
+    });
+
     difficultySelect?.addEventListener('change', event => {
         bot.difficulty = event.target.value;
         setStatus(
@@ -866,6 +945,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     bindEvents();
     languageSelectors?.syncToCurrentLanguage();
+    runtimeDiagnostics.start();
 
     // Shorten displayed theme name on mobile landscape without changing values or logic.
     (function setupMobileShortTheme() {

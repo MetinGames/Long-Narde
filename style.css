@@ -352,6 +352,37 @@ body.i18n-ready {
     outline: none;
 }
 
+#feedback-diagnostics-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+#feedback-diagnostics-actions button {
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(236, 189, 97, 0.34);
+    background: rgba(63, 35, 23, 0.96);
+    color: #f6e8c8;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+#feedback-diagnostics-actions button:hover,
+#feedback-diagnostics-actions button:focus {
+    background: rgba(85, 49, 31, 0.98);
+    color: #fff4d2;
+    outline: none;
+}
+
+.feedback-diagnostics-message {
+    min-height: 1.4em;
+    color: #ffe9b9;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
 #feedback-modal-note {
     font-size: 0.88rem;
 }
@@ -2018,6 +2049,15 @@ select {
     }
 
     #feedback-modal-links a {
+        min-height: 42px;
+        padding: 9px 12px;
+    }
+
+    #feedback-diagnostics-actions {
+        grid-template-columns: 1fr;
+    }
+
+    #feedback-diagnostics-actions button {
         min-height: 42px;
         padding: 9px 12px;
     }
