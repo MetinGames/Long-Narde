@@ -1,0 +1,55 @@
+name: Feature request
+description: Suggest an improvement for Long Narde.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing an idea. / Öneriniz için teşekkürler. / Спасибо за идею.
+
+        Please do not include passwords, emails, phone numbers, real names, or other personal data.
+        Lütfen şifre, e-posta, telefon, gerçek ad veya başka özel bilgi eklemeyin.
+        Не указывайте пароль, e-mail, телефон, настоящее имя или другие личные данные.
+  - type: input
+    id: summary
+    attributes:
+      label: Short summary
+      description: One clear sentence about the idea. / Kısa ve net bir özet. / Кратко и понятно.
+      placeholder: What would you like to add or improve?
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Player problem
+      description: What problem does it solve? / Hangi oyuncu sorununu çözer? / Какую проблему решает?
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Proposed behavior
+      description: How should it work? / Önerilen davranış. / Предлагаемое поведение.
+    validations:
+      required: true
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Player benefit
+      description: Why is it useful? / Oyuncuya faydası. / Польза для игрока.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example or screenshot
+      description: Optional link, mockup, or screenshot. / Varsa örnek veya ekran görüntüsü. / Пример или скриншот.
+      placeholder: Optional reference
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Optional extra context. / Ek açıklamalar. / Дополнительные сведения.
+      placeholder: Anything else?

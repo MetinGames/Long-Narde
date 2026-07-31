@@ -126,6 +126,61 @@
                     aria-label="İstatistikler"
                 >İstatistikler</button>
             </div>
+            <div id="feedback-button-row">
+                <button
+                    id="feedback-button"
+                    class="feedback-start-button"
+                    data-i18n="ui.feedbackButton"
+                    data-i18n-aria-label="ui.feedbackButton"
+                    type="button"
+                    aria-label="Görüş Bildir"
+                >Görüş Bildir</button>
+            </div>
+        </div>
+
+        <div
+            id="feedback-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-hidden="true"
+            aria-labelledby="feedback-modal-title"
+            aria-describedby="feedback-modal-description"
+            data-i18n-aria-label="ui.feedbackModalLabel"
+            aria-label="Görüş bildirme penceresi"
+        >
+            <div id="feedback-modal-card">
+                <div id="feedback-modal-header">
+                    <h3 id="feedback-modal-title" data-i18n="ui.feedbackTitle">Görüşlerin Bizim İçin Değerli</h3>
+                    <button
+                        id="feedback-close-button"
+                        class="guide-close"
+                        type="button"
+                        data-i18n-aria-label="ui.feedbackClose"
+                        aria-label="Kapat"
+                    >×</button>
+                </div>
+
+                <p id="feedback-modal-description" data-i18n="ui.feedbackIntro">Hata bildirebilir veya geliştirme önerisi gönderebilirsiniz.</p>
+
+                <div id="feedback-modal-links">
+                    <a
+                        id="feedback-bug-link"
+                        href="https://github.com/MetinGames/Long-Narde/issues/new?template=bug_report.yml"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-i18n="ui.feedbackBug"
+                    >Hata Bildir</a>
+                    <a
+                        id="feedback-feature-link"
+                        href="https://github.com/MetinGames/Long-Narde/issues/new?template=feature_request.yml"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-i18n="ui.feedbackFeature"
+                    >Geliştirme Önerisi</a>
+                </div>
+
+                <p id="feedback-modal-note" data-i18n="ui.feedbackSigninNote">GitHub hesabıyla giriş yapmanız gerekebilir.</p>
+            </div>
         </div>
 
         <div

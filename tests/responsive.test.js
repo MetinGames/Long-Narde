@@ -26,6 +26,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#start-language-select option'), 'Start language option contrast style missing');
     assert.ok(css.includes('background-color: #fff8ec'), 'Light option background color missing');
     assert.ok(css.includes('color: #2b1a0e'), 'Dark option text color missing');
+    assert.ok(css.includes('#feedback-button-row'), 'Feedback button row style missing');
+    assert.ok(css.includes('#feedback-button'), 'Feedback button style missing');
+    assert.ok(css.includes('#feedback-modal-card'), 'Feedback modal style missing');
+    assert.ok(css.includes('#feedback-modal-links a'), 'Feedback modal link style missing');
     assert.ok(css.includes('#game-feedback-toast'), 'Game feedback toast style missing');
     assert.ok(css.includes('#game-feedback-toast.is-visible'), 'Game feedback toast visibility style missing');
 });
@@ -41,6 +45,14 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="start-language-select"'), 'Start screen language select missing');
     assert.ok(/id="start-language-select"[^>]*data-i18n-aria-label="ui.language"/i.test(html), 'Start language select i18n aria label missing');
     assert.ok(/id="start-language-label"[^>]*for="start-language-select"/i.test(html), 'Start language visible label missing');
+    assert.ok(html.includes('id="feedback-button"'), 'Feedback button missing');
+    assert.ok(html.includes('id="feedback-modal"'), 'Feedback modal missing');
+    assert.ok(html.includes('id="feedback-bug-link"'), 'Feedback bug link missing');
+    assert.ok(html.includes('id="feedback-feature-link"'), 'Feedback feature link missing');
+    assert.ok(/id="feedback-bug-link"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/i.test(html), 'Bug feedback link target/rel missing');
+    assert.ok(/id="feedback-feature-link"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/i.test(html), 'Feature feedback link target/rel missing');
+    assert.ok(/id="feedback-modal"[^>]*aria-modal="true"/i.test(html), 'Feedback modal aria-modal missing');
+    assert.ok(/id="feedback-modal"[^>]*data-i18n-aria-label="ui.feedbackModalLabel"/i.test(html), 'Feedback modal aria-label i18n missing');
     assert.ok(/id="how-to-play-modal"[^>]*aria-modal="true"/i.test(html), 'How-to-play modal aria-modal missing');
     assert.ok(/id="player-stats-modal"[^>]*aria-modal="true"/i.test(html), 'Player stats modal aria-modal missing');
     assert.ok(html.includes('id="guide-prev-button"'), 'Guide previous button missing');

@@ -1,0 +1,98 @@
+name: Bug report
+description: Report a problem in Long Narde.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. / Sorun bildiriminiz için teşekkürler. / Спасибо за сообщение об ошибке.
+
+        Please do not include passwords, emails, phone numbers, real names, or other personal data.
+        Lütfen şifre, e-posta, telefon, gerçek ad veya başka özel bilgi eklemeyin.
+        Не указывайте пароль, e-mail, телефон, настоящее имя или другие личные данные.
+  - type: input
+    id: summary
+    attributes:
+      label: Short summary
+      description: One clear sentence about the issue. / Kısa ve net bir özet. / Кратко и понятно.
+      placeholder: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the smallest steps. / En küçük adımları yazın. / Укажите минимальные шаги.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen? / Ne olmalıydı? / Что должно было произойти?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead? / Gerçekte ne oldu? / Что произошло на самом деле?
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device type and model
+      description: Example: iPhone 13, Pixel 7, Windows laptop. / Cihaz türü ve modeli. / Тип и модель устройства.
+      placeholder: Device and model
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: Example: iOS 17, Android 14, Windows 11. / İşletim sistemi. / Операционная система.
+      placeholder: OS version
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      description: Example: Safari 17, Chrome 126. / Tarayıcı ve sürümü. / Браузер и версия.
+      placeholder: Browser version
+  - type: dropdown
+    id: orientation
+    attributes:
+      label: Screen orientation
+      description: Portrait or landscape. / Ekran yönü. / Ориентация экрана.
+      options:
+        - Portrait
+        - Landscape
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: In-game language
+      description: Game UI language at the time. / Oyunda kullanılan dil. / Язык игры.
+      options:
+        - Türkçe
+        - English
+        - Русский
+    validations:
+      required: true
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshot or video
+      description: Paste a link or drag the file into the issue body. / Ekran görüntüsü veya video ekleyin. / Добавьте скриншот или видео.
+      placeholder: Link, attachment note, or reproduction media
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Optional extra context. / Ek açıklamalar. / Дополнительные сведения.
+      placeholder: Anything else?

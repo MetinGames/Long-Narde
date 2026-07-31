@@ -14,6 +14,7 @@ import { DiceRollAnimation } from './engine/animations.js';
 import { bindCanvasInput } from './engine/input.js';
 import { TurnTimeoutController } from './engine/timeoutController.js';
 import { HowToPlayGuide } from './engine/howToPlayGuide.js';
+import { FeedbackModal } from './engine/feedbackModal.js';
 import {
     MatchStatsRecorder,
     PlayerStatsStore
@@ -54,6 +55,7 @@ let hasVictoryMomentPlayed = false;
 let victoryMomentHook = null;
 let howToPlayGuide = null;
 let playerStatsModal = null;
+let feedbackModal = null;
 let restartButtonLock = null;
 let gameFeedbackToast = null;
 let languageSelectors = null;
@@ -112,6 +114,7 @@ function showStartScreen() {
 function hideStartScreen() {
     const overlay = document.getElementById('start-screen');
     if (!overlay) return;
+    feedbackModal?.close({ returnFocus: false });
     overlay.style.display = 'none';
     overlay.setAttribute('aria-hidden', 'true');
     howToPlayGuide?.close({ returnFocus: false });
@@ -658,6 +661,12 @@ function bindEvents() {
         document.getElementById('restart-button');
     const startButton =
         document.getElementById('start-button');
+    const feedbackButton =
+        document.getElementById('feedback-button');
+    const feedbackModalElement =
+        document.getElementById('feedback-modal');
+    const feedbackCloseButton =
+        document.getElementById('feedback-close-button');
     const canvas =
         document.getElementById('game-canvas');
     const boardWrapper =
@@ -732,6 +741,12 @@ function bindEvents() {
         },
         emptyState: statsEmptyState,
         cardsContainer: statsCardsContainer
+    });
+
+    feedbackModal = new FeedbackModal({
+        modal: feedbackModalElement,
+        openButton: feedbackButton,
+        closeButtons: [feedbackCloseButton]
     });
 
     difficultySelect?.addEventListener('change', event => {

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Live game
+    url: https://metingames.github.io/Long-Narde/
+    about: Play the current release here. / Mevcut sürümü burada oynayın. / Откройте текущую версию здесь.
+  - name: Bug report form
+    url: https://github.com/MetinGames/Long-Narde/issues/new?template=bug_report.yml
+    about: Open the bug report form. / Hata bildir formunu açın. / Открыть форму сообщения об ошибке.
+  - name: Feature request form
+    url: https://github.com/MetinGames/Long-Narde/issues/new?template=feature_request.yml
+    about: Open the feature request form. / Öneri formunu açın. / Открыть форму предложения.
