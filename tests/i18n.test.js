@@ -328,3 +328,25 @@ test('player stats keys are localized in all supported languages', async () => {
     restoreGlobalProperty('localStorage', originalLocalStorage);
     restoreGlobalProperty('navigator', originalNavigator);
 });
+
+test('language option names stay fixed across all UI languages', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    for (const language of ['tr', 'en', 'ru']) {
+        i18n.setLanguage(language);
+        assert.equal(i18n.t('language.tr'), 'Türkçe');
+        assert.equal(i18n.t('language.en'), 'English');
+        assert.equal(i18n.t('language.ru'), 'Русский');
+    }
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});

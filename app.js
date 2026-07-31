@@ -6,11 +6,10 @@ import { NardeBot } from './engine/bot.js';
 import { UIManager } from './engine/uiManager.js';
 import {
     applyTranslations,
-    getLanguage,
     initializeLanguage,
-    setLanguage,
     t
 } from './engine/i18n.js';
+import { setupLanguageSelectors } from './engine/languageSelectors.js';
 import { DiceRollAnimation } from './engine/animations.js';
 import { bindCanvasInput } from './engine/input.js';
 import { TurnTimeoutController } from './engine/timeoutController.js';
@@ -57,6 +56,7 @@ let howToPlayGuide = null;
 let playerStatsModal = null;
 let restartButtonLock = null;
 let gameFeedbackToast = null;
+let languageSelectors = null;
 
 const botTurnTouchFeedback = new BotTurnTouchFeedback();
 
@@ -664,6 +664,8 @@ function bindEvents() {
         document.getElementById('board-wrapper');
     const languageSelect =
         document.getElementById('language-select');
+    const startLanguageSelect =
+        document.getElementById('start-language-select');
     const themeSelect =
         document.getElementById('theme-select');
     const howToPlayButton =
@@ -740,13 +742,16 @@ function bindEvents() {
         );
     });
 
-    languageSelect?.addEventListener('change', event => {
-        setLanguage(event.target.value);
-        applyTranslations();
-        howToPlayGuide?.refreshForLanguage();
-        playerStatsModal?.refreshForLanguage();
-        updateScreen();
-        setStatus(t('status.languageChanged'), { force: true });
+    languageSelectors = setupLanguageSelectors({
+        selectors: [languageSelect, startLanguageSelect],
+        onLanguageApplied: () => {
+            howToPlayGuide?.refreshForLanguage();
+            playerStatsModal?.refreshForLanguage();
+            updateScreen();
+        },
+        onStatusChange: message => {
+            setStatus(message, { force: true });
+        }
     });
 
     themeSelect?.addEventListener('change', event => {
@@ -847,12 +852,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.body.classList.add('i18n-ready');
     await renderer.initialize();
 
-    const languageSelect =
-        document.getElementById('language-select');
-    if (languageSelect) {
-        languageSelect.value = getLanguage();
-    }
-
     const themeSelect =
         document.getElementById('theme-select');
     if (themeSelect) {
@@ -860,6 +859,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     bindEvents();
+    languageSelectors?.syncToCurrentLanguage();
 
     // Shorten displayed theme name on mobile landscape without changing values or logic.
     (function setupMobileShortTheme() {

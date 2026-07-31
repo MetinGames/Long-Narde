@@ -92,6 +92,21 @@
         <div id="start-screen-box">
             <h2 data-i18n="ui.startTitle">Uzun Narde'ye Hoş Geldiniz</h2>
             <p data-i18n="ui.startDescription">Tahta hazır. Oyuna başlamak için Oyuna Başla'ya dokunun.</p>
+            <div id="start-language-container">
+                <label id="start-language-label" for="start-language-select">
+                    <span aria-hidden="true">🌐</span>
+                    <span data-i18n="ui.language">Dil:</span>
+                </label>
+                <select
+                    id="start-language-select"
+                    data-i18n-aria-label="ui.language"
+                    aria-label="Dil"
+                >
+                    <option value="tr" data-i18n="language.tr">Türkçe</option>
+                    <option value="en" data-i18n="language.en">English</option>
+                    <option value="ru" data-i18n="language.ru">Русский</option>
+                </select>
+            </div>
             <div id="start-screen-actions">
                 <button id="start-button" data-i18n="ui.startButton" type="button">Oyuna Başla</button>
                 <button

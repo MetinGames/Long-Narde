@@ -201,6 +201,55 @@ body.i18n-ready {
     line-height: 1.6;
 }
 
+#start-language-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 18px;
+    padding: 7px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(229, 182, 96, 0.32);
+    background: rgba(32, 18, 11, 0.52);
+    max-width: min(100%, 360px);
+}
+
+#start-language-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #f4ddb0;
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+#start-language-select {
+    min-width: 132px;
+    max-width: 210px;
+    width: min(44vw, 210px);
+    border: 1px solid #6d5230;
+    border-radius: 9px;
+    padding: 6px 8px;
+    background: linear-gradient(180deg, #2f1c11 0%, #211208 100%);
+    color: #ffeec7;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+#start-language-select:focus {
+    outline: 2px solid rgba(245, 206, 129, 0.75);
+    outline-offset: 1px;
+}
+
+/* Keep native dropdown list readable on light OS popup surfaces. */
+#language-select option,
+#start-language-select option {
+    background-color: #fff8ec;
+    color: #2b1a0e;
+}
+
 #start-screen-actions {
     display: flex;
     gap: 10px;
@@ -1825,6 +1874,36 @@ select {
         left: auto;
         width: auto;
         pointer-events: none;
+    }
+
+    #start-screen-box {
+        padding: 20px 16px;
+    }
+
+    #start-screen-box p {
+        margin-bottom: 16px;
+        font-size: 0.95rem;
+    }
+
+    #start-language-container {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 14px;
+        padding: 6px 8px;
+        gap: 6px;
+    }
+
+    #start-language-label {
+        font-size: 0.82rem;
+        gap: 5px;
+    }
+
+    #start-language-select {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        font-size: 0.84rem;
+        padding: 6px;
     }
 }
 
