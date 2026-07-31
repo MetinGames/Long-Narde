@@ -49,19 +49,19 @@ body:
     id: device
     attributes:
       label: Device type and model
-      description: Example: iPhone 13, Pixel 7, Windows laptop. / Cihaz türü ve modeli. / Тип и модель устройства.
+      description: "Example: iPhone 13, Pixel 7, Windows laptop. / Cihaz türü ve modeli. / Тип и модель устройства."
       placeholder: Device and model
   - type: input
     id: os
     attributes:
       label: Operating system
-      description: Example: iOS 17, Android 14, Windows 11. / İşletim sistemi. / Операционная система.
+      description: "Example: iOS 17, Android 14, Windows 11. / İşletim sistemi. / Операционная система."
       placeholder: OS version
   - type: input
     id: browser
     attributes:
       label: Browser and version
-      description: Example: Safari 17, Chrome 126. / Tarayıcı ve sürümü. / Браузер и версия.
+      description: "Example: Safari 17, Chrome 126. / Tarayıcı ve sürümü. / Браузер и версия."
       placeholder: Browser version
   - type: dropdown
     id: orientation
@@ -96,3 +96,11 @@ body:
       label: Additional notes
       description: Optional extra context. / Ek açıklamalar. / Дополнительные сведения.
       placeholder: Anything else?
+  - type: checkboxes
+    id: privacy_ack
+    attributes:
+      label: Privacy confirmation
+      description: Confirm that the report contains no personal data. / Bildirimin kişisel veri içermediğini onaylayın. / Подтвердите, что сообщение не содержит личных данных.
+      options:
+        - label: I confirm this report does not include passwords, emails, phone numbers, real names, or other personal data. / Bu bildirimde şifre, e-posta, telefon, gerçek ad veya başka kişisel veri yoktur. / Подтверждаю, что в сообщении нет паролей, e-mail, телефонов, настоящих имен или других личных данных.
+          required: true
