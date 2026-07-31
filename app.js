@@ -38,6 +38,7 @@ import {
 import { BotTurnTouchFeedback } from './engine/botTurnTouchFeedback.js';
 import { RestartButtonLock } from './engine/restartButtonLock.js';
 import { GameFeedbackToast } from './engine/gameFeedbackToast.js';
+import { createAppRuntimeState } from './engine/appRuntimeState.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -45,13 +46,7 @@ const bot = new NardeBot(2, 'medium');
 const ui = new UIManager();
 const diceRollAnimation = new DiceRollAnimation();
 
-let selectedSlotId = null;
-let totalMoveCounter = 0;
-let turnTimerInterval = null;
-let scheduledTimeouts = new Set();
-let isInitialStartPending = true;
-let isTimeoutResolutionInProgress = false;
-let hasVictoryMomentPlayed = false;
+const runtimeState = createAppRuntimeState();
 let victoryMomentHook = null;
 let howToPlayGuide = null;
 let playerStatsModal = null;
@@ -72,23 +67,25 @@ const matchStatsRecorder = new MatchStatsRecorder({
 function schedule(callback, delay) {
     if (game.gameStatus === 'GAME_OVER') return null;
 
+    const scheduledToken = runtimeState.captureSessionToken();
+
     const timeoutId = setTimeout(() => {
-        scheduledTimeouts.delete(timeoutId);
+        runtimeState.removeScheduledTimeout(timeoutId);
+        if (!runtimeState.isSessionTokenCurrent(scheduledToken)) {
+            return;
+        }
         callback();
     }, delay);
-    scheduledTimeouts.add(timeoutId);
+    runtimeState.addScheduledTimeout(timeoutId);
     return timeoutId;
 }
 
 function clearRuntimeTasks() {
-    clearInterval(turnTimerInterval);
-    turnTimerInterval = null;
+    clearInterval(runtimeState.getTurnTimerInterval());
+    runtimeState.clearTurnTimerInterval();
     diceRollAnimation.stop();
 
-    for (const timeoutId of scheduledTimeouts) {
-        clearTimeout(timeoutId);
-    }
-    scheduledTimeouts.clear();
+    runtimeState.clearScheduledTimeouts(clearTimeout);
 
     restartButtonLock?.clearPendingUnlock();
     gameFeedbackToast?.hide();
@@ -122,17 +119,14 @@ function hideStartScreen() {
 }
 
 function startGame() {
-    if (!isInitialStartPending) return;
+    if (!runtimeState.isInitialStartPending()) return;
 
-    isInitialStartPending = false;
     matchStatsRecorder.beginMatch();
     howToPlayGuide?.close({ returnFocus: false });
     playerStatsModal?.close({ returnFocus: false });
     hideStartScreen();
     game.initGame();
-    selectedSlotId = null;
-    totalMoveCounter = 0;
-    hasVictoryMomentPlayed = false;
+    runtimeState.resetForSession({ initialStartPending: false });
     renderer.clearVictoryMoment();
     resetBotMoveFeedback(renderer);
     botTurnTouchFeedback.reset();
@@ -146,12 +140,9 @@ function startGame() {
 }
 
 function initializeBeforeStart() {
-    isInitialStartPending = true;
+    runtimeState.resetForSession({ initialStartPending: true });
     matchStatsRecorder.resetPendingMatch();
     game.initGame();
-    selectedSlotId = null;
-    totalMoveCounter = 0;
-    hasVictoryMomentPlayed = false;
     renderer.clearVictoryMoment();
     resetBotMoveFeedback(renderer);
     botTurnTouchFeedback.reset();
@@ -166,7 +157,7 @@ function initializeBeforeStart() {
 
 function updateScreen() {
     syncActionButtonStates();
-    renderer.render(game, selectedSlotId);
+    renderer.render(game, runtimeState.getSelectedSlotId());
 }
 
 function syncActionButtonStates() {
@@ -194,14 +185,14 @@ function applyFinalTimeoutLoss() {
 }
 
 function synchronizeTimeoutState() {
-    if (isTimeoutResolutionInProgress) return;
+    if (runtimeState.isTimeoutResolutionInProgress()) return;
 
-    if (isInitialStartPending || game.gameStatus === 'GAME_OVER') {
+    if (runtimeState.isInitialStartPending() || game.gameStatus === 'GAME_OVER') {
         return;
     }
 
     const evaluation = timeoutController.evaluate({
-        isStartScreen: isInitialStartPending,
+        isStartScreen: runtimeState.isInitialStartPending(),
         gameStatus: game.gameStatus,
         currentPlayer: game.currentPlayer,
         timeoutStrikes: game.timeoutStrikes
@@ -219,10 +210,10 @@ function synchronizeTimeoutState() {
         return;
     }
 
-    isTimeoutResolutionInProgress = true;
+    runtimeState.setTimeoutResolutionInProgress(true);
     try {
-        clearInterval(turnTimerInterval);
-        turnTimerInterval = null;
+        clearInterval(runtimeState.getTurnTimerInterval());
+        runtimeState.clearTurnTimerInterval();
 
         if (evaluation.action === 'firstTimeout') {
             const timeoutResult = game.recordHumanTimeout();
@@ -235,14 +226,14 @@ function synchronizeTimeoutState() {
 
         applyFinalTimeoutLoss();
     } finally {
-        isTimeoutResolutionInProgress = false;
+        runtimeState.setTimeoutResolutionInProgress(false);
     }
 }
 
 function startHumanTimer() {
-    clearInterval(turnTimerInterval);
+    clearInterval(runtimeState.getTurnTimerInterval());
 
-    if (isInitialStartPending || game.gameStatus === 'GAME_OVER') {
+    if (runtimeState.isInitialStartPending() || game.gameStatus === 'GAME_OVER') {
         return;
     }
 
@@ -250,16 +241,16 @@ function startHumanTimer() {
     timeoutController.startHumanTurn(duration, game.timeoutStrikes);
     ui.updateTimerText(timeoutController.getRemainingSeconds());
 
-    turnTimerInterval = setInterval(synchronizeTimeoutState, 1000);
+    runtimeState.setTurnTimerInterval(setInterval(synchronizeTimeoutState, 1000));
 }
 
 function finishCurrentTurn() {
     if (game.gameStatus === 'GAME_OVER') return;
 
-    clearInterval(turnTimerInterval);
-    turnTimerInterval = null;
+    clearInterval(runtimeState.getTurnTimerInterval());
+    runtimeState.clearTurnTimerInterval();
     timeoutController.stopTurnDeadline();
-    selectedSlotId = null;
+    runtimeState.clearSelectedSlotId();
 
     game.confirmTurnEnd();
     updateScreen();
@@ -301,7 +292,7 @@ function startAutomaticDiceRoll() {
 
     diceRollAnimation.start(die1, die2, () => {
         const diceValues = game.rollDice();
-        selectedSlotId = null;
+        runtimeState.clearSelectedSlotId();
         updateScreen();
 
         if (rollingPlayer === 1) {
@@ -361,7 +352,7 @@ async function runBotMove() {
         reducedMotion: prefersReducedMotion()
     });
 
-    totalMoveCounter++;
+    runtimeState.incrementTotalMoveCounter();
     updateScreen();
 
     const winner = game.checkWinCondition();
@@ -379,11 +370,11 @@ async function runBotMove() {
 
 function showGameOver(winner, messageKey = null) {
     terminateGame();
-    selectedSlotId = null;
+    runtimeState.clearSelectedSlotId();
     matchStatsRecorder.recordIfGameOver({
         winner,
         endReason: game.endReason,
-        totalMoves: totalMoveCounter,
+        totalMoves: runtimeState.getTotalMoveCounter(),
         gameStatus: game.gameStatus
     });
     playerStatsModal?.render();
@@ -410,7 +401,7 @@ function showGameOver(winner, messageKey = null) {
                     ? t('game.winMessage')
                     : t('game.loseMessage');
     }
-    if (statMoves) statMoves.textContent = totalMoveCounter;
+    if (statMoves) statMoves.textContent = runtimeState.getTotalMoveCounter();
     if (overlay) {
         overlay.style.display = 'flex';
         overlay.setAttribute('aria-hidden', 'false');
@@ -465,12 +456,12 @@ async function playVictoryMomentIfEligible({ winner, targetId }) {
         winner,
         endReason: game.endReason,
         targetId,
-        alreadyTriggered: hasVictoryMomentPlayed
+        alreadyTriggered: runtimeState.hasVictoryMomentPlayed()
     });
 
     if (!shouldPlay) return;
 
-    hasVictoryMomentPlayed = true;
+    runtimeState.setVictoryMomentPlayed(true);
 
     const reducedMotion = prefersReducedMotion();
     const profile = getVictoryMomentProfile(reducedMotion);
@@ -513,9 +504,7 @@ function restartGame() {
     }
 
     game.initGame();
-    selectedSlotId = null;
-    totalMoveCounter = 0;
-    hasVictoryMomentPlayed = false;
+    runtimeState.resetForSession({ initialStartPending: false });
     renderer.clearVictoryMoment();
     resetBotMoveFeedback(renderer);
     botTurnTouchFeedback.reset();
@@ -552,13 +541,13 @@ function selectPlayableSlot(slotId) {
     const legalTargets = game.getLegalTargets(slotId);
 
     if (legalTargets.length === 0) {
-        selectedSlotId = null;
+        runtimeState.clearSelectedSlotId();
         updateScreen();
         explainUnplayableSlot(slotId);
         return false;
     }
 
-    selectedSlotId = slotId;
+    runtimeState.setSelectedSlotId(slotId);
     updateScreen();
 
     if (legalTargets.includes(25)) {
@@ -584,6 +573,8 @@ async function handleSlotClick(slotId) {
     const clickedSlot =
         slotId === 25 ? null : game.board.slots[slotId];
 
+    const selectedSlotId = runtimeState.getSelectedSlotId();
+
     if (selectedSlotId === null) {
         if (
             clickedSlot &&
@@ -596,7 +587,7 @@ async function handleSlotClick(slotId) {
     }
 
     if (selectedSlotId === slotId) {
-        selectedSlotId = null;
+        runtimeState.clearSelectedSlotId();
         updateScreen();
         setStatus(t('status.deselected'));
         return;
@@ -616,8 +607,8 @@ async function handleSlotClick(slotId) {
 
         game.resetTimeoutStrikes();
         timeoutController.clearForfeitWindow();
-        selectedSlotId = null;
-        totalMoveCounter++;
+        runtimeState.clearSelectedSlotId();
+        runtimeState.incrementTotalMoveCounter();
         updateScreen();
         ui.setHumanMoveLayout();
 
@@ -797,7 +788,7 @@ function bindEvents() {
             game.currentPlayer === 1 &&
             game.undoTurnMoves()
         ) {
-            selectedSlotId = null;
+            runtimeState.clearSelectedSlotId();
             updateScreen();
             applyPostUndoLayout({ game, ui });
             setStatus(t('status.undo'));
@@ -832,7 +823,7 @@ function bindEvents() {
         onBlockedInteraction: () => {
             if (
                 botTurnTouchFeedback.shouldShowWaitMessage({
-                    isStartScreen: isInitialStartPending,
+                    isStartScreen: runtimeState.isInitialStartPending(),
                     gameStatus: game.gameStatus,
                     currentPlayer: game.currentPlayer
                 })
