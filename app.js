@@ -16,6 +16,11 @@ import { bindCanvasInput } from './engine/input.js';
 import { TurnTimeoutController } from './engine/timeoutController.js';
 import { HowToPlayGuide } from './engine/howToPlayGuide.js';
 import {
+    MatchStatsRecorder,
+    PlayerStatsStore
+} from './engine/playerStats.js';
+import { PlayerStatsModal } from './engine/playerStatsModal.js';
+import {
     applyPostUndoLayout,
     getActionButtonState
 } from './engine/undoActionButtons.js';
@@ -49,12 +54,18 @@ let isTimeoutResolutionInProgress = false;
 let hasVictoryMomentPlayed = false;
 let victoryMomentHook = null;
 let howToPlayGuide = null;
+let playerStatsModal = null;
 let restartButtonLock = null;
 let gameFeedbackToast = null;
 
 const botTurnTouchFeedback = new BotTurnTouchFeedback();
 
 const timeoutController = new TurnTimeoutController();
+const playerStatsStore = new PlayerStatsStore();
+const matchStatsRecorder = new MatchStatsRecorder({
+    store: playerStatsStore,
+    humanPlayer: 1
+});
 
 function schedule(callback, delay) {
     if (game.gameStatus === 'GAME_OVER') return null;
@@ -104,13 +115,16 @@ function hideStartScreen() {
     overlay.style.display = 'none';
     overlay.setAttribute('aria-hidden', 'true');
     howToPlayGuide?.close({ returnFocus: false });
+    playerStatsModal?.close({ returnFocus: false });
 }
 
 function startGame() {
     if (!isInitialStartPending) return;
 
     isInitialStartPending = false;
+    matchStatsRecorder.beginMatch();
     howToPlayGuide?.close({ returnFocus: false });
+    playerStatsModal?.close({ returnFocus: false });
     hideStartScreen();
     game.initGame();
     selectedSlotId = null;
@@ -130,6 +144,7 @@ function startGame() {
 
 function initializeBeforeStart() {
     isInitialStartPending = true;
+    matchStatsRecorder.resetPendingMatch();
     game.initGame();
     selectedSlotId = null;
     totalMoveCounter = 0;
@@ -362,6 +377,13 @@ async function runBotMove() {
 function showGameOver(winner, messageKey = null) {
     terminateGame();
     selectedSlotId = null;
+    matchStatsRecorder.recordIfGameOver({
+        winner,
+        endReason: game.endReason,
+        totalMoves: totalMoveCounter,
+        gameStatus: game.gameStatus
+    });
+    playerStatsModal?.render();
     botTurnTouchFeedback.reset();
     gameFeedbackToast?.hide();
     endBotMoveFeedback(renderer);
@@ -479,6 +501,7 @@ function restartGame() {
     }
 
     clearRuntimeTasks();
+    matchStatsRecorder.beginMatch();
 
     const overlay = document.getElementById('game-over-overlay');
     if (overlay) {
@@ -647,6 +670,20 @@ function bindEvents() {
         document.getElementById('how-to-play-button');
     const howToPlayModal =
         document.getElementById('how-to-play-modal');
+    const statsButton =
+        document.getElementById('player-stats-button');
+    const statsModal =
+        document.getElementById('player-stats-modal');
+    const statsCloseButtons = [
+        document.getElementById('stats-close-button'),
+        document.getElementById('stats-close-footer-button')
+    ].filter(Boolean);
+    const statsResetButton =
+        document.getElementById('stats-reset-button');
+    const statsEmptyState =
+        document.getElementById('stats-empty-state');
+    const statsCardsContainer =
+        document.getElementById('player-stats-cards');
     const guidePrevButton =
         document.getElementById('guide-prev-button');
     const guideNextButton =
@@ -675,6 +712,26 @@ function bindEvents() {
         onStart: startGame
     });
 
+    playerStatsModal = new PlayerStatsModal({
+        modal: statsModal,
+        openButton: statsButton,
+        closeButtons: statsCloseButtons,
+        resetButton: statsResetButton,
+        statsStore: playerStatsStore,
+        valueElements: {
+            totalMatches: document.getElementById('stats-total-matches-value'),
+            wins: document.getElementById('stats-wins-value'),
+            losses: document.getElementById('stats-losses-value'),
+            winRate: document.getElementById('stats-win-rate-value'),
+            totalMoves: document.getElementById('stats-total-moves-value'),
+            bestWinMoves: document.getElementById('stats-best-win-value'),
+            normalLosses: document.getElementById('stats-normal-losses-value'),
+            timeoutLosses: document.getElementById('stats-timeout-losses-value')
+        },
+        emptyState: statsEmptyState,
+        cardsContainer: statsCardsContainer
+    });
+
     difficultySelect?.addEventListener('change', event => {
         bot.difficulty = event.target.value;
         setStatus(
@@ -687,6 +744,7 @@ function bindEvents() {
         setLanguage(event.target.value);
         applyTranslations();
         howToPlayGuide?.refreshForLanguage();
+        playerStatsModal?.refreshForLanguage();
         updateScreen();
         setStatus(t('status.languageChanged'), { force: true });
     });

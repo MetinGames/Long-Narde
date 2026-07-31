@@ -294,3 +294,37 @@ test('how-to-play guide keys are localized in all supported languages', async ()
     restoreGlobalProperty('localStorage', originalLocalStorage);
     restoreGlobalProperty('navigator', originalNavigator);
 });
+
+test('player stats keys are localized in all supported languages', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    i18n.setLanguage('tr');
+    assert.equal(i18n.t('stats.title'), 'İstatistikler');
+    assert.equal(i18n.t('stats.bestWinMoves'), 'En Az Hamlede Galibiyet');
+    assert.equal(i18n.t('stats.noBestWin'), 'Henüz galibiyet yok');
+    assert.equal(i18n.t('stats.reset'), 'İstatistikleri Sıfırla');
+
+    i18n.setLanguage('en');
+    assert.equal(i18n.t('stats.title'), 'Statistics');
+    assert.equal(i18n.t('stats.bestWinMoves'), 'Fewest Moves in a Win');
+    assert.equal(i18n.t('stats.noBestWin'), 'No wins yet');
+    assert.equal(i18n.t('stats.reset'), 'Reset Statistics');
+
+    i18n.setLanguage('ru');
+    assert.equal(i18n.t('stats.title'), 'Статистика');
+    assert.equal(i18n.t('stats.bestWinMoves'), 'Минимум ходов до победы');
+    assert.equal(i18n.t('stats.noBestWin'), 'Побед пока нет');
+    assert.equal(i18n.t('stats.timeoutLosses'), 'Поражения по тайм-ауту');
+    assert.equal(i18n.t('stats.reset'), 'Сбросить статистику');
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
