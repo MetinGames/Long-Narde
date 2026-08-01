@@ -36,7 +36,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - The interface still exposes `Classic Long Narde` / `Welcome to Long Narde`; the Nardora brand migration is not implemented.
 - `app.js` is about 1,017 lines, `engine/renderer.js` about 1,181 lines, and `style.css` about 2,373 lines; modularization is only partly complete.
 - The repository has 27 non-main branches that need a verified merged/stale inventory before deletion.
-- There are currently no open GitHub Issues, so roadmap work is not represented as an executable queue.
+- The first six sprint Issues now exist; a GitHub Project view, milestones, and the remaining Phase 1 backlog still need configuration.
 - The sound folders are placeholders; the requested real dice/checker recordings are not integrated.
 - The UI exposes Easy, Medium, and Master. A separate Champion mode is not present in the current code.
 - There is no PWA manifest/service worker, store package, backend, account system, online room, chat, ranking, or moderation layer.
@@ -46,7 +46,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 Target: **2026-08-14**
 
 - **In progress:** Replace the stale roadmap with this verified, dated plan.
-- **Queued:** Create GitHub Issues for every Phase 0 and Phase 1 item; add priority, status, effort, and acceptance criteria.
+- **In progress:** Phase 0 work now exists as six prioritized GitHub Issues with estimates and acceptance criteria; create the Project view and remaining Phase 1 backlog.
 - **Queued:** Complete player-facing Nardora migration in HTML title, TR/EN/RU translations, welcome screen, feedback text, and documentation without changing the repository URL.
 - **Queued:** Inventory all 27 non-main branches and remove only branches proven merged or obsolete.
 - **In progress:** Continue small, test-backed extraction from `app.js`; review UI/core ownership and event-listener lifecycle.
