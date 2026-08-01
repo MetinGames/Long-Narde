@@ -571,14 +571,15 @@ function restartGame() {
 }
 
 function explainUnplayableSlot(slotId) {
-    const headSlot = game.board.getHeadSlot(game.currentPlayer);
+    const reason = game.getUnplayableReason(slotId);
 
-    if (
-        slotId === headSlot &&
-        !game.canMoveFromHead()
-    ) {
+    if (reason === 'headBlocked') {
         setStatus(
             t('status.headBlocked')
+        );
+    } else if (reason === 'maxMoveConstraint') {
+        setStatus(
+            t('status.maxMoveConstraint')
         );
     } else {
         setStatus(

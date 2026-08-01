@@ -74,6 +74,78 @@ test('iki zar oynanabiliyorsa iki sıra da yasal başlangıçtır', () => {
     assert.ok(sequences.includes('5,3'));
 });
 
+test('cift 1 durumunda mumkunse dort hak da tek hamlede kullanilabilir', () => {
+    const game = prepareGame({
+        dice: [1, 1, 1, 1],
+        pieces: [
+            { slot: 20, count: 1, owner: 1 }
+        ]
+    });
+
+    const legalTargets = game.getLegalTargets(20);
+    assert.ok(legalTargets.includes(24));
+
+    assert.equal(game.processPlayerInput(20, 24), true);
+    assert.equal(game.availableMoves.length, 0);
+    assert.deepEqual(game.board.slots[20], { count: 0, player: null });
+    assert.deepEqual(game.board.slots[24], { count: 1, player: 1 });
+});
+
+test('cift 1 durumunda birden fazla yasal baslangic pulu secilebilir', () => {
+    const game = prepareGame({
+        dice: [1, 1, 1, 1],
+        pieces: [
+            { slot: 20, count: 1, owner: 1 },
+            { slot: 21, count: 1, owner: 1 }
+        ]
+    });
+
+    assert.ok(game.getLegalTargets(20).length > 0);
+    assert.ok(game.getLegalTargets(21).length > 0);
+});
+
+test('maksimum hamle kurali nedeniyle reddedilen pul icin acik sebep doner', () => {
+    const game = prepareGame({
+        dice: [3, 5],
+        pieces: [
+            { slot: 13, count: 3, owner: 1 },
+            { slot: 23, count: 2, owner: 1 },
+            { slot: 21, count: 1, owner: 1 },
+            { slot: 2, count: 2, owner: 2 },
+            { slot: 11, count: 1, owner: 2 },
+            { slot: 18, count: 1, owner: 2 },
+            { slot: 15, count: 2, owner: 2 }
+        ]
+    });
+
+    assert.deepEqual(
+        game.getRawLegalSingleMoves().filter(move => move.from === 21),
+        [{ from: 21, dice: 3, target: 24 }]
+    );
+    assert.deepEqual(game.getLegalTargets(21), []);
+    assert.equal(game.getUnplayableReason(21), 'maxMoveConstraint');
+});
+
+test('memoization tekrarlayan durumlarda hesaplama tekrarini azaltir', () => {
+    const game = prepareGame({
+        dice: [1, 1, 1, 1],
+        pieces: [
+            { slot: 1, count: 5, owner: 1 },
+            { slot: 2, count: 5, owner: 1 },
+            { slot: 3, count: 5, owner: 1 }
+        ]
+    });
+
+    game.resetAnalysisMetrics();
+    const maxMoves = game.getMaximumPlayableMoveCount();
+    const metrics = game.getAnalysisMetrics();
+
+    assert.equal(maxMoves, 4);
+    assert.ok(metrics.memoHits > 0);
+    assert.ok(metrics.memoMisses > 0);
+    assert.ok(metrics.memoHits >= metrics.memoMisses / 4);
+});
+
 test('bot zorunlu büyük zarı seçer', () => {
     const game = prepareGame({
         player: 2,

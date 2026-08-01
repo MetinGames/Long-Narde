@@ -14,6 +14,9 @@ import {
 function createButton() {
     return {
         disabled: false,
+        style: {
+            pointerEvents: 'auto'
+        },
         attributes: new Map(),
         setAttribute(name, value) {
             this.attributes.set(name, value);
@@ -110,6 +113,7 @@ test('restart kilidi butonu gecici olarak devre disi birakir ve sonra acar', asy
     assert.equal(lock.isLocked(), true);
     assert.equal(button.disabled, true);
     assert.equal(button.getAttribute('aria-disabled'), 'true');
+    assert.equal(button.style.pointerEvents, 'none');
     assert.equal(timers[0].delay, 700);
 
     timers[0].callback();
@@ -117,6 +121,7 @@ test('restart kilidi butonu gecici olarak devre disi birakir ve sonra acar', asy
     assert.equal(lock.isLocked(), false);
     assert.equal(button.disabled, false);
     assert.equal(button.getAttribute('aria-disabled'), 'false');
+    assert.equal(button.style.pointerEvents, 'auto');
 
     lock.dispose();
 });
@@ -150,6 +155,96 @@ test('restart kilidi yeniden lock cagrisinda eski zamanlayiciyi temizler', () =>
     lock.unlock();
     assert.equal(button.disabled, false);
     assert.equal(lock.isLocked(), false);
+});
+
+test('kilit zamanlayicisi yanlislikla temizlense bile kalan sure icin yeniden planlanir', () => {
+    const button = createButton();
+    const timers = [];
+    let now = 0;
+
+    const lock = new RestartButtonLock({
+        button,
+        delayMs: 700,
+        now: () => now,
+        schedule(callback, delay) {
+            const id = { callback, delay, canceled: false };
+            timers.push(id);
+            return id;
+        },
+        cancel(id) {
+            id.canceled = true;
+        }
+    });
+
+    lock.lock();
+    assert.equal(timers.length, 1);
+
+    now = 250;
+    lock.clearPendingUnlock();
+
+    assert.equal(timers.length, 2);
+    assert.equal(timers[0].canceled, true);
+    assert.equal(timers[1].delay, 450);
+    assert.equal(lock.isLocked(), true);
+
+    timers[1].callback();
+    assert.equal(lock.isLocked(), false);
+    assert.equal(button.disabled, false);
+});
+
+test('erken restart tiklamasi engellenir, 700ms sonrasi gecerli tiklama oyunu baslatir', () => {
+    const button = createButton();
+    const timers = [];
+    let now = 0;
+    let restartCount = 0;
+    let overlayVisible = true;
+
+    const lock = new RestartButtonLock({
+        button,
+        delayMs: 700,
+        now: () => now,
+        schedule(callback, delay) {
+            const id = { callback, delay, dueAt: now + delay, canceled: false };
+            timers.push(id);
+            return id;
+        },
+        cancel(id) {
+            id.canceled = true;
+        }
+    });
+
+    function flushDueTimers() {
+        for (const timer of timers) {
+            if (!timer.canceled && !timer.fired && timer.dueAt <= now) {
+                timer.fired = true;
+                timer.callback();
+            }
+        }
+    }
+
+    function handleRestartClick() {
+        if (lock.isLocked()) {
+            return false;
+        }
+
+        restartCount += 1;
+        overlayVisible = false;
+        return true;
+    }
+
+    lock.lock();
+
+    now = 250;
+    flushDueTimers();
+    assert.equal(handleRestartClick(), false);
+    assert.equal(restartCount, 0);
+    assert.equal(overlayVisible, true);
+
+    now = 701;
+    flushDueTimers();
+    assert.equal(handleRestartClick(), true);
+    assert.equal(restartCount, 1);
+    assert.equal(overlayVisible, false);
 });
 
 test('bot hamle geri bildirimi yardimcilari renderer metotlarini dogru cagirir', () => {

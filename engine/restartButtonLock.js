@@ -5,14 +5,17 @@ export class RestartButtonLock {
         button,
         delayMs = 700,
         schedule = setTimeout,
-        cancel = clearTimeout
+        cancel = clearTimeout,
+        now = () => Date.now()
     } = {}) {
         this.button = button || null;
         this.delayMs = delayMs;
         this.schedule = schedule;
         this.cancel = cancel;
+        this.now = now;
         this.locked = false;
         this.unlockTimerId = null;
+        this.unlockAt = 0;
     }
 
     setButtonState(disabled) {
@@ -23,28 +26,54 @@ export class RestartButtonLock {
             'aria-disabled',
             disabled ? 'true' : 'false'
         );
+
+        if (this.button.style && typeof this.button.style === 'object') {
+            this.button.style.pointerEvents = disabled ? 'none' : 'auto';
+        }
     }
 
-    clearPendingUnlock() {
+    scheduleUnlockTimer(delayMs) {
+        this.unlockTimerId = this.schedule(() => {
+            this.unlockTimerId = null;
+            this.unlock();
+        }, Math.max(0, delayMs));
+    }
+
+    cancelPendingUnlockTimer() {
         if (this.unlockTimerId === null) return;
         this.cancel(this.unlockTimerId);
         this.unlockTimerId = null;
     }
 
-    lock() {
-        this.clearPendingUnlock();
-        this.locked = true;
-        this.setButtonState(true);
+    clearPendingUnlock() {
+        if (this.unlockTimerId === null) return;
+        this.cancelPendingUnlockTimer();
 
-        this.unlockTimerId = this.schedule(() => {
-            this.unlockTimerId = null;
+        if (!this.locked) {
+            return;
+        }
+
+        const remainingMs = this.unlockAt - this.now();
+        if (remainingMs <= 0) {
             this.unlock();
-        }, this.delayMs);
+            return;
+        }
+
+        this.scheduleUnlockTimer(remainingMs);
+    }
+
+    lock() {
+        this.cancelPendingUnlockTimer();
+        this.locked = true;
+        this.unlockAt = this.now() + this.delayMs;
+        this.setButtonState(true);
+        this.scheduleUnlockTimer(this.delayMs);
     }
 
     unlock() {
         this.clearPendingUnlock();
         this.locked = false;
+        this.unlockAt = 0;
         this.setButtonState(false);
     }
 

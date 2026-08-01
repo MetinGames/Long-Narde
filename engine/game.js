@@ -15,6 +15,10 @@ export class NardeGame {
         this.headMovesThisTurn = 0;
         this.turnsCompleted = { 1: 0, 2: 0 };
         this.moveHistory = [];
+        this.analysisMetrics = {
+            memoHits: 0,
+            memoMisses: 0
+        };
     }
 
     get gameStatus() {
@@ -60,11 +64,19 @@ export class NardeGame {
         this.headMovesThisTurn = 0;
         this.turnsCompleted = { 1: 0, 2: 0 };
         this.moveHistory = [];
+        this.resetAnalysisMetrics();
+    }
+
+    cloneBoardSlots() {
+        return this.board.slots.map(slot => ({
+            count: slot.count,
+            player: slot.player
+        }));
     }
 
     createMoveStateSnapshot() {
         return {
-            slots: JSON.parse(JSON.stringify(this.board.slots)),
+            slots: this.cloneBoardSlots(),
             borneOff: { ...this.board.borneOff },
             availableMoves: [...this.availableMoves],
             headMoves: this.headMovesThisTurn
@@ -72,12 +84,37 @@ export class NardeGame {
     }
 
     restoreMoveState(snapshot) {
-        this.board.slots = JSON.parse(
-            JSON.stringify(snapshot.slots)
-        );
+        this.board.slots = snapshot.slots.map(slot => ({
+            count: slot.count,
+            player: slot.player
+        }));
         this.board.borneOff = { ...snapshot.borneOff };
         this.availableMoves = [...snapshot.availableMoves];
         this.headMovesThisTurn = snapshot.headMoves;
+    }
+
+    resetAnalysisMetrics() {
+        this.analysisMetrics.memoHits = 0;
+        this.analysisMetrics.memoMisses = 0;
+    }
+
+    getAnalysisMetrics() {
+        return {
+            memoHits: this.analysisMetrics.memoHits,
+            memoMisses: this.analysisMetrics.memoMisses
+        };
+    }
+
+    getSearchStateKey() {
+        let key = `${this.currentPlayer}|${this.headMovesThisTurn}|${this.availableMoves.join(',')}|${this.board.borneOff[1]}|${this.board.borneOff[2]}|`;
+
+        for (let slotId = 1; slotId <= 24; slotId++) {
+            const slot = this.board.slots[slotId];
+            if (!slot || slot.count <= 0 || slot.player === null) continue;
+            key += `${slotId}:${slot.player}:${slot.count};`;
+        }
+
+        return key;
     }
 
     isCurrentPlayersFirstTurn() {
@@ -362,11 +399,23 @@ export class NardeGame {
         return legalMoves;
     }
 
-    getMaximumPlayableMoveCount() {
+    getMaximumPlayableMoveCount(options = {}) {
+        const memo = options.memo || new Map();
         if (this.availableMoves.length === 0) return 0;
 
+        const stateKey = this.getSearchStateKey();
+        if (memo.has(stateKey)) {
+            this.analysisMetrics.memoHits++;
+            return memo.get(stateKey);
+        }
+
+        this.analysisMetrics.memoMisses++;
+
         const legalMoves = this.getRawLegalSingleMoves();
-        if (legalMoves.length === 0) return 0;
+        if (legalMoves.length === 0) {
+            memo.set(stateKey, 0);
+            return 0;
+        }
 
         let maximum = 0;
 
@@ -380,18 +429,20 @@ export class NardeGame {
 
                 maximum = Math.max(
                     maximum,
-                    1 + this.getMaximumPlayableMoveCount()
+                    1 + this.getMaximumPlayableMoveCount({ memo })
                 );
             } finally {
                 this.restoreMoveState(snapshot);
             }
         }
 
+        memo.set(stateKey, maximum);
         return maximum;
     }
 
     getRequiredDiceValues() {
-        const maximum = this.getMaximumPlayableMoveCount();
+        const memo = new Map();
+        const maximum = this.getMaximumPlayableMoveCount({ memo });
         if (maximum === 0) return [];
 
         const legalMoves = this.getRawLegalSingleMoves();
@@ -412,7 +463,7 @@ export class NardeGame {
                 }
 
                 if (
-                    1 + this.getMaximumPlayableMoveCount() ===
+                    1 + this.getMaximumPlayableMoveCount({ memo }) ===
                     maximum
                 ) {
                     required.add(move.dice);
@@ -426,7 +477,8 @@ export class NardeGame {
     }
 
     getRuleCompliantDiceSequences(fromSlot) {
-        const maximum = this.getMaximumPlayableMoveCount();
+        const memo = new Map();
+        const maximum = this.getMaximumPlayableMoveCount({ memo });
         if (maximum === 0) return [];
 
         const requiredDice = new Set(this.getRequiredDiceValues());
@@ -479,7 +531,7 @@ export class NardeGame {
 
                 if (
                     executed === sequence.length &&
-                    executed + this.getMaximumPlayableMoveCount() ===
+                    executed + this.getMaximumPlayableMoveCount({ memo }) ===
                     maximum
                 ) {
                     compliant.push(sequence);
@@ -490,6 +542,47 @@ export class NardeGame {
         }
 
         return compliant;
+    }
+
+    getUnplayableReason(fromSlot) {
+        if (
+            this.gameStatus !== 'PLAYING' ||
+            fromSlot < 1 ||
+            fromSlot > 24
+        ) {
+            return 'pieceBlocked';
+        }
+
+        const source = this.board.slots[fromSlot];
+        if (
+            source.player !== this.currentPlayer ||
+            source.count <= 0
+        ) {
+            return 'pieceBlocked';
+        }
+
+        const headSlot = this.board.getHeadSlot(this.currentPlayer);
+        if (
+            fromSlot === headSlot &&
+            !this.canMoveFromHead()
+        ) {
+            return 'headBlocked';
+        }
+
+        const hasRawSingleMove = this
+            .getRawLegalSingleMoves()
+            .some(move => move.from === fromSlot);
+
+        if (!hasRawSingleMove) {
+            return 'pieceBlocked';
+        }
+
+        const legalTargets = this.getLegalTargets(fromSlot);
+        if (legalTargets.length > 0) {
+            return null;
+        }
+
+        return 'maxMoveConstraint';
     }
 
     getLegalTargets(fromSlot) {
