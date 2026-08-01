@@ -1,0 +1,87 @@
+.nardora-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    overflow: hidden;
+    padding: 24px;
+    color: #f2ebc9;
+    text-align: center;
+    background:
+        radial-gradient(circle at 50% 38%, rgba(22, 92, 80, 0.46), transparent 34%),
+        linear-gradient(145deg, #061412 0%, #0e2b2b 52%, #070b0a 100%);
+    opacity: 0;
+    transition: opacity 320ms ease;
+}
+
+.nardora-splash--visible { opacity: 1; }
+.nardora-splash--leaving { opacity: 0; pointer-events: none; }
+
+.nardora-splash__glow {
+    position: absolute;
+    width: min(68vw, 620px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(218, 175, 55, 0.18), transparent 64%);
+    animation: nardora-glow 1.8s ease-in-out infinite alternate;
+}
+
+.nardora-splash__mark {
+    position: relative;
+    width: 190px;
+    padding: 14px 18px 18px;
+    border: 1px solid rgba(218, 175, 55, 0.72);
+    border-radius: 42% 42% 28% 28%;
+    background: rgba(3, 20, 18, 0.58);
+    box-shadow: 0 0 42px rgba(218, 175, 55, 0.16), inset 0 0 28px rgba(255,255,255,0.03);
+    transform: translateY(8px) scale(.92);
+    animation: nardora-mark-in 700ms cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.nardora-splash__crown { color: #f6e27a; font-size: 42px; line-height: 1; text-shadow: 0 0 18px rgba(246,226,122,.55); }
+.nardora-splash__laurel { margin-top: 2px; color: #d4af37; font-size: 30px; letter-spacing: 3px; }
+.nardora-splash__laurel strong { color: #f6e27a; font-family: Georgia, serif; font-size: 72px; font-weight: 600; line-height: .85; }
+.nardora-splash__dice { margin-top: 8px; color: #f2ebc9; font-size: 25px; letter-spacing: 4px; }
+
+.nardora-splash__title {
+    position: relative;
+    margin: 24px 0 0;
+    color: #f6e27a;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(42px, 8vw, 76px);
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-indent: .12em;
+    text-shadow: 0 2px 0 #7a5613, 0 0 26px rgba(218,175,55,.3);
+}
+
+.nardora-splash__subtitle { margin: 7px 0 0; color: #d4af37; font-size: 13px; letter-spacing: .48em; text-indent: .48em; }
+.nardora-splash__motto { margin: 26px 0 18px; color: rgba(242,235,201,.88); font-family: Georgia, serif; font-size: 17px; font-style: italic; }
+
+.nardora-splash__loader { width: min(280px, 68vw); height: 4px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.12); }
+.nardora-splash__loader span { display: block; width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #8c641a, #f6e27a, #d4af37); transform-origin: left; animation: nardora-load 1.75s ease-out forwards; }
+
+.nardora-splash__spark {
+    position: absolute;
+    left: var(--spark-x);
+    top: var(--spark-y);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #f6e27a;
+    box-shadow: 0 0 9px #d4af37;
+    opacity: 0;
+    animation: nardora-spark 1.25s var(--spark-delay) ease-in-out infinite;
+}
+
+@keyframes nardora-mark-in { to { transform: translateY(0) scale(1); } }
+@keyframes nardora-glow { from { transform: scale(.92); opacity: .65; } to { transform: scale(1.08); opacity: 1; } }
+@keyframes nardora-load { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes nardora-spark { 0%,100% { opacity: 0; transform: scale(.5); } 45% { opacity: .9; transform: scale(1.5); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .nardora-splash, .nardora-splash * { animation: none !important; transition-duration: 1ms !important; }
+    .nardora-splash__loader span { transform: none; }
+}

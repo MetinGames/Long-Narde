@@ -87,4 +87,6 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(/id="turn-indicator"[^>]*aria-live="polite"/i.test(html), 'Turn indicator aria-live polite missing');
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
     assert.ok(html.includes('id="board-wrapper"'), 'Board wrapper missing for toast attachment');
+    assert.ok(html.includes('assets/branding/nardora-splash.css'), 'Nardora splash stylesheet link missing');
+    assert.ok(html.includes('mountNardoraSplash'), 'Nardora splash bootstrap script missing');
 });

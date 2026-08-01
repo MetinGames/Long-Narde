@@ -167,7 +167,7 @@ test('falls back to English when current language misses a key', async () => {
     const originalRu = i18n.__translations.ru['ui.startTitle'];
     delete i18n.__translations.ru['ui.startTitle'];
 
-    assert.equal(i18n.t('ui.startTitle'), 'Welcome to Long Narde');
+    assert.equal(i18n.t('ui.startTitle'), 'Welcome to Nardora');
 
     i18n.__translations.ru['ui.startTitle'] = originalRu;
 
@@ -186,7 +186,7 @@ test('important Russian UI strings are localized with Cyrillic text', async () =
     const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
     const i18n = await import(modulePath.href);
 
-    assert.equal(i18n.t('ui.startTitle'), 'Добро пожаловать в длинные нарды');
+    assert.equal(i18n.t('ui.startTitle'), 'Добро пожаловать в Nardora');
     assert.equal(i18n.t('ui.rotateNotice'), 'Для лучшего опыта поверните телефон горизонтально');
     assert.equal(i18n.t('status.timeoutWarning'), 'Если вы снова превысите время, вы проиграете матч.');
     assert.equal(i18n.t('game.timeExpiredGameOverMessage'), 'Ваше время истекло — вы проиграли игру.');

@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Classic Long Narde</title>
+    <title>Nardora: Long Narde Game</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="assets/branding/nardora-splash.css">
 </head>
 <body>
     <div id="rotate-notice" data-i18n="ui.rotateNotice">Daha iyi deneyim için telefonunuzu yatay çevirin</div>
@@ -125,7 +126,7 @@
     <!-- YENİ: Başlangıç ekranı, oyuncu hazır olana kadar oyunu duraklatır -->
     <div id="start-screen" style="display: none;" aria-hidden="true">
         <div id="start-screen-box">
-            <h2 data-i18n="ui.startTitle">Uzun Narde'ye Hoş Geldiniz</h2>
+            <h2 data-i18n="ui.startTitle">Nardora'ya Hoş Geldiniz</h2>
             <p data-i18n="ui.startDescription">Tahta hazır. Oyuna başlamak için Oyuna Başla'ya dokunun.</p>
             <div id="start-language-container">
                 <label id="start-language-label" for="start-language-select">
@@ -432,6 +433,7 @@
     </div>
 
     <!-- Oyunu Başlatan Ana Script -->
+    <script type="module">import { mountNardoraSplash } from "./engine/nardoraSplash.js"; mountNardoraSplash();</script>
     <script type="module" src="app.js"></script>
 </body>
 </html>

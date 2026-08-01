@@ -158,7 +158,7 @@ test('start screen language select updates welcome texts immediately and syncs s
         assert.equal(getLanguage(), 'en');
         assert.equal(sideSelect.value, 'en');
         assert.equal(startSelect.value, 'en');
-        assert.equal(startTitle.textContent, 'Welcome to Long Narde');
+        assert.equal(startTitle.textContent, 'Welcome to Nardora');
         assert.equal(startDescription.textContent, 'The board is ready. Tap Start Game when you are ready.');
         assert.equal(startButtonText.textContent, 'Start Game');
         assert.equal(howToPlayText.textContent, 'How to Play?');

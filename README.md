@@ -1,6 +1,6 @@
-# Long Narde
+# Nardora
 
-Kısa Türkçe özet: Long Narde, Anadolu temasına sahip, yerel tek oyunculu uzun narde deneyimidir. Bu depo için gelecekteki kullanıcı markası Nardora olarak planlanmaktadır; bu dokümantasyon mevcut kodu ve mevcut arayüz adlarını değiştirmez.
+Kısa Türkçe özet: Long Narde, Anadolu temasına sahip, yerel tek oyunculu uzun narde deneyimidir. Bu depo için oyuncuya görünen güncel marka Nardora'dır; bu dokümantasyon mevcut kodu ve mevcut arayüz adlarını değiştirmez.
 
 Live game: https://metingames.github.io/Long-Narde/
 
@@ -33,7 +33,7 @@ This project is not documented here as having online multiplayer, user accounts,
 
 The language names are kept fixed in the UI regardless of the active interface language.
 
-## Long Narde rules and important differences
+## Nardora rules and important differences
 
 Long Narde in this repository follows the long narde rules implemented in the code, not classic backgammon capture rules.
 
