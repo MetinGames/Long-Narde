@@ -156,3 +156,55 @@ test('etkilesim kapaliyken engellenen dokunmayi callback ile bildirir', () => {
     assert.deepEqual(clicked, []);
     delete globalThis.window;
 });
+
+test('tıklama ve kısa sürükleme aynı yasal slot sonucunu verir', () => {
+    const clickCanvas = new FakeCanvas({
+        left: 0,
+        top: 0,
+        width: 800,
+        height: 600
+    });
+    const pointerCanvas = new FakeCanvas({
+        left: 0,
+        top: 0,
+        width: 800,
+        height: 600
+    });
+    const clickHits = [];
+    const pointerHits = [];
+    const previousWindow = globalThis.window;
+
+    bindCanvasInput(clickCanvas, {
+        onSlotClick: slotId => clickHits.push(slotId)
+    });
+
+    clickCanvas.emit('click', {
+        clientX: 320,
+        clientY: 100
+    });
+
+    globalThis.window = { PointerEvent: class {} };
+
+    bindCanvasInput(pointerCanvas, {
+        onSlotClick: slotId => pointerHits.push(slotId)
+    });
+
+    pointerCanvas.emit('pointerdown', {
+        pointerId: 9,
+        pointerType: 'touch',
+        isPrimary: true,
+        clientX: 320,
+        clientY: 100
+    });
+    pointerCanvas.emit('pointerup', {
+        pointerId: 9,
+        clientX: 326,
+        clientY: 104,
+        preventDefault() {}
+    });
+
+    assert.deepEqual(clickHits, [7]);
+    assert.deepEqual(pointerHits, [7]);
+
+    globalThis.window = previousWindow;
+});

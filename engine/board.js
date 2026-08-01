@@ -178,27 +178,22 @@ export class Board {
         const primeProgress = primeSlots.map(slotId =>
             this.getProgress(opponent, slotId)
         );
-
-        // Altı fiziksel hane rakibin yolunda 24 → 1 sınırını geçiyorsa
-        // değerleri aynı doğrusal eksene aç.
-        for (let i = 1; i < primeProgress.length; i++) {
-            while (primeProgress[i] <= primeProgress[i - 1]) {
-                primeProgress[i] += 24;
-            }
-        }
-
         const primeStart = primeProgress[0];
         const primeEnd = primeProgress[primeProgress.length - 1];
+        const wrapsAround = primeProgress.some(
+            (progress, index) => index > 0 && progress <= primeProgress[index - 1]
+        );
 
         for (let slotId = 1; slotId <= 24; slotId++) {
             const slot = slots[slotId];
             if (slot.player !== opponent || slot.count <= 0) continue;
 
-            let opponentProgress = this.getProgress(opponent, slotId);
-            while (opponentProgress < primeStart) opponentProgress += 24;
+            const opponentProgress = this.getProgress(opponent, slotId);
+            const isAhead = wrapsAround
+                ? opponentProgress > primeEnd && opponentProgress < primeStart
+                : opponentProgress > primeEnd;
 
-            // Rakibin gerçek yolu 0–23'tür; 23'ten sonrası toplama alanıdır.
-            if (opponentProgress > primeEnd && opponentProgress <= 23) {
+            if (isAhead) {
                 return true;
             }
         }

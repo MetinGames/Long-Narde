@@ -337,6 +337,95 @@ test('rakibin ileride pulu varsa altılı blok kurulabilir', () => {
     });
 });
 
+test('ekrandaki beyaz 7-13 / zar 6 konumu yasal olmalı ve kalan 3 ile devam edilebilmeli', () => {
+    const game = prepareGame({
+        player: 1,
+        dice: [6, 3],
+        pieces: [
+            { slot: 3, count: 2, owner: 1 },
+            { slot: 5, count: 1, owner: 1 },
+            { slot: 6, count: 1, owner: 1 },
+            { slot: 7, count: 1, owner: 1 },
+            { slot: 9, count: 1, owner: 1 },
+            { slot: 10, count: 1, owner: 1 },
+            { slot: 11, count: 2, owner: 1 },
+            { slot: 12, count: 1, owner: 1 },
+            { slot: 14, count: 1, owner: 1 },
+            { slot: 15, count: 1, owner: 1 },
+            { slot: 17, count: 1, owner: 1 },
+            { slot: 18, count: 1, owner: 1 },
+            { slot: 21, count: 1, owner: 1 },
+            { slot: 2, count: 7, owner: 2 },
+            { slot: 16, count: 1, owner: 2 },
+            { slot: 24, count: 7, owner: 2 }
+        ]
+    });
+
+    const target = game.board.calculateTargetSlot(1, 7, 6);
+
+    assert.equal(target, 13);
+    assert.equal(game.board.wouldCreateIllegalPrime(1, 7, target), false);
+    assert.ok(game.getRawLegalSingleMoves().some(move => (
+        move.from === 7 && move.dice === 6 && move.target === 13
+    )));
+    assert.ok(game.getLegalTargets(7).includes(13));
+    assert.equal(game.processPlayerInput(7, 13), true);
+    assert.deepEqual(game.availableMoves, [3]);
+
+    const continuationMoves = game.getRawLegalSingleMoves().filter(move => move.dice === 3);
+    assert.ok(continuationMoves.length > 0);
+    assert.equal(game.executeMove(continuationMoves[0].from, 3), true);
+    assert.equal(game.availableMoves.length, 0);
+});
+
+test('siyah oyuncu için ayna yön senaryosunda altılı blok istisnası korunur', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [6, 3],
+        pieces: [
+            { slot: 18, count: 1, owner: 2 },
+            { slot: 20, count: 1, owner: 2 },
+            { slot: 21, count: 1, owner: 2 },
+            { slot: 22, count: 1, owner: 2 },
+            { slot: 23, count: 1, owner: 2 },
+            { slot: 1, count: 1, owner: 2 },
+            { slot: 5, count: 1, owner: 1 }
+        ]
+    });
+
+    const target = game.board.calculateTargetSlot(2, 18, 6);
+
+    assert.equal(target, 24);
+    assert.equal(game.board.wouldCreateIllegalPrime(2, 18, target), false);
+    assert.ok(game.getRawLegalSingleMoves().some(move => (
+        move.from === 18 && move.dice === 6 && move.target === 24
+    )));
+    assert.equal(game.processPlayerInput(18, 24), true);
+    assert.deepEqual(game.availableMoves, [3]);
+    assert.ok(game.getRawLegalSingleMoves().some(move => move.dice === 3));
+});
+
+test('24-1 sarılma sınırında rakibin ilerideki pulu doğru algılanır', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [6],
+        pieces: [
+            { slot: 20, count: 1, owner: 2 },
+            { slot: 21, count: 1, owner: 2 },
+            { slot: 22, count: 1, owner: 2 },
+            { slot: 23, count: 1, owner: 2 },
+            { slot: 24, count: 1, owner: 2 },
+            { slot: 1, count: 1, owner: 2 },
+            { slot: 4, count: 1, owner: 1 }
+        ]
+    });
+
+    assert.equal(
+        game.board.hasOpponentCheckerAhead(2, [20, 21, 22, 23, 24, 1]),
+        true
+    );
+});
+
 test('pul tam zar değeriyle toplanabilir', () => {
     const game = prepareGame({
         player: 1,
