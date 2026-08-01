@@ -33,10 +33,19 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#game-feedback-toast'), 'Game feedback toast style missing');
     assert.ok(css.includes('#game-feedback-toast.is-visible'), 'Game feedback toast visibility style missing');
     assert.ok(css.includes('#fullscreen-toggle'), 'Fullscreen toggle style missing');
+    assert.ok(css.includes('#auto-bearoff-container'), 'Auto bear-off container style missing');
+    assert.ok(css.includes('#auto-bearoff-toggle'), 'Auto bear-off toggle style missing');
     assert.ok(css.includes('body.is-game-fullscreen'), 'Fullscreen body lock style missing');
     assert.ok(css.includes('#game-container.is-focus-mode-root'), 'CSS focus mode root style missing');
     assert.ok(css.includes(':fullscreen') || css.includes('-webkit-full-screen'), 'Native fullscreen selector rules missing');
     assert.ok(css.includes('safe-area-inset-top'), 'Safe-area support missing for fullscreen mode');
+    assert.ok(css.includes('scrollbar-gutter: stable both-edges'), 'Scrollbar gutter stabilization missing');
+    assert.ok(css.includes('min-height: 100dvh'), 'Dynamic viewport height guard missing');
+    assert.ok(css.includes('@media (min-width: 901px) and (max-height: 900px)'), 'Short desktop compaction media query missing');
+    assert.ok(css.includes('#info-panel > #turn-indicator.is-white-turn'), 'White turn indicator class style missing');
+    assert.ok(css.includes('#info-panel > #turn-indicator.is-dark-turn'), 'Dark turn indicator class style missing');
+    assert.ok(css.includes('#auto-bearoff-container'), 'Auto bear-off container layout guard missing');
+    assert.ok(css.includes('#auto-bearoff-hint'), 'Auto bear-off hint height guard missing');
 });
 
 test('index.html contains rotate notice element, start screen, and restart button', () => {
@@ -69,6 +78,9 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="die-right-4"'), 'Double move indicator 4 missing');
     assert.ok(html.includes('id="fullscreen-toggle"'), 'Fullscreen toggle button missing');
     assert.ok(html.includes('id="fullscreen-toggle-label"'), 'Fullscreen visible helper text missing');
+    assert.ok(html.includes('id="auto-bearoff-container"'), 'Auto bear-off container missing');
+    assert.ok(html.includes('id="auto-bearoff-toggle"'), 'Auto bear-off toggle missing');
+    assert.ok(html.includes('id="auto-bearoff-hint"'), 'Auto bear-off accessibility hint missing');
     assert.ok(/id="turn-indicator"[^>]*aria-live="polite"/i.test(html), 'Turn indicator aria-live polite missing');
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
     assert.ok(html.includes('id="board-wrapper"'), 'Board wrapper missing for toast attachment');

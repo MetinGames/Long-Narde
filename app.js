@@ -42,6 +42,10 @@ import { GameFeedbackToast } from './engine/gameFeedbackToast.js';
 import { createAppRuntimeState } from './engine/appRuntimeState.js';
 import { createRuntimeDiagnostics } from './engine/runtimeDiagnostics.js';
 import { createFullscreenController } from './engine/fullscreenController.js';
+import {
+    createAutoBearOffFlow,
+    isAutoBearOffEligible
+} from './engine/autoBearOff.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -67,6 +71,10 @@ let restartButtonLock = null;
 let gameFeedbackToast = null;
 let languageSelectors = null;
 let fullscreenController = null;
+let autoBearOffEnabled = false;
+let autoBearOffContainer = null;
+let autoBearOffToggle = null;
+let autoBearOffHint = null;
 
 const botTurnTouchFeedback = new BotTurnTouchFeedback();
 
@@ -75,6 +83,59 @@ const playerStatsStore = new PlayerStatsStore();
 const matchStatsRecorder = new MatchStatsRecorder({
     store: playerStatsStore,
     humanPlayer: 1
+});
+
+const autoBearOffFlow = createAutoBearOffFlow({
+    game,
+    getContext: () => ({
+        isEnabled: autoBearOffEnabled,
+        isStartScreen: runtimeState.isInitialStartPending(),
+        isTimeoutResolutionInProgress: runtimeState.isTimeoutResolutionInProgress()
+    }),
+    scheduleStep: (callback, delayMs) => schedule(callback, delayMs),
+    cancelStep: timeoutId => {
+        clearTimeout(timeoutId);
+        runtimeState.removeScheduledTimeout(timeoutId);
+    },
+    stepDelayMs: 300,
+    applyMove: move => {
+        if (game.gameStatus !== 'PLAYING' || game.currentPlayer !== 1) {
+            return false;
+        }
+
+        const applied = game.executeMove(move.from, move.dice);
+        if (!applied) return false;
+
+        game.resetTimeoutStrikes();
+        timeoutController.clearForfeitWindow();
+        runtimeState.clearSelectedSlotId();
+        runtimeState.incrementTotalMoveCounter();
+        updateScreen();
+        ui.setHumanMoveLayout();
+
+        const winner = game.checkWinCondition();
+        if (winner !== 0) {
+            void (async () => {
+                await playVictoryMomentIfEligible({
+                    winner,
+                    targetId: move.target
+                });
+                showGameOver(winner);
+            })();
+        }
+
+        return true;
+    },
+    onAfterMove: () => {
+        updateAutoBearOffControl();
+    },
+    onFinishTurn: () => {
+        if (game.gameStatus !== 'PLAYING' || game.currentPlayer !== 1) {
+            return;
+        }
+
+        finishCurrentTurn();
+    }
 });
 
 function schedule(callback, delay, meta = null) {
@@ -122,6 +183,8 @@ function schedule(callback, delay, meta = null) {
 }
 
 function clearRuntimeTasks() {
+    autoBearOffFlow.stop('runtime-cleared');
+
     clearInterval(runtimeState.getTurnTimerInterval());
     runtimeState.clearTurnTimerInterval();
     diceRollAnimation.stop();
@@ -138,6 +201,7 @@ function setStatus(message) {
 }
 
 function terminateGame() {
+    autoBearOffFlow.stop('game-terminated');
     clearRuntimeTasks();
     timeoutController.stopTurnDeadline();
 }
@@ -173,6 +237,7 @@ function startGame() {
     resetBotMoveFeedback(renderer);
     botTurnTouchFeedback.reset();
     timeoutController.resetAll();
+    resetAutoBearOffForNewGame();
 
     updateScreen();
     ui.setHumanTurnLayout();
@@ -189,6 +254,7 @@ function initializeBeforeStart() {
     resetBotMoveFeedback(renderer);
     botTurnTouchFeedback.reset();
     timeoutController.resetAll();
+    resetAutoBearOffForNewGame();
 
     updateScreen();
     ui.setHumanTurnLayout();
@@ -200,6 +266,7 @@ function initializeBeforeStart() {
 function updateScreen() {
     syncActionButtonStates();
     renderer.render(game, runtimeState.getSelectedSlotId());
+    updateAutoBearOffControl();
 }
 
 function syncActionButtonStates() {
@@ -208,12 +275,73 @@ function syncActionButtonStates() {
         canConfirm
     } = getActionButtonState(game);
 
-    ui.setUndoEnabled(canUndo);
-    ui.setConfirmEnabled(canConfirm);
+    const autoRunning = autoBearOffFlow.isRunning();
+    ui.setUndoEnabled(autoRunning ? false : canUndo);
+    ui.setConfirmEnabled(autoRunning ? false : canConfirm);
 }
 
 function getHumanTurnDuration() {
     return 30;
+}
+
+function isAutoBearOffCurrentlyEligible() {
+    if (runtimeState.isInitialStartPending()) return false;
+
+    return isAutoBearOffEligible(game);
+}
+
+function updateAutoBearOffControl() {
+    if (!autoBearOffToggle || !autoBearOffContainer || !autoBearOffHint) {
+        return;
+    }
+
+    const isEligible = isAutoBearOffCurrentlyEligible();
+    const isRunning = autoBearOffFlow.isRunning();
+    const canInteract = isEligible || autoBearOffEnabled;
+    const hintKey = isRunning
+        ? 'ui.autoBearOffHintRunning'
+        : isEligible
+            ? 'ui.autoBearOffHintReady'
+            : 'ui.autoBearOffHintDisabled';
+
+    autoBearOffToggle.checked = autoBearOffEnabled;
+    autoBearOffToggle.disabled = !canInteract;
+    autoBearOffToggle.setAttribute('aria-disabled', String(!canInteract));
+    autoBearOffContainer.classList.toggle('is-disabled', !isEligible);
+    autoBearOffHint.textContent = t(hintKey);
+}
+
+function setAutoBearOffEnabled(value) {
+    autoBearOffEnabled = Boolean(value);
+    if (!autoBearOffEnabled) {
+        autoBearOffFlow.stop('disabled-by-user');
+    } else {
+        autoBearOffFlow.evaluate();
+    }
+
+    updateAutoBearOffControl();
+}
+
+function resetAutoBearOffForNewGame() {
+    autoBearOffFlow.stop('new-game');
+    autoBearOffEnabled = false;
+
+    if (autoBearOffToggle) {
+        autoBearOffToggle.checked = false;
+    }
+
+    updateAutoBearOffControl();
+}
+
+function synchronizeAutoBearOffFlow() {
+    if (!autoBearOffEnabled) {
+        autoBearOffFlow.stop('disabled');
+        updateAutoBearOffControl();
+        return;
+    }
+
+    autoBearOffFlow.evaluate();
+    updateAutoBearOffControl();
 }
 
 function applyFinalTimeoutLoss() {
@@ -251,6 +379,8 @@ function synchronizeTimeoutState() {
     if (evaluation.action === 'none') {
         return;
     }
+
+    autoBearOffFlow.stop('timeout-resolution');
 
     runtimeState.setTimeoutResolutionInProgress(true);
     try {
@@ -290,6 +420,8 @@ function startHumanTimer() {
 function finishCurrentTurn() {
     if (game.gameStatus === 'GAME_OVER') return;
 
+    autoBearOffFlow.stop('turn-finished');
+
     clearInterval(runtimeState.getTurnTimerInterval());
     runtimeState.clearTurnTimerInterval();
     timeoutController.stopTurnDeadline();
@@ -302,6 +434,8 @@ function finishCurrentTurn() {
 
 function beginCurrentTurn() {
     if (game.gameStatus === 'GAME_OVER') return;
+
+    autoBearOffFlow.stop('turn-changed');
 
     if (game.currentPlayer === 1) {
         botTurnTouchFeedback.reset();
@@ -316,6 +450,7 @@ function beginCurrentTurn() {
     }
 
     runtimeDiagnostics.recordTurnChange(`currentPlayer=${game.currentPlayer}`);
+    updateAutoBearOffControl();
 
     schedule(startAutomaticDiceRoll, 650);
 }
@@ -353,7 +488,10 @@ function startAutomaticDiceRoll() {
             if (!game.hasValidMoves()) {
                 setStatus(t('status.noMoves'), { force: true });
             }
+
+            synchronizeAutoBearOffFlow();
         } else {
+            autoBearOffFlow.stop('bot-turn');
             setStatus(
                 t('status.rolledBot', {
                     dice: diceValues.join(', ')
@@ -560,6 +698,7 @@ function restartGame() {
     gameFeedbackToast?.hide();
     restartButtonLock?.unlock();
     timeoutController.resetAll();
+    resetAutoBearOffForNewGame();
 
     updateScreen();
     ui.setHumanTurnLayout();
@@ -615,7 +754,8 @@ function selectPlayableSlot(slotId) {
 async function handleSlotClick(slotId) {
     if (
         game.gameStatus !== 'PLAYING' ||
-        game.currentPlayer !== 1
+        game.currentPlayer !== 1 ||
+        autoBearOffFlow.isRunning()
     ) {
         return;
     }
@@ -677,7 +817,11 @@ async function handleSlotClick(slotId) {
             !game.hasValidMoves()
         ) {
             setStatus(t('status.moveComplete'));
+        } else {
+            synchronizeAutoBearOffFlow();
         }
+
+        updateAutoBearOffControl();
         return;
     }
 
@@ -712,6 +856,12 @@ function bindEvents() {
         document.getElementById('game-canvas');
     const boardWrapper =
         document.getElementById('board-wrapper');
+    autoBearOffContainer =
+        document.getElementById('auto-bearoff-container');
+    autoBearOffToggle =
+        document.getElementById('auto-bearoff-toggle');
+    autoBearOffHint =
+        document.getElementById('auto-bearoff-hint');
     const languageSelect =
         document.getElementById('language-select');
     const startLanguageSelect =
@@ -836,6 +986,7 @@ function bindEvents() {
             playerStatsModal?.refreshForLanguage();
             fullscreenController?.refreshLabels();
             updateScreen();
+            updateAutoBearOffControl();
         },
         onStatusChange: message => {
             setStatus(message, { force: true });
@@ -855,6 +1006,9 @@ function bindEvents() {
 
     restartButton?.addEventListener('click', restartGame);
     startButton?.addEventListener('click', startGame);
+    autoBearOffToggle?.addEventListener('change', event => {
+        setAutoBearOffEnabled(event.target.checked);
+    });
     restartButtonLock = new RestartButtonLock({
         button: restartButton,
         delayMs: 700
@@ -879,6 +1033,7 @@ function bindEvents() {
 
     ui.undoButton?.addEventListener('click', () => {
         if (
+            !autoBearOffFlow.isRunning() &&
             game.currentPlayer === 1 &&
             game.undoTurnMoves()
         ) {
@@ -891,6 +1046,7 @@ function bindEvents() {
 
     ui.confirmButton?.addEventListener('click', () => {
         if (
+            autoBearOffFlow.isRunning() ||
             game.currentPlayer !== 1 ||
             game.gameStatus !== 'PLAYING'
         ) {
@@ -912,6 +1068,7 @@ function bindEvents() {
 
     bindCanvasInput(canvas, {
         canInteract: () =>
+            !autoBearOffFlow.isRunning() &&
             game.currentPlayer === 1 &&
             game.gameStatus === 'PLAYING',
         onBlockedInteraction: () => {
@@ -934,16 +1091,21 @@ function bindEvents() {
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             synchronizeTimeoutState();
+            synchronizeAutoBearOffFlow();
         }
     });
 
     window.addEventListener('focus', () => {
         synchronizeTimeoutState();
+        synchronizeAutoBearOffFlow();
     });
 
     window.addEventListener('pageshow', () => {
         synchronizeTimeoutState();
+        synchronizeAutoBearOffFlow();
     });
+
+    updateAutoBearOffControl();
 }
 
 window.addEventListener('DOMContentLoaded', async () => {

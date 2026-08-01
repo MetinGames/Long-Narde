@@ -11,6 +11,24 @@ const FULLSCREEN_OVERLAY_IDS = Object.freeze([
     'game-over-overlay'
 ]);
 
+const FULLSCREEN_ENTER_ICON_SVG = [
+    '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">',
+    '<path d="M6 2H2V6" />',
+    '<path d="M10 2H14V6" />',
+    '<path d="M2 10V14H6" />',
+    '<path d="M14 10V14H10" />',
+    '</svg>'
+].join('');
+
+const FULLSCREEN_EXIT_ICON_SVG = [
+    '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">',
+    '<path d="M2 6H6V2" />',
+    '<path d="M14 6H10V2" />',
+    '<path d="M2 10H6V14" />',
+    '<path d="M14 10H10V14" />',
+    '</svg>'
+].join('');
+
 function getFullscreenElement(documentRef) {
     if (!documentRef) return null;
     return documentRef.fullscreenElement || documentRef.webkitFullscreenElement || null;
@@ -153,7 +171,6 @@ export function createFullscreenController({
             ? translate('ui.exitFullscreen')
             : translate('ui.enterFullscreen');
 
-        button.setAttribute('title', label);
         button.setAttribute('aria-label', label);
 
         if (labelElement) {
@@ -161,7 +178,13 @@ export function createFullscreenController({
         }
 
         if (iconElement) {
-            iconElement.textContent = active ? '🗕' : '⛶';
+            iconElement.setAttribute(
+                'data-icon-state',
+                active ? 'exit' : 'enter'
+            );
+            iconElement.innerHTML = active
+                ? FULLSCREEN_EXIT_ICON_SVG
+                : FULLSCREEN_ENTER_ICON_SVG;
         }
 
         return label;

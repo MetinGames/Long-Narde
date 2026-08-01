@@ -47,15 +47,36 @@
                 </select>
             </div>
 
+            <div id="auto-bearoff-container" class="is-disabled">
+                <label for="auto-bearoff-toggle" id="auto-bearoff-label">
+                    <input
+                        id="auto-bearoff-toggle"
+                        type="checkbox"
+                        aria-describedby="auto-bearoff-hint"
+                    >
+                    <span data-i18n="ui.autoBearOff">Otomatik Topla</span>
+                </label>
+                <p
+                    id="auto-bearoff-hint"
+                    data-i18n="ui.autoBearOffHintDisabled"
+                >Otomatik toplama için tüm pullarınız son altı hanede olmalı.</p>
+            </div>
+
             <div id="fullscreen-container">
                 <button
                     id="fullscreen-toggle"
                     type="button"
-                    title="Tam Ekrana Geç"
                     aria-label="Tam Ekrana Geç"
                     aria-pressed="false"
                 >
-                    <span id="fullscreen-toggle-icon" class="fullscreen-toggle-icon" aria-hidden="true">⛶</span>
+                    <span id="fullscreen-toggle-icon" class="fullscreen-toggle-icon" aria-hidden="true" data-icon-state="enter">
+                        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                            <path d="M6 2H2V6" />
+                            <path d="M10 2H14V6" />
+                            <path d="M2 10V14H6" />
+                            <path d="M14 10V14H10" />
+                        </svg>
+                    </span>
                     <span id="fullscreen-toggle-label" class="fullscreen-toggle-label">Tam Ekrana Geç</span>
                 </button>
             </div>

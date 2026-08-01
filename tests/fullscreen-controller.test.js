@@ -296,14 +296,20 @@ test('standard Fullscreen API enter/exit updates button and aria state', async (
     await harness.controller.enter();
     assert.equal(harness.documentRef.fullscreenElement, harness.root);
     assert.equal(harness.button.getAttribute('aria-pressed'), 'true');
+    assert.equal(harness.button.getAttribute('title'), null);
     assert.equal(harness.button.getAttribute('aria-label'), 'Tam Ekrandan Çık');
     assert.equal(harness.label.textContent, 'Tam Ekrandan Çık');
+    assert.equal(harness.icon.getAttribute('data-icon-state'), 'exit');
+    assert.ok(harness.icon.innerHTML.includes('<svg'));
 
     await harness.controller.exit();
     assert.equal(harness.documentRef.fullscreenElement, null);
     assert.equal(harness.button.getAttribute('aria-pressed'), 'false');
+    assert.equal(harness.button.getAttribute('title'), null);
     assert.equal(harness.button.getAttribute('aria-label'), 'Tam Ekrana Geç');
     assert.equal(harness.label.textContent, 'Tam Ekrana Geç');
+    assert.equal(harness.icon.getAttribute('data-icon-state'), 'enter');
+    assert.ok(harness.icon.innerHTML.includes('<svg'));
 
     const { nativeRequestCount, nativeExitCount } = harness.getNativeCounts();
     assert.equal(nativeRequestCount, 1);
@@ -319,7 +325,8 @@ test('fullscreenchange synchronizes labels and icon after external escape-like e
 
     assert.equal(harness.button.getAttribute('aria-label'), 'Enter Fullscreen');
     assert.equal(harness.label.textContent, 'Enter Fullscreen');
-    assert.equal(harness.icon.textContent, '⛶');
+    assert.equal(harness.icon.getAttribute('data-icon-state'), 'enter');
+    assert.ok(harness.icon.innerHTML.includes('<svg'));
 });
 
 test('webkit Fullscreen API fallback path works when standard API is unavailable', async () => {
