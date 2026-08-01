@@ -171,9 +171,11 @@ The current UI includes aria labels, aria-live status updates, modal dialog sema
 - The current asset set is small; several asset folders are placeholders only.
 - The app currently relies on browser storage for local preferences and statistics.
 
-## Roadmap
+## Project operating documents
 
-See [ROADMAP.md](ROADMAP.md) for the verified next-step plan and research-backed open items.
+- [PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md): product north star, player promise, quality bar, decision filters, risks, and working authority.
+- [DECISION_LOG.md](docs/DECISION_LOG.md): durable product and architecture decisions with unresolved decisions kept visible.
+- [ROADMAP.md](ROADMAP.md): verified phases, dates, current gaps, and research-backed open items.
 
 ## Asset provenance
 
