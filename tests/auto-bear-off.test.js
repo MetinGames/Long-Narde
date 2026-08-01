@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { NardeGame } from '../engine/game.js';
@@ -318,3 +318,4 @@ test('aynı otomatik akış aynı hamleyi iki kez uygulamaz', () => {
     assert.equal(moveSignatures.length, 1);
     assert.deepEqual(moveSignatures, ['24-1-25']);
 });
+

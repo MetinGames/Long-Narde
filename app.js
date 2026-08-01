@@ -183,6 +183,7 @@ function schedule(callback, delay, meta = null) {
 }
 
 function clearRuntimeTasks() {
+    bot.resetPlannedTurn?.();
     autoBearOffFlow.stop('runtime-cleared');
 
     clearInterval(runtimeState.getTurnTimerInterval());
@@ -237,6 +238,7 @@ function startGame() {
     resetBotMoveFeedback(renderer);
     botTurnTouchFeedback.reset();
     timeoutController.resetAll();
+    bot.resetPlannedTurn?.();
     resetAutoBearOffForNewGame();
 
     updateScreen();
@@ -254,6 +256,7 @@ function initializeBeforeStart() {
     resetBotMoveFeedback(renderer);
     botTurnTouchFeedback.reset();
     timeoutController.resetAll();
+    bot.resetPlannedTurn?.();
     resetAutoBearOffForNewGame();
 
     updateScreen();
@@ -420,6 +423,7 @@ function startHumanTimer() {
 function finishCurrentTurn() {
     if (game.gameStatus === 'GAME_OVER') return;
 
+    bot.resetPlannedTurn?.();
     autoBearOffFlow.stop('turn-finished');
 
     clearInterval(runtimeState.getTurnTimerInterval());
@@ -435,6 +439,7 @@ function finishCurrentTurn() {
 function beginCurrentTurn() {
     if (game.gameStatus === 'GAME_OVER') return;
 
+    bot.resetPlannedTurn?.();
     autoBearOffFlow.stop('turn-changed');
 
     if (game.currentPlayer === 1) {
@@ -523,7 +528,27 @@ async function runBotMove() {
     startBotMoveFeedback(renderer);
 
     const move = bot.makeDecision(game);
-    if (!move || !game.executeMove(move.from, move.dice)) {
+    if (!move) {
+        endBotMoveFeedback(renderer);
+        finishCurrentTurn();
+        return;
+    }
+
+    let moveApplied = game.executeMove(move.from, move.dice);
+    if (!moveApplied) {
+        bot.resetPlannedTurn?.();
+        const fallbackMove = bot.makeDecision(game);
+        if (fallbackMove) {
+            moveApplied = game.executeMove(fallbackMove.from, fallbackMove.dice);
+            if (moveApplied) {
+                move.from = fallbackMove.from;
+                move.dice = fallbackMove.dice;
+                move.target = fallbackMove.target;
+            }
+        }
+    }
+
+    if (!moveApplied) {
         endBotMoveFeedback(renderer);
         finishCurrentTurn();
         return;
@@ -552,6 +577,7 @@ async function runBotMove() {
 }
 
 function showGameOver(winner, messageKey = null) {
+    bot.resetPlannedTurn?.();
     terminateGame();
     runtimeState.clearSelectedSlotId();
     runtimeDiagnostics.recordGameEnd(
@@ -698,6 +724,7 @@ function restartGame() {
     gameFeedbackToast?.hide();
     restartButtonLock?.unlock();
     timeoutController.resetAll();
+    bot.resetPlannedTurn?.();
     resetAutoBearOffForNewGame();
 
     updateScreen();

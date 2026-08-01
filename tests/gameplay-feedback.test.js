@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { BotTurnTouchFeedback } from '../engine/botTurnTouchFeedback.js';
@@ -286,3 +286,4 @@ test('bot hamle geri bildirimi yardimcilari renderer metotlarini dogru cagirir',
     const clearCalls = calls.filter(item => item.type === 'clear').length;
     assert.equal(clearCalls, 4);
 });
+

@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createAppRuntimeState } from '../engine/appRuntimeState.js';
@@ -98,3 +98,4 @@ test('old callback session tokens are invalidated after reset', () => {
     const newToken = state.captureSessionToken();
     assert.equal(state.isSessionTokenCurrent(newToken), true);
 });
+

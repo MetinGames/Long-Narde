@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createRuntimeDiagnostics } from '../engine/runtimeDiagnostics.js';
@@ -422,3 +422,4 @@ test('runtime diagnostics clears records and copy fallback uses textarea selecti
     diagnostics.clearRecords();
     assert.equal(diagnostics.getRecordCount(), 0);
 });
+

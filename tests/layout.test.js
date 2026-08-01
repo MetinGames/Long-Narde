@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
@@ -35,3 +35,4 @@ test('Anadolu temasının sağ oyun alanı doğru haneyi seçer', () => {
         24
     );
 });
+

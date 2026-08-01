@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { bindCanvasInput } from '../engine/input.js';
@@ -329,3 +329,4 @@ test('desktop click fallback: pointer destegi yokken click yolu toast mesajini t
         globalThis.window = previousWindow;
     }
 });
+

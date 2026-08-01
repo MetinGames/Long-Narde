@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
@@ -156,3 +156,4 @@ test('etkilesim kapaliyken engellenen dokunmayi callback ile bildirir', () => {
     assert.deepEqual(clicked, []);
     delete globalThis.window;
 });
+

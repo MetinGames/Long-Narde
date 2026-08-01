@@ -1,8 +1,8 @@
-// engine/i18n.js
+﻿// engine/i18n.js
 
 const translations = {
     tr: {
-        'page.title': 'Klasik Narde Oyunu',
+        'page.title': 'Nardora: Uzun Narde Oyunu',
         'ui.rotateNotice': 'Daha iyi deneyim için telefonunuzu yatay çevirin',
         'ui.turn': 'Sıra:',
         'ui.bot': 'Bot:',
@@ -41,7 +41,7 @@ const translations = {
         'difficulty.medium': 'Orta',
         'difficulty.hard': 'Usta',
         'collect': 'TOPLA',
-        'ui.startTitle': 'Uzun Narde\'ye Hoş Geldiniz',
+        'ui.startTitle': 'Nardora\'ya Hoş Geldiniz',
         'ui.startDescription': 'Tahta hazır. Oyuna başlamak için Oyuna Başla\'ya dokunun.',
         'ui.startButton': 'Oyuna Başla',
         'ui.statsButton': 'İstatistikler',
@@ -120,7 +120,7 @@ const translations = {
         'game.loseMessage': 'Yeni oyunda rövanşı alabilirsiniz.'
     },
     en: {
-        'page.title': 'Classic Long Narde',
+        'page.title': 'Nardora: Long Narde Game',
         'ui.rotateNotice': 'Rotate your phone to landscape for a better experience',
         'ui.turn': 'Turn:',
         'ui.bot': 'Bot:',
@@ -159,7 +159,7 @@ const translations = {
         'difficulty.medium': 'Medium',
         'difficulty.hard': 'Master',
         'collect': 'BEAR OFF',
-        'ui.startTitle': 'Welcome to Long Narde',
+        'ui.startTitle': 'Welcome to Nardora',
         'ui.startDescription': 'The board is ready. Tap Start Game when you are ready.',
         'ui.startButton': 'Start Game',
         'ui.statsButton': 'Statistics',
@@ -238,7 +238,7 @@ const translations = {
         'game.loseMessage': 'You can take your revenge in a new game.'
     },
     ru: {
-        'page.title': 'Классические длинные нарды',
+        'page.title': 'Nardora: Длинные нарды',
         'ui.rotateNotice': 'Для лучшего опыта поверните телефон горизонтально',
         'ui.turn': 'Ход:',
         'ui.bot': 'Бот:',
@@ -277,7 +277,7 @@ const translations = {
         'difficulty.medium': 'Средний',
         'difficulty.hard': 'Сложный',
         'collect': 'СНЯТЬ',
-        'ui.startTitle': 'Добро пожаловать в длинные нарды',
+        'ui.startTitle': 'Добро пожаловать в Nardora',
         'ui.startDescription': 'Доска готова. Нажмите Начать игру, когда будете готовы.',
         'ui.startButton': 'Начать игру',
         'ui.statsButton': 'Статистика',
@@ -463,3 +463,5 @@ export function applyTranslations(root = document) {
 
     document.title = t('page.title');
 }
+
+

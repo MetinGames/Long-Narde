@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { PlayerStatsModal } from '../engine/playerStatsModal.js';
@@ -249,3 +249,4 @@ test('Escape kapatir ve Tab focus trap uygular', () => {
 
     assert.equal(fixture.modal.getAttribute('aria-hidden'), 'true');
 });
+

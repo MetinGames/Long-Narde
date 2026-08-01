@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { HowToPlayGuide } from '../engine/howToPlayGuide.js';
@@ -251,3 +251,4 @@ test('rehberde gezinmek oyunu baslatmaz; rehberden baslatma yalnizca bir kez cal
     assert.equal(startCalls, 1);
     assert.equal(fixture.modal.getAttribute('aria-hidden'), 'true');
 });
+

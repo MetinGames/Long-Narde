@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
@@ -85,3 +85,4 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
     assert.ok(html.includes('id="board-wrapper"'), 'Board wrapper missing for toast attachment');
 });
+

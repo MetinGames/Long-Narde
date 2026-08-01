@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
@@ -87,3 +87,4 @@ test('victory hook varsa cagirilir, yoksa guvenli no-op olur', () => {
     assert.equal(calls[0].winner, 1);
     assert.equal(calls[0].endReason, 'white_win');
 });
+

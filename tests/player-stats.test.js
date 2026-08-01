@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
@@ -236,3 +236,4 @@ test('eski veya eksik veri yuklenirken guvenli varsayilanlarla tamamlanir', () =
     assert.equal(loaded.normalLosses, 0);
     assert.equal(loaded.totalMoves, 0);
 });
+

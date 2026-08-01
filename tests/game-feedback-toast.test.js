@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { GameFeedbackToast } from '../engine/gameFeedbackToast.js';
@@ -123,3 +123,4 @@ test('toast show/hide sureci gorunurluk sinifini yonetir', () => {
     assert.equal(element.classList.contains('is-visible'), false);
     assert.equal(element.getAttribute('aria-hidden'), 'true');
 });
+

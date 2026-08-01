@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { NardeGame } from '../engine/game.js';
@@ -724,3 +724,4 @@ test('zor bot ardışık blok zincirini uzatan konumu tercih eder', () => {
 
     assert.ok(extendPrimeScore > scatteredScore);
 });
+

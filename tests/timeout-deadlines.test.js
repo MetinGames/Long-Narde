@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { TurnTimeoutController } from '../engine/timeoutController.js';
@@ -268,3 +268,4 @@ test('bot turunda timeout cezalari uygulanmaz', () => {
 
     assert.equal(duringBotTurn.action, 'none');
 });
+

@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { NardeGame } from '../engine/game.js';
@@ -157,3 +157,4 @@ test('gecersiz undo hicbir ui durumunu bozmaz', () => {
 
     assert.deepEqual(ui.calls, []);
 });
+

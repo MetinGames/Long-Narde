@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createFullscreenController } from '../engine/fullscreenController.js';
@@ -436,3 +436,4 @@ test('layout signals run on resize and orientationchange without mutating game-l
         timeoutStrikes: 1
     });
 });
+
