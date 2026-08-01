@@ -1308,7 +1308,8 @@ body {
 
 #difficulty-container,
 #language-container,
-#theme-container {
+#theme-container,
+#fullscreen-container {
     justify-content: space-between;
     gap: 10px;
     background: rgba(255, 236, 176, 0.08);
@@ -1320,6 +1321,52 @@ body {
     font-size: 0.88rem;
     color: #f5e7c0;
     white-space: nowrap;
+}
+
+#fullscreen-container {
+    padding: 8px;
+}
+
+#fullscreen-toggle {
+    width: 100%;
+    min-height: 42px;
+    border-radius: 12px;
+    border: 1px solid rgba(222, 177, 95, 0.46);
+    background: linear-gradient(180deg, rgba(86, 35, 34, 0.95) 0%, rgba(57, 21, 20, 0.96) 100%);
+    color: #f8e8c8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-weight: 700;
+    line-height: 1.1;
+    box-shadow: inset 0 1px 0 rgba(255, 224, 198, 0.2), 0 6px 12px rgba(0, 0, 0, 0.28);
+}
+
+#fullscreen-toggle:hover,
+#fullscreen-toggle:focus-visible {
+    border-color: rgba(248, 208, 121, 0.7);
+    background: linear-gradient(180deg, rgba(107, 47, 45, 0.95) 0%, rgba(70, 29, 28, 0.96) 100%);
+    outline: none;
+}
+
+#fullscreen-toggle.is-active {
+    background: linear-gradient(180deg, rgba(66, 84, 34, 0.96) 0%, rgba(42, 52, 24, 0.97) 100%);
+    border-color: rgba(223, 203, 132, 0.68);
+}
+
+.fullscreen-toggle-icon {
+    font-size: 1rem;
+    flex: 0 0 auto;
+}
+
+.fullscreen-toggle-label {
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #bot-difficulty,
@@ -1431,7 +1478,8 @@ body {
 
     #difficulty-container,
     #language-container,
-    #theme-container {
+    #theme-container,
+    #fullscreen-container {
         justify-content: space-between;
     }
 
@@ -1515,7 +1563,8 @@ body {
     #dice-container,
     #difficulty-container,
     #language-container,
-    #theme-container {
+    #theme-container,
+    #fullscreen-container {
         width: 100%;
     }
 
@@ -1530,7 +1579,8 @@ body {
 
     #difficulty-container,
     #language-container,
-    #theme-container {
+    #theme-container,
+    #fullscreen-container {
         justify-content: space-between;
     }
 
@@ -1867,7 +1917,8 @@ select {
 
     #difficulty-container,
     #language-container,
-    #theme-container {
+    #theme-container,
+    #fullscreen-container {
         min-height: 42px;
         padding: 3px;
         justify-content: space-between;
@@ -2196,6 +2247,117 @@ select {
         min-height: 30px;
         padding: 5px 8px;
         font-size: 0.82rem;
+    }
+}
+
+body.is-game-fullscreen {
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+body.is-game-fullscreen #rotate-notice {
+    display: none !important;
+}
+
+#game-container:fullscreen,
+#game-container:-webkit-full-screen,
+#game-container.is-focus-mode-root {
+    --fs-safe-top: env(safe-area-inset-top, 0px);
+    --fs-safe-right: env(safe-area-inset-right, 0px);
+    --fs-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --fs-safe-left: env(safe-area-inset-left, 0px);
+    padding:
+        max(8px, var(--fs-safe-top))
+        max(8px, var(--fs-safe-right))
+        max(8px, var(--fs-safe-bottom))
+        max(8px, var(--fs-safe-left));
+    margin: 0;
+    background: #1a252f;
+    overflow: hidden;
+    align-content: center;
+    justify-items: center;
+}
+
+#game-container:fullscreen,
+#game-container:-webkit-full-screen,
+#game-container.is-focus-mode-root,
+#game-container.is-fullscreen-root-active {
+    width: min(calc(100vw - 16px), calc((100dvh - 16px) * 1.7));
+    max-width: none;
+    max-height: calc(100dvh - 16px);
+    gap: clamp(8px, 1.2vw, 14px);
+}
+
+#game-container.is-focus-mode-root {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+}
+
+#game-container.is-fullscreen-root-active #board-wrapper,
+#game-container:fullscreen #board-wrapper,
+#game-container:-webkit-full-screen #board-wrapper,
+#game-container.is-focus-mode-root #board-wrapper {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#game-container.is-fullscreen-root-active #game-canvas,
+#game-container:fullscreen #game-canvas,
+#game-container:-webkit-full-screen #game-canvas,
+#game-container.is-focus-mode-root #game-canvas {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: calc(100dvh - 24px);
+    object-fit: contain;
+}
+
+@media (min-width: 901px) {
+    #game-container.is-fullscreen-root-active,
+    #game-container:fullscreen,
+    #game-container:-webkit-full-screen,
+    #game-container.is-focus-mode-root {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 0.275fr);
+        grid-template-areas: "board info";
+        align-items: stretch;
+    }
+
+    #game-container.is-fullscreen-root-active #info-panel,
+    #game-container:fullscreen #info-panel,
+    #game-container:-webkit-full-screen #info-panel,
+    #game-container.is-focus-mode-root #info-panel {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+@media (max-width: 900px) {
+    #game-container.is-fullscreen-root-active,
+    #game-container:fullscreen,
+    #game-container:-webkit-full-screen,
+    #game-container.is-focus-mode-root {
+        width: min(calc(100vw - 16px), calc((100dvh - 16px) * 1.333333));
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "board"
+            "info";
+    }
+
+    #game-container.is-fullscreen-root-active #board-wrapper,
+    #game-container:fullscreen #board-wrapper,
+    #game-container:-webkit-full-screen #board-wrapper,
+    #game-container.is-focus-mode-root #board-wrapper {
+        max-height: calc(100dvh - 190px);
+    }
+
+    #game-container.is-fullscreen-root-active #game-canvas,
+    #game-container:fullscreen #game-canvas,
+    #game-container:-webkit-full-screen #game-canvas,
+    #game-container.is-focus-mode-root #game-canvas {
+        max-height: calc(100dvh - 190px);
     }
 }
 

@@ -41,6 +41,7 @@ import { RestartButtonLock } from './engine/restartButtonLock.js';
 import { GameFeedbackToast } from './engine/gameFeedbackToast.js';
 import { createAppRuntimeState } from './engine/appRuntimeState.js';
 import { createRuntimeDiagnostics } from './engine/runtimeDiagnostics.js';
+import { createFullscreenController } from './engine/fullscreenController.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -65,6 +66,7 @@ let feedbackModal = null;
 let restartButtonLock = null;
 let gameFeedbackToast = null;
 let languageSelectors = null;
+let fullscreenController = null;
 
 const botTurnTouchFeedback = new BotTurnTouchFeedback();
 
@@ -832,6 +834,7 @@ function bindEvents() {
         onLanguageApplied: () => {
             howToPlayGuide?.refreshForLanguage();
             playerStatsModal?.refreshForLanguage();
+            fullscreenController?.refreshLabels();
             updateScreen();
         },
         onStatusChange: message => {
@@ -861,6 +864,18 @@ function bindEvents() {
         durationMs: 1400
     });
     gameFeedbackToast.ensureElement();
+
+    fullscreenController = createFullscreenController({
+        rootElement: document.getElementById('game-container'),
+        toggleButton: document.getElementById('fullscreen-toggle'),
+        iconElement: document.getElementById('fullscreen-toggle-icon'),
+        labelElement: document.getElementById('fullscreen-toggle-label'),
+        translate: key => t(key),
+        runtimeDiagnostics,
+        onLayoutChange: () => {
+            updateScreen();
+        }
+    });
 
     ui.undoButton?.addEventListener('click', () => {
         if (

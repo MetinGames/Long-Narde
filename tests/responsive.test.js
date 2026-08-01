@@ -32,6 +32,11 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#feedback-modal-links a'), 'Feedback modal link style missing');
     assert.ok(css.includes('#game-feedback-toast'), 'Game feedback toast style missing');
     assert.ok(css.includes('#game-feedback-toast.is-visible'), 'Game feedback toast visibility style missing');
+    assert.ok(css.includes('#fullscreen-toggle'), 'Fullscreen toggle style missing');
+    assert.ok(css.includes('body.is-game-fullscreen'), 'Fullscreen body lock style missing');
+    assert.ok(css.includes('#game-container.is-focus-mode-root'), 'CSS focus mode root style missing');
+    assert.ok(css.includes(':fullscreen') || css.includes('-webkit-full-screen'), 'Native fullscreen selector rules missing');
+    assert.ok(css.includes('safe-area-inset-top'), 'Safe-area support missing for fullscreen mode');
 });
 
 test('index.html contains rotate notice element, start screen, and restart button', () => {
@@ -62,6 +67,8 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="restart-button"'), 'Restart button missing');
     assert.ok(html.includes('id="die-right-1"'), 'Double move indicator 1 missing');
     assert.ok(html.includes('id="die-right-4"'), 'Double move indicator 4 missing');
+    assert.ok(html.includes('id="fullscreen-toggle"'), 'Fullscreen toggle button missing');
+    assert.ok(html.includes('id="fullscreen-toggle-label"'), 'Fullscreen visible helper text missing');
     assert.ok(/id="turn-indicator"[^>]*aria-live="polite"/i.test(html), 'Turn indicator aria-live polite missing');
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
     assert.ok(html.includes('id="board-wrapper"'), 'Board wrapper missing for toast attachment');
