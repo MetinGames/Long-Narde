@@ -1,7 +1,5 @@
 // engine/timeoutController.js
 
-const FINAL_FORFEIT_SECONDS = 60;
-
 function clampNonNegative(value) {
     return Math.max(0, value);
 }
@@ -9,8 +7,6 @@ function clampNonNegative(value) {
 export class TurnTimeoutController {
     constructor(options = {}) {
         this.getNow = options.getNow || (() => Date.now());
-        this.finalForfeitSeconds =
-            options.finalForfeitSeconds || FINAL_FORFEIT_SECONDS;
 
         this.turnDeadlineAt = 0;
         this.absoluteForfeitDeadlineAt = 0;
@@ -37,17 +33,14 @@ export class TurnTimeoutController {
 
     startHumanTurn(turnDurationSeconds, timeoutStrikes) {
         const now = this.getNow();
-        const normalTurnDeadlineAt = now + (turnDurationSeconds * 1000);
+        this.turnDeadlineAt = now + (turnDurationSeconds * 1000);
 
-        if (timeoutStrikes > 0 && this.absoluteForfeitDeadlineAt > 0) {
-            this.turnDeadlineAt = Math.min(
-                normalTurnDeadlineAt,
-                this.absoluteForfeitDeadlineAt
-            );
-            return;
+        if (timeoutStrikes > 0) {
+            this.absoluteForfeitDeadlineAt = this.turnDeadlineAt;
+        } else {
+            this.absoluteForfeitDeadlineAt = 0;
+            this.lastProcessedForfeitDeadlineAt = 0;
         }
-
-        this.turnDeadlineAt = normalTurnDeadlineAt;
     }
 
     getRemainingSeconds() {
@@ -70,24 +63,6 @@ export class TurnTimeoutController {
 
         const now = this.getNow();
 
-        if (
-            timeoutStrikes === 1 &&
-            this.absoluteForfeitDeadlineAt > 0 &&
-            now >= this.absoluteForfeitDeadlineAt
-        ) {
-            if (
-                this.lastProcessedForfeitDeadlineAt ===
-                this.absoluteForfeitDeadlineAt
-            ) {
-                return { action: 'none', remainingSeconds: 0 };
-            }
-
-            this.lastProcessedForfeitDeadlineAt =
-                this.absoluteForfeitDeadlineAt;
-            this.turnDeadlineAt = 0;
-            return { action: 'finalTimeout', remainingSeconds: 0 };
-        }
-
         if (currentPlayer !== 1 || !this.turnDeadlineAt) {
             return { action: 'none', remainingSeconds: 0 };
         }
@@ -105,14 +80,15 @@ export class TurnTimeoutController {
         this.turnDeadlineAt = 0;
 
         if (timeoutStrikes === 0) {
-            this.absoluteForfeitDeadlineAt =
-                now + (this.finalForfeitSeconds * 1000);
-
             return {
                 action: 'firstTimeout',
-                remainingSeconds: 0,
-                absoluteForfeitDeadlineAt: this.absoluteForfeitDeadlineAt
+                remainingSeconds: 0
             };
+        }
+
+        if (this.absoluteForfeitDeadlineAt > 0) {
+            this.lastProcessedForfeitDeadlineAt =
+                this.absoluteForfeitDeadlineAt;
         }
 
         return { action: 'finalTimeout', remainingSeconds: 0 };

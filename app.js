@@ -213,8 +213,7 @@ function syncActionButtonStates() {
 }
 
 function getHumanTurnDuration() {
-    const completedTurns = game.turnsCompleted[1] || 0;
-    return Math.max(30, 60 - (completedTurns * 10));
+    return 30;
 }
 
 function applyFinalTimeoutLoss() {
