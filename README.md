@@ -176,6 +176,7 @@ The current UI includes aria labels, aria-live status updates, modal dialog sema
 - [PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md): product north star, player promise, quality bar, decision filters, risks, and working authority.
 - [DECISION_LOG.md](docs/DECISION_LOG.md): durable product and architecture decisions with unresolved decisions kept visible.
 - [ROADMAP.md](ROADMAP.md): verified phases, dates, current gaps, and research-backed open items.
+- [TOOLING_STRATEGY.md](docs/TOOLING_STRATEGY.md): phased plugin, service, program and data-access decisions.
 
 ## Asset provenance
 
