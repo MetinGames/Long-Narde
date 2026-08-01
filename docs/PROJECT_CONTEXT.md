@@ -18,6 +18,16 @@ Nardora should earn preference through:
 - clear feedback instead of hidden or confusing state;
 - safe social play that feels like sharing a real table.
 
+## Studio operating standard
+
+Nardora is managed with the discipline of a world-class game studio while preserving the speed and cost awareness of a focused team.
+
+- Product, gameplay, engineering, art, audio, security, data, distribution, community, live operations and monetization are considered as one system.
+- Every scheduled feature has a player outcome, owner, acceptance criteria, test plan, release path and rollback/fallback.
+- Every external service has a purpose, data-access boundary, cost threshold and removal trigger.
+- High tempo is measured by verified value delivered and regressions avoided, not by hours spent awake.
+- Core quality gates cannot be traded away for visible feature count.
+
 ## 2. Product promise
 
 Every Nardora release should make the player feel:
