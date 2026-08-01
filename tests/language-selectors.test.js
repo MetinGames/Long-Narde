@@ -229,3 +229,61 @@ test('language selectors stay synchronized both directions and keep saved langua
         restoreGlobalProperty('document', originalDocument);
     }
 });
+
+test('difficulty menu champion label updates across languages without duplication', () => {
+    const storage = new FakeStorage({ 'narde-language': 'tr' });
+    const sideSelect = new FakeElement({ ariaKey: 'ui.language' });
+    const startSelect = new FakeElement({ ariaKey: 'ui.language' });
+    const easyOption = new FakeElement({ i18nKey: 'difficulty.easy' });
+    const mediumOption = new FakeElement({ i18nKey: 'difficulty.medium' });
+    const hardOption = new FakeElement({ i18nKey: 'difficulty.hard' });
+    const championOption = new FakeElement({ i18nKey: 'difficulty.champion' });
+    const fakeDocument = new FakeDocument([
+        sideSelect,
+        startSelect,
+        easyOption,
+        mediumOption,
+        hardOption,
+        championOption
+    ]);
+
+    const originalLocalStorage = defineGlobalProperty('localStorage', storage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'tr-TR',
+        languages: ['tr-TR', 'en-US']
+    });
+    const originalDocument = defineGlobalProperty('document', fakeDocument);
+
+    try {
+        initializeLanguage();
+        applyTranslations(fakeDocument);
+
+        const controller = setupLanguageSelectors({
+            selectors: [sideSelect, startSelect],
+            onLanguageApplied: () => {},
+            onStatusChange: () => {}
+        });
+
+        const championEntries = fakeDocument.elements.filter(
+            element => element.dataset.i18n === 'difficulty.champion'
+        );
+
+        assert.equal(championEntries.length, 1);
+        assert.equal(championOption.textContent, 'Şampiyon');
+
+        sideSelect.dispatchChange('en');
+        assert.equal(championOption.textContent, 'Champion');
+        assert.equal(championEntries.length, 1);
+
+        startSelect.dispatchChange('ru');
+        assert.equal(championOption.textContent, 'Чемпион');
+        assert.equal(championEntries.length, 1);
+
+        controller.dispose();
+    } finally {
+        setLanguage('en');
+        restoreGlobalProperty('localStorage', originalLocalStorage);
+        restoreGlobalProperty('navigator', originalNavigator);
+        restoreGlobalProperty('document', originalDocument);
+    }
+});

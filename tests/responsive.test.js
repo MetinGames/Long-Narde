@@ -81,6 +81,9 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="auto-bearoff-container"'), 'Auto bear-off container missing');
     assert.ok(html.includes('id="auto-bearoff-toggle"'), 'Auto bear-off toggle missing');
     assert.ok(html.includes('id="auto-bearoff-hint"'), 'Auto bear-off accessibility hint missing');
+    assert.equal((html.match(/value="champion"/g) || []).length, 1, 'Champion difficulty option should exist exactly once');
+    assert.ok(/<option value="champion" data-i18n="difficulty\.champion">Şampiyon<\/option>/i.test(html), 'Champion difficulty option missing expected value/i18n pairing');
+    assert.ok(/<option value="medium" data-i18n="difficulty\.medium" selected>Orta<\/option>/i.test(html), 'Medium difficulty should remain the default selection');
     assert.ok(/id="turn-indicator"[^>]*aria-live="polite"/i.test(html), 'Turn indicator aria-live polite missing');
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
     assert.ok(html.includes('id="board-wrapper"'), 'Board wrapper missing for toast attachment');

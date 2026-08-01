@@ -41,7 +41,9 @@ import { RestartButtonLock } from './engine/restartButtonLock.js';
 import { GameFeedbackToast } from './engine/gameFeedbackToast.js';
 import { createAppRuntimeState } from './engine/appRuntimeState.js';
 import { createRuntimeDiagnostics } from './engine/runtimeDiagnostics.js';
+import { createBotCallbackController } from './engine/botCallbackController.js';
 import { createFullscreenController } from './engine/fullscreenController.js';
+import { applyBotDifficultySelection } from './engine/botDifficultyController.js';
 import {
     createAutoBearOffFlow,
     isAutoBearOffEligible
@@ -83,6 +85,11 @@ const playerStatsStore = new PlayerStatsStore();
 const matchStatsRecorder = new MatchStatsRecorder({
     store: playerStatsStore,
     humanPlayer: 1
+});
+const botCallbackController = createBotCallbackController({
+    scheduleCallback: (callback, delay) => schedule(callback, delay, {
+        kind: 'bot-callback'
+    })
 });
 
 const autoBearOffFlow = createAutoBearOffFlow({
@@ -182,8 +189,19 @@ function schedule(callback, delay, meta = null) {
     return timeoutId;
 }
 
+function resetBotCallbackGuards() {
+    botCallbackController.reset();
+}
+
+function scheduleBotMoveCallback(delay = 550) {
+    return botCallbackController.scheduleNext(runBotMove, delay);
+}
+
 function clearRuntimeTasks() {
+    runtimeState.invalidateSessionToken();
+    bot.resetPlannedTurn?.();
     autoBearOffFlow.stop('runtime-cleared');
+    resetBotCallbackGuards();
 
     clearInterval(runtimeState.getTurnTimerInterval());
     runtimeState.clearTurnTimerInterval();
@@ -420,7 +438,10 @@ function startHumanTimer() {
 function finishCurrentTurn() {
     if (game.gameStatus === 'GAME_OVER') return;
 
+    runtimeState.invalidateSessionToken();
+    bot.resetPlannedTurn?.();
     autoBearOffFlow.stop('turn-finished');
+    resetBotCallbackGuards();
 
     clearInterval(runtimeState.getTurnTimerInterval());
     runtimeState.clearTurnTimerInterval();
@@ -435,7 +456,10 @@ function finishCurrentTurn() {
 function beginCurrentTurn() {
     if (game.gameStatus === 'GAME_OVER') return;
 
+    runtimeState.invalidateSessionToken();
+    bot.resetPlannedTurn?.();
     autoBearOffFlow.stop('turn-changed');
+    resetBotCallbackGuards();
 
     if (game.currentPlayer === 1) {
         botTurnTouchFeedback.reset();
@@ -498,7 +522,7 @@ function startAutomaticDiceRoll() {
                 }),
                 { force: true }
             );
-            schedule(runBotMove, 550, { kind: 'bot-callback' });
+            scheduleBotMoveCallback(550);
         }
     });
 }
@@ -548,7 +572,7 @@ async function runBotMove() {
         return;
     }
 
-    schedule(runBotMove, 550, { kind: 'bot-callback' });
+    scheduleBotMoveCallback(550);
 }
 
 function showGameOver(winner, messageKey = null) {
@@ -947,6 +971,10 @@ function bindEvents() {
     const diagnosticsMessage =
         document.getElementById('feedback-diagnostics-message');
 
+    if (difficultySelect) {
+        difficultySelect.value = bot.difficulty;
+    }
+
     function setDiagnosticsMessage(messageKey) {
         if (diagnosticsMessage) {
             diagnosticsMessage.textContent = t(messageKey);
@@ -972,7 +1000,15 @@ function bindEvents() {
     });
 
     difficultySelect?.addEventListener('change', event => {
-        bot.difficulty = event.target.value;
+        const selection = applyBotDifficultySelection({
+            bot,
+            game,
+            runtimeState,
+            nextDifficulty: event.target.value,
+            resetBotCallbackGuards,
+            scheduleBotMoveCallback
+        });
+        event.target.value = selection.difficulty;
         setStatus(
             t('status.difficulty', { level: event.target.selectedOptions[0].text }),
             { force: true }

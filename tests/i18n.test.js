@@ -196,6 +196,7 @@ test('important Russian UI strings are localized with Cyrillic text', async () =
     assert.equal(i18n.t('difficulty.easy'), 'Лёгкий');
     assert.equal(i18n.t('difficulty.medium'), 'Средний');
     assert.equal(i18n.t('difficulty.hard'), 'Сложный');
+    assert.equal(i18n.t('difficulty.champion'), 'Чемпион');
 
     restoreGlobalProperty('localStorage', originalLocalStorage);
     restoreGlobalProperty('navigator', originalNavigator);
@@ -263,6 +264,31 @@ test('uses natural Russian bot difficulty labels', async () => {
     assert.equal(i18n.t('difficulty.easy'), 'Лёгкий');
     assert.equal(i18n.t('difficulty.medium'), 'Средний');
     assert.equal(i18n.t('difficulty.hard'), 'Сложный');
+    assert.equal(i18n.t('difficulty.champion'), 'Чемпион');
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
+test('champion difficulty label is localized in Turkish, English, and Russian', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    i18n.setLanguage('tr');
+    assert.equal(i18n.t('difficulty.champion'), 'Şampiyon');
+
+    i18n.setLanguage('en');
+    assert.equal(i18n.t('difficulty.champion'), 'Champion');
+
+    i18n.setLanguage('ru');
+    assert.equal(i18n.t('difficulty.champion'), 'Чемпион');
 
     restoreGlobalProperty('localStorage', originalLocalStorage);
     restoreGlobalProperty('navigator', originalNavigator);
