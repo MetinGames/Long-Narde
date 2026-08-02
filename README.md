@@ -58,7 +58,21 @@ Long Narde in this repository follows the long narde rules implemented in the co
 
 ## Bot difficulty levels
 
-The code exposes three difficulty labels in the UI: Easy, Medium, and Master. The bot uses a small rule-aware evaluation in normal play, and the hard mode adds deeper position scoring.
+The UI exposes four bot levels: Easy, Medium, Master V2, and Champion.
+
+- Easy and Medium keep the lightweight baseline logic.
+- Master V2 evaluates complete legal turn plans and models one-step opponent responses across all 21 dice outcomes.
+- Champion uses deterministic staged search with iterative deepening, rollout-based lookahead, and cancellation-aware planning.
+
+## Headless benchmark
+
+Run the seeded benchmark separately from the default unit test suite:
+
+```bash
+npm run benchmark:bot -- --matches 300 --seed 20260802
+```
+
+The benchmark reports win rate, mars rate, average pip difference, and average decision time. It compares Master V2 vs Medium and Champion vs Master V2.
 
 ## Timer and timeout behaviour
 

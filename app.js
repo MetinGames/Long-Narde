@@ -608,6 +608,8 @@ function startAutomaticDiceRoll() {
 }
 
 async function runBotMove() {
+    const sessionTokenAtStart = runtimeState.captureSessionToken();
+
     if (
         game.gameStatus === 'GAME_OVER' ||
         game.currentPlayer !== 2
@@ -627,6 +629,35 @@ async function runBotMove() {
     }
 
     startBotMoveFeedback(renderer);
+
+    if (bot.difficulty === 'champion') {
+        setStatus(t('status.botThinking'), { force: true });
+
+        await bot.prepareChampionTurn(game, {
+            timeBudgetMs: 900,
+            nodeBudget: 12000,
+            sliceMs: 12,
+            shouldCancel: () => (
+                !runtimeState.isSessionTokenCurrent(sessionTokenAtStart) ||
+                game.gameStatus === 'GAME_OVER' ||
+                game.currentPlayer !== 2
+            ),
+            onThinkingStatus: isThinking => {
+                if (isThinking) {
+                    setStatus(t('status.botThinking'), { force: true });
+                }
+            }
+        });
+
+        if (
+            !runtimeState.isSessionTokenCurrent(sessionTokenAtStart) ||
+            game.gameStatus === 'GAME_OVER' ||
+            game.currentPlayer !== 2
+        ) {
+            endBotMoveFeedback(renderer);
+            return;
+        }
+    }
 
     const move = bot.makeDecision(game);
     if (!move || !game.executeMove(move.from, move.dice)) {

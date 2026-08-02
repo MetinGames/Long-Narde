@@ -195,7 +195,7 @@ test('important Russian UI strings are localized with Cyrillic text', async () =
     assert.equal(i18n.t('ui.secondsShort'), 'с');
     assert.equal(i18n.t('difficulty.easy'), 'Лёгкий');
     assert.equal(i18n.t('difficulty.medium'), 'Средний');
-    assert.equal(i18n.t('difficulty.hard'), 'Сложный');
+    assert.equal(i18n.t('difficulty.hard'), 'Мастер V2');
     assert.equal(i18n.t('difficulty.champion'), 'Чемпион');
 
     restoreGlobalProperty('localStorage', originalLocalStorage);
@@ -263,7 +263,7 @@ test('uses natural Russian bot difficulty labels', async () => {
 
     assert.equal(i18n.t('difficulty.easy'), 'Лёгкий');
     assert.equal(i18n.t('difficulty.medium'), 'Средний');
-    assert.equal(i18n.t('difficulty.hard'), 'Сложный');
+    assert.equal(i18n.t('difficulty.hard'), 'Мастер V2');
     assert.equal(i18n.t('difficulty.champion'), 'Чемпион');
 
     restoreGlobalProperty('localStorage', originalLocalStorage);
