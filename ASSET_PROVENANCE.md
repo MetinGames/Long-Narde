@@ -7,6 +7,8 @@ This file records the currently observed asset inventory from the repository. Un
 | Path | Type | Known source | License / ownership status | Verification needed |
 | --- | --- | --- | --- | --- |
 | `assets/boards/anadolu-ustasi-board-v1.webp` | Board illustration | Not stated in the repository | Pending verification | Yes |
+| `assets/sounds/freesound_community-gamemisc_dice-roll-on-wood_jaku5-37414.mp3` | Dice roll audio sample | Pixabay sound effect by jaku5 | Third-party (Pixabay Content License), see `assets/sounds/THIRD_PARTY_LICENSES.md` | Yes (temporary until original recordings) |
+| `assets/sounds/sumaga123-wood-hit-432148.mp3` | Wood hit audio sample | Pixabay sound effect by sumaga123 | Third-party (Pixabay Content License), see `assets/sounds/THIRD_PARTY_LICENSES.md` | Yes (temporary until original recordings) |
 
 ## Placeholder asset directories
 
@@ -15,11 +17,10 @@ These directories currently contain only `.gitkeep` placeholders and no user-fac
 - `assets/checkers/`
 - `assets/dice/`
 - `assets/ornaments/`
-- `assets/sounds/`
 - `assets/ui/`
 
 ## Notes
 
 - Do not assume `Original`, `CC0`, or any other license for unverified files.
 - Do not treat empty placeholder directories as shipped assets.
-- No real dice or checker recording assets are currently present in the repository.
+- Sound samples currently included are temporary third-party recordings; replace with Metin-provided original recordings when available.

@@ -8,6 +8,9 @@ export function createAppRuntimeState() {
     let isInitialStartPending = true;
     let isTimeoutResolutionInProgress = false;
     let hasVictoryMomentPlayed = false;
+    let pendingRoll = null;
+    let activeRollAnimationToken = null;
+    let rollSequence = 0;
     let sessionToken = 0;
 
     function resetForSession({ initialStartPending }) {
@@ -18,6 +21,8 @@ export function createAppRuntimeState() {
         isInitialStartPending = initialStartPending;
         isTimeoutResolutionInProgress = false;
         hasVictoryMomentPlayed = false;
+        pendingRoll = null;
+        activeRollAnimationToken = null;
         sessionToken += 1;
     }
 
@@ -88,6 +93,47 @@ export function createAppRuntimeState() {
         },
         setVictoryMomentPlayed(value) {
             hasVictoryMomentPlayed = Boolean(value);
+        },
+
+        getOrCreatePendingRollToken(player) {
+            if (
+                pendingRoll &&
+                pendingRoll.player === player
+            ) {
+                return pendingRoll.token;
+            }
+
+            rollSequence += 1;
+            pendingRoll = {
+                token: rollSequence,
+                player
+            };
+            return pendingRoll.token;
+        },
+        markRollAnimationStarted(rollToken) {
+            if (activeRollAnimationToken !== null) {
+                return false;
+            }
+
+            if (!pendingRoll || pendingRoll.token !== rollToken) {
+                return false;
+            }
+
+            activeRollAnimationToken = rollToken;
+            return true;
+        },
+        markRollAnimationFinished(rollToken) {
+            if (activeRollAnimationToken === rollToken) {
+                activeRollAnimationToken = null;
+            }
+
+            if (pendingRoll?.token === rollToken) {
+                pendingRoll = null;
+            }
+        },
+        cancelPendingRoll() {
+            pendingRoll = null;
+            activeRollAnimationToken = null;
         },
 
         captureSessionToken() {

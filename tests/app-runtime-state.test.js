@@ -98,3 +98,32 @@ test('old callback session tokens are invalidated after reset', () => {
     const newToken = state.captureSessionToken();
     assert.equal(state.isSessionTokenCurrent(newToken), true);
 });
+
+test('pending roll token ayni roll icin korunur, bitince temizlenir', () => {
+    const state = createAppRuntimeState();
+
+    const token = state.getOrCreatePendingRollToken(1);
+    assert.equal(token > 0, true);
+    assert.equal(state.getOrCreatePendingRollToken(1), token);
+
+    assert.equal(state.markRollAnimationStarted(token), true);
+    assert.equal(state.markRollAnimationStarted(token), false);
+
+    state.markRollAnimationFinished(token);
+
+    const nextToken = state.getOrCreatePendingRollToken(1);
+    assert.equal(nextToken > token, true);
+});
+
+test('cancel pending roll temizligi yeni roll olusturulmasina izin verir', () => {
+    const state = createAppRuntimeState();
+
+    const token = state.getOrCreatePendingRollToken(2);
+    assert.equal(state.markRollAnimationStarted(token), true);
+
+    state.cancelPendingRoll();
+
+    const nextToken = state.getOrCreatePendingRollToken(2);
+    assert.equal(nextToken > token, true);
+    assert.equal(state.markRollAnimationStarted(nextToken), true);
+});

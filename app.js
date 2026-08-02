@@ -44,6 +44,7 @@ import { createRuntimeDiagnostics } from './engine/runtimeDiagnostics.js';
 import { createBotCallbackController } from './engine/botCallbackController.js';
 import { createFullscreenController } from './engine/fullscreenController.js';
 import { applyBotDifficultySelection } from './engine/botDifficultyController.js';
+import { SoundManager } from './engine/sound.js';
 import {
     createAutoBearOffFlow,
     isAutoBearOffEligible
@@ -54,6 +55,7 @@ const renderer = new Renderer();
 const bot = new NardeBot(2, 'medium');
 const ui = new UIManager();
 const diceRollAnimation = new DiceRollAnimation();
+const sound = new SoundManager();
 
 const runtimeState = createAppRuntimeState();
 const runtimeDiagnostics = createRuntimeDiagnostics({
@@ -116,7 +118,11 @@ const autoBearOffFlow = createAutoBearOffFlow({
         game.resetTimeoutStrikes();
         timeoutController.clearForfeitWindow();
         runtimeState.clearSelectedSlotId();
-        runtimeState.incrementTotalMoveCounter();
+        const moveId = runtimeState.incrementTotalMoveCounter();
+        sound.playPiecePlaceForMove({
+            moveId,
+            isCollect: move.target === 25
+        });
         updateScreen();
         ui.setHumanMoveLayout();
 
@@ -202,6 +208,7 @@ function clearRuntimeTasks() {
     bot.resetPlannedTurn?.();
     autoBearOffFlow.stop('runtime-cleared');
     resetBotCallbackGuards();
+    runtimeState.cancelPendingRoll();
 
     clearInterval(runtimeState.getTurnTimerInterval());
     runtimeState.clearTurnTimerInterval();
@@ -241,8 +248,10 @@ function hideStartScreen() {
     playerStatsModal?.close({ returnFocus: false });
 }
 
-function startGame() {
+async function startGame() {
     if (!runtimeState.isInitialStartPending()) return;
+
+    await sound.activateFromUserGesture();
 
     matchStatsRecorder.beginMatch();
     howToPlayGuide?.close({ returnFocus: false });
@@ -483,6 +492,11 @@ function startAutomaticDiceRoll() {
     if (game.gameStatus !== 'WAITING_FOR_DICE') return;
 
     const rollingPlayer = game.currentPlayer;
+    const rollToken = runtimeState.getOrCreatePendingRollToken(rollingPlayer);
+    if (!runtimeState.markRollAnimationStarted(rollToken)) {
+        return;
+    }
+
     ui.setBotTurnLayout();
     setStatus(
         rollingPlayer === 1
@@ -494,8 +508,16 @@ function startAutomaticDiceRoll() {
     const die1 = document.getElementById('die1');
     const die2 = document.getElementById('die2');
 
+    sound.playDiceRollForRoll({ rollId: rollToken });
+
     diceRollAnimation.start(die1, die2, () => {
+        runtimeState.markRollAnimationFinished(rollToken);
+
         const diceValues = game.rollDice();
+        if (!diceValues) {
+            return;
+        }
+
         runtimeState.clearSelectedSlotId();
         updateScreen();
 
@@ -559,7 +581,11 @@ async function runBotMove() {
         reducedMotion: prefersReducedMotion()
     });
 
-    runtimeState.incrementTotalMoveCounter();
+    const moveId = runtimeState.incrementTotalMoveCounter();
+    sound.playPiecePlaceForMove({
+        moveId,
+        isCollect: move.target === 25
+    });
     updateScreen();
 
     const winner = game.checkWinCondition();
@@ -822,7 +848,11 @@ async function handleSlotClick(slotId) {
         game.resetTimeoutStrikes();
         timeoutController.clearForfeitWindow();
         runtimeState.clearSelectedSlotId();
-        runtimeState.incrementTotalMoveCounter();
+        const moveId = runtimeState.incrementTotalMoveCounter();
+        sound.playPiecePlaceForMove({
+            moveId,
+            isCollect: slotId === 25
+        });
         updateScreen();
         ui.setHumanMoveLayout();
 
@@ -971,6 +1001,13 @@ function bindEvents() {
     const diagnosticsMessage =
         document.getElementById('feedback-diagnostics-message');
 
+    // Browser autoplay policy: attempt to unlock AudioContext on first user gesture.
+    const primeAudioContext = () => {
+        void sound.ensureContextFromUserGesture();
+    };
+    document.addEventListener('pointerdown', primeAudioContext, { once: true });
+    document.addEventListener('keydown', primeAudioContext, { once: true });
+
     if (difficultySelect) {
         difficultySelect.value = bot.difficulty;
     }
@@ -1041,7 +1078,9 @@ function bindEvents() {
     });
 
     restartButton?.addEventListener('click', restartGame);
-    startButton?.addEventListener('click', startGame);
+    startButton?.addEventListener('click', async () => {
+        await startGame();
+    });
     autoBearOffToggle?.addEventListener('change', event => {
         setAutoBearOffEnabled(event.target.checked);
     });
