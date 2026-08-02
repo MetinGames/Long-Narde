@@ -49,6 +49,10 @@ import {
     createAutoBearOffFlow,
     isAutoBearOffEligible
 } from './engine/autoBearOff.js';
+import {
+    applyNoLegalMoveAutoPass,
+    hasAnyRuleCompliantTurnStart
+} from './engine/noLegalMoveAutoPass.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -462,8 +466,54 @@ function finishCurrentTurn() {
     beginCurrentTurn();
 }
 
-function beginCurrentTurn() {
+function stopHumanTurnTimer() {
+    clearInterval(runtimeState.getTurnTimerInterval());
+    runtimeState.clearTurnTimerInterval();
+}
+
+function passCurrentTurnWhenNoLegalMove() {
+    const autoPass = applyNoLegalMoveAutoPass({
+        game,
+        runtimeState,
+        timeoutController,
+        bot,
+        autoBearOffFlow,
+        resetBotCallbackGuards,
+        stopTurnTimer: stopHumanTurnTimer,
+        endBotMoveFeedback: () => endBotMoveFeedback(renderer)
+    });
+
+    if (!autoPass.passed) {
+        return false;
+    }
+
+    const statusOverrideKey = 'status.noLegalMovesTurnPassed';
+
+    if (autoPass.toPlayer === 1) {
+        ui.setHumanTurnLayout();
+    } else {
+        ui.setBotTurnLayout();
+    }
+
+    setStatus(t(statusOverrideKey), { force: true });
+
+    updateScreen();
+
+    schedule(() => {
+        beginCurrentTurn({
+            statusOverrideKey
+        });
+    }, 0, {
+        kind: 'auto-pass'
+    });
+
+    return true;
+}
+
+function beginCurrentTurn(options = {}) {
     if (game.gameStatus === 'GAME_OVER') return;
+
+    const statusOverrideKey = options.statusOverrideKey || null;
 
     runtimeState.invalidateSessionToken();
     bot.resetPlannedTurn?.();
@@ -474,12 +524,18 @@ function beginCurrentTurn() {
         botTurnTouchFeedback.reset();
         gameFeedbackToast?.hide();
         ui.setHumanTurnLayout();
-        setStatus(t('status.yourTurn'), { force: true });
+        setStatus(
+            t(statusOverrideKey || 'status.yourTurn'),
+            { force: true }
+        );
     } else {
         botTurnTouchFeedback.reset();
         gameFeedbackToast?.hide();
         ui.setBotTurnLayout();
-        setStatus(t('status.botTurn'), { force: true });
+        setStatus(
+            t(statusOverrideKey || 'status.botTurn'),
+            { force: true }
+        );
     }
 
     runtimeDiagnostics.recordTurnChange(`currentPlayer=${game.currentPlayer}`);
@@ -519,6 +575,12 @@ function startAutomaticDiceRoll() {
         }
 
         runtimeState.clearSelectedSlotId();
+
+        if (!hasAnyRuleCompliantTurnStart(game, { player: rollingPlayer })) {
+            passCurrentTurnWhenNoLegalMove();
+            return;
+        }
+
         updateScreen();
 
         if (rollingPlayer === 1) {
@@ -530,10 +592,6 @@ function startAutomaticDiceRoll() {
                 { force: true }
             );
             startHumanTimer();
-
-            if (!game.hasValidMoves()) {
-                setStatus(t('status.noMoves'), { force: true });
-            }
 
             synchronizeAutoBearOffFlow();
         } else {
@@ -557,12 +615,14 @@ async function runBotMove() {
         return;
     }
 
-    if (
-        game.availableMoves.length === 0 ||
-        !game.hasValidMoves()
-    ) {
+    if (game.availableMoves.length === 0) {
         endBotMoveFeedback(renderer);
         finishCurrentTurn();
+        return;
+    }
+
+    if (!hasAnyRuleCompliantTurnStart(game, { player: bot.playerNumber })) {
+        passCurrentTurnWhenNoLegalMove();
         return;
     }
 

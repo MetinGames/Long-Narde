@@ -107,3 +107,57 @@ test('zar sesi klasik playDiceRoll ile degil roll token yolu ile tetiklenir', ()
     assert.equal(/sound\.playDiceRoll\(/.test(source), false);
     assert.equal(/sound\.playDiceRollForRoll\(/.test(source), true);
 });
+
+test('hamlesiz tur otomatik pas kontrolu insan timer baslamadan once yapilir', () => {
+    const source = readAppSource();
+    const section = getSection(
+        source,
+        'function startAutomaticDiceRoll() {',
+        'async function runBotMove() {'
+    );
+
+    const passCheckIdx = section.indexOf('if (!hasAnyRuleCompliantTurnStart(game, { player: rollingPlayer }))');
+    assert.notEqual(passCheckIdx, -1);
+
+    const passCallIdx = section.indexOf('passCurrentTurnWhenNoLegalMove();', passCheckIdx);
+    assert.notEqual(passCallIdx, -1);
+
+    const timerIdx = section.indexOf('startHumanTimer();');
+    assert.notEqual(timerIdx, -1);
+
+    assert.ok(passCallIdx < timerIdx);
+});
+
+test('bot akisi hamlesiz durumda ortak otomatik pas yolunu kullanir', () => {
+    const source = readAppSource();
+    const section = getSection(
+        source,
+        'async function runBotMove() {',
+        'function showGameOver(winner, messageKey = null) {'
+    );
+
+    assert.equal(
+        /!hasAnyRuleCompliantTurnStart\(game, \{ player: bot\.playerNumber \}\)/.test(section),
+        true
+    );
+    assert.equal(/passCurrentTurnWhenNoLegalMove\(\);/.test(section), true);
+});
+
+test('otomatik pas gecisi zamanlanir ve runtime temizligiyle iptal edilebilir', () => {
+    const source = readAppSource();
+
+    const helperSection = getSection(
+        source,
+        'function passCurrentTurnWhenNoLegalMove() {',
+        'function beginCurrentTurn(options = {}) {'
+    );
+    assert.equal(/schedule\(\(\) => \{/.test(helperSection), true);
+    assert.equal(/kind:\s*'auto-pass'/.test(helperSection), true);
+
+    const runtimeSection = getSection(
+        source,
+        'function clearRuntimeTasks() {',
+        'function setStatus(message) {'
+    );
+    assert.equal(/runtimeState\.clearScheduledTimeouts\(clearTimeout\);/.test(runtimeSection), true);
+});
