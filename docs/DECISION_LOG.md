@@ -151,6 +151,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Consequences:** CI publishes an informational report; legacy crossings do not block unrelated work. Every red-zone file needs a staged plan, and new red-zone growth needs written justification and a rollback/extraction boundary.
 **Review trigger:** The thresholds create repeated false positives, fail to predict change risk, or the project adopts generated/bundled sources that require a different measurement model.
 
+### D-023 — Theme identity is a shared visual-token contract
+
+**Date:** 2026-08-04
+**Status:** Accepted
+**Decision:** Each shipped theme owns reusable board, checker, interaction/focus, panel, text, and muted-text tokens in `engine/themes.js`. The renderer and visual theme gallery consume the same token contract; theme selection remains local, synchronized with the compact selector, and independent of game rules.
+**Reason:** A visual gallery that separately recreates colors would drift from the actual board, while adding theme-specific literals to the red-zone stylesheet would make contrast and future theme review harder to verify.
+**Consequences:** New themes must provide the complete token contract, meet automated contrast gates, preserve checker identity and legal-state clarity, include TR/EN/RU copy, and update browser visual baselines. Focused controller and stylesheet files own gallery lifecycle and presentation without expanding `style.css`.
+**Review trigger:** Dynamic downloadable themes, user-authored palettes, a new rendering architecture, or measured accessibility evidence requires a different token or validation model.
+
 ## Open decisions
 
 1. **Monetization:** premium purchase, ads, cosmetic purchases, subscription or hybrid.

@@ -529,3 +529,34 @@ test('language option names stay fixed across all UI languages', async () => {
     restoreGlobalProperty('localStorage', originalLocalStorage);
     restoreGlobalProperty('navigator', originalNavigator);
 });
+
+test('visual theme manager copy stays aligned in all supported languages', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+    const expectations = {
+        tr: ['Temanı Seç', 'Seçili', 'Koyu Ceviz temasını seç'],
+        en: ['Choose Your Theme', 'Selected', 'Select the Dark Walnut theme'],
+        ru: ['Выберите тему', 'Выбрано', 'Выбрать тему «Тёмный орех»']
+    };
+
+    for (const [language, values] of Object.entries(expectations)) {
+        i18n.setLanguage(language);
+        assert.equal(i18n.t('theme.managerTitle'), values[0]);
+        assert.equal(i18n.t('theme.selected'), values[1]);
+        assert.equal(i18n.t('theme.walnutAction'), values[2]);
+        assert.notEqual(
+            i18n.t('theme.anatolianDescription'),
+            'theme.anatolianDescription'
+        );
+    }
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});

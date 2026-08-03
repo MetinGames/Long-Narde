@@ -214,6 +214,63 @@ test('start-screen dialogs open and close without starting a match', async ({
     expect(runtimeErrors).toEqual([]);
 });
 
+test('visual theme gallery selects, persists, localizes, and stays inside the viewport', async ({
+    page
+}) => {
+    const runtimeErrors = captureRuntimeErrors(page);
+    await openReadyStartScreen(page);
+
+    const modal = page.locator('#theme-manager-modal');
+    const card = page.locator('#theme-manager-card');
+    const anatolian = page.locator('[data-theme-option="anatolian"]');
+    const walnut = page.locator('[data-theme-option="walnut"]');
+
+    await page.locator('#start-theme-manager-button').click();
+    await expect(modal).toBeVisible();
+    await expect(anatolian).toHaveAttribute('aria-pressed', 'true');
+    await expect(anatolian).toBeFocused();
+
+    await walnut.click();
+    await expect(walnut).toHaveAttribute('aria-pressed', 'true');
+    await expect(anatolian).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('#theme-select')).toHaveValue('walnut');
+    await expect(page.locator('html')).toHaveAttribute(
+        'data-nardora-theme',
+        'walnut'
+    );
+    expect(await page.evaluate(() => localStorage.getItem('narde-theme')))
+        .toBe('walnut');
+
+    const cardBox = await card.boundingBox();
+    const viewport = page.viewportSize();
+    expect(cardBox).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect(cardBox.x).toBeGreaterThanOrEqual(0);
+    expect(cardBox.y).toBeGreaterThanOrEqual(0);
+    expect(cardBox.x + cardBox.width).toBeLessThanOrEqual(viewport.width + 1);
+    expect(cardBox.y + cardBox.height).toBeLessThanOrEqual(viewport.height + 1);
+
+    await page.keyboard.press('Escape');
+    await expect(modal).toBeHidden();
+    await expect(page.locator('#start-theme-manager-button')).toBeFocused();
+
+    await page.reload();
+    await expect(page.locator('#start-screen')).toBeVisible();
+    await expect(page.locator('#nardora-splash')).toHaveCount(0, {
+        timeout: 7_000
+    });
+    await page.locator('#start-language-select').selectOption('ru');
+    await page.locator('#start-theme-manager-button').click();
+    await expect(page.locator('#theme-manager-title')).toHaveText('Выберите тему');
+    await expect(walnut).toHaveAttribute('aria-pressed', 'true');
+
+    const horizontalOverflow = await page.evaluate(() =>
+        document.documentElement.scrollWidth - window.innerWidth
+    );
+    expect(horizontalOverflow).toBeLessThanOrEqual(1);
+    expect(runtimeErrors).toEqual([]);
+});
+
 test('local friend preview completes the same-device lifecycle honestly', async ({
     page
 }, testInfo) => {

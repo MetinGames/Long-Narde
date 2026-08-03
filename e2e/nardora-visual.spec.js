@@ -38,11 +38,26 @@ test('start screen visual baseline', async ({ page }) => {
     );
 });
 
+test('theme gallery visual baseline', async ({ page }) => {
+    await page.locator('#start-theme-manager-button').click();
+    await expect(page.locator('#theme-manager-card')).toHaveScreenshot(
+        'theme-gallery.png',
+        {
+            animations: 'disabled',
+            caret: 'hide',
+            scale: 'css'
+        }
+    );
+});
+
 test('game shell visual baseline', async ({ page }) => {
     await page.locator('#start-button').click();
     await expect(page.locator('#start-screen')).toBeHidden();
     await expect(page.locator('#die1')).not.toHaveText('-');
     await expect(page.locator('#die2')).not.toHaveText('-');
+    await expect(page.locator('#status-message')).toHaveText(
+        'Dice: 3, 3. Make your move.'
+    );
 
     await expect(page.locator('#game-container')).toHaveScreenshot(
         'game-shell.png',
