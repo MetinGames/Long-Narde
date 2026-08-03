@@ -96,8 +96,33 @@ test('start-screen dialogs open and close without starting a match', async ({
 
     await page.locator('#player-stats-button').click();
     await expect(page.locator('#player-stats-modal')).toBeVisible();
+    await page.locator('#profile-display-name').fill('Metin Usta');
+    await page.locator('[data-avatar-id="avatar-eagle"]').click();
+    await page.locator('#profile-save-button').click();
+    await expect(page.locator('#profile-preview-name')).toHaveText('Metin Usta');
+    await expect(page.locator('#profile-preview-avatar')).toHaveText('🦅');
+    await expect(page.locator('[data-avatar-id="avatar-eagle"]')).toHaveAttribute(
+        'aria-pressed',
+        'true'
+    );
     await page.locator('#stats-close-button').click();
     await expect(page.locator('#player-stats-modal')).toBeHidden();
+
+    await page.reload();
+    await expect(page.locator('#start-screen')).toBeVisible();
+    await expect(page.locator('#nardora-splash')).toHaveCount(0, {
+        timeout: 7_000
+    });
+    await page.locator('#player-stats-button').click();
+    await expect(page.locator('#profile-display-name')).toHaveValue('Metin Usta');
+    await expect(page.locator('[data-avatar-id="avatar-eagle"]')).toHaveAttribute(
+        'aria-pressed',
+        'true'
+    );
+    page.once('dialog', dialog => dialog.accept());
+    await page.locator('#profile-reset-button').click();
+    await expect(page.locator('#profile-display-name')).toHaveValue('Nardora Player');
+    await page.locator('#stats-close-button').click();
 
     await page.locator('#feedback-button').click();
     await expect(page.locator('#feedback-modal')).toBeVisible();

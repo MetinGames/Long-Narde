@@ -115,6 +115,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Consequences:** Issues [#10](https://github.com/MetinGames/Long-Narde/issues/10), [#15](https://github.com/MetinGames/Long-Narde/issues/15), and [#16](https://github.com/MetinGames/Long-Narde/issues/16) form the immediate social critical path. Distribution continues in parallel. Unavailable online modes remain honest, trusted outcomes remain server-authoritative, and low-value cleanup cannot displace this path without evidence.
 **Review trigger:** The local vertical slice exposes a contract flaw, real-device/release quality regresses, or provider/privacy evidence changes the safe implementation order.
 
+### D-019 — Local identity is device-only and outcome-neutral
+
+**Date:** 2026-08-03
+**Status:** Accepted
+**Decision:** Nardora's first player identity is a versioned, resettable on-device record containing only a generated local ID, a bounded nickname, and one of 15 built-in avatar IDs. Local progression uses a separately resettable versioned store. Only `{ id, displayName, avatarId }` may enter the private-table identity projection; achievements, statistics, results, ratings, dice, and moves remain outside it.
+**Reason:** Players need continuity and personality before hosted accounts exist, while the product must avoid premature personal-data collection and client-authoritative competitive claims.
+**Consequences:** The profile works offline without a provider, legacy local statistics migrate, and the Friend Match controller can consume a stable identity contract. Custom photos, cloud sync, account recovery, public profiles, and remote ranking remain gated by account/privacy/moderation decisions.
+**Review trigger:** An approved hosted account model requires identity linking, deletion/export, recovery, age handling, or a moderated custom-avatar policy.
+
 ## Open decisions
 
 1. **Monetization:** premium purchase, ads, cosmetic purchases, subscription or hybrid.

@@ -21,6 +21,7 @@ import {
     PlayerStatsStore
 } from './engine/playerStats.js';
 import { PlayerStatsModal } from './engine/playerStatsModal.js';
+import { PlayerIdentityStore } from './engine/playerIdentity.js';
 import {
     applyPostUndoLayout,
     getActionButtonState
@@ -95,6 +96,7 @@ const botTurnTouchFeedback = new BotTurnTouchFeedback();
 
 const timeoutController = new TurnTimeoutController();
 const playerStatsStore = new PlayerStatsStore();
+const playerIdentityStore = new PlayerIdentityStore();
 const matchStatsRecorder = new MatchStatsRecorder({
     store: playerStatsStore,
     humanPlayer: 1
@@ -687,7 +689,8 @@ function showGameOver(winner, messageKey = null) {
         winner,
         endReason: game.endReason,
         totalMoves: runtimeState.getTotalMoveCounter(),
-        gameStatus: game.gameStatus
+        gameStatus: game.gameStatus,
+        difficulty: bot.difficulty
     });
     playerStatsModal?.render();
     botTurnTouchFeedback.reset();
@@ -1024,6 +1027,9 @@ function bindEvents() {
         document.getElementById('stats-empty-state');
     const statsCardsContainer =
         document.getElementById('player-stats-cards');
+    const profileAvatarButtons = statsModal
+        ? statsModal.querySelectorAll('[data-avatar-id]')
+        : [];
     const guidePrevButton =
         document.getElementById('guide-prev-button');
     const guideNextButton =
@@ -1066,10 +1072,46 @@ function bindEvents() {
             totalMoves: document.getElementById('stats-total-moves-value'),
             bestWinMoves: document.getElementById('stats-best-win-value'),
             normalLosses: document.getElementById('stats-normal-losses-value'),
-            timeoutLosses: document.getElementById('stats-timeout-losses-value')
+            timeoutLosses: document.getElementById('stats-timeout-losses-value'),
+            averageMoves: document.getElementById('stats-average-moves-value'),
+            bestWinStreak: document.getElementById('stats-best-streak-value'),
+            byDifficulty: {
+                easy: document.getElementById('stats-easy-record-value'),
+                medium: document.getElementById('stats-medium-record-value'),
+                hard: document.getElementById('stats-hard-record-value'),
+                champion: document.getElementById('stats-champion-record-value')
+            }
         },
         emptyState: statsEmptyState,
-        cardsContainer: statsCardsContainer
+        cardsContainer: statsCardsContainer,
+        identityStore: playerIdentityStore,
+        profileElements: {
+            displayNameInput: document.getElementById('profile-display-name'),
+            previewGlyph: document.getElementById('profile-preview-avatar'),
+            previewName: document.getElementById('profile-preview-name'),
+            saveButton: document.getElementById('profile-save-button'),
+            resetButton: document.getElementById('profile-reset-button'),
+            status: document.getElementById('profile-status')
+        },
+        avatarButtons: profileAvatarButtons,
+        achievementElements: {
+            'first-match': {
+                card: document.getElementById('achievement-first-match'),
+                state: document.querySelector('[data-achievement-state="first-match"]')
+            },
+            'first-win': {
+                card: document.getElementById('achievement-first-win'),
+                state: document.querySelector('[data-achievement-state="first-win"]')
+            },
+            'ten-matches': {
+                card: document.getElementById('achievement-ten-matches'),
+                state: document.querySelector('[data-achievement-state="ten-matches"]')
+            },
+            'champion-win': {
+                card: document.getElementById('achievement-champion-win'),
+                state: document.querySelector('[data-achievement-state="champion-win"]')
+            }
+        }
     });
 
     feedbackModal = new FeedbackModal({

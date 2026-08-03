@@ -433,6 +433,38 @@ test('player stats keys are localized in all supported languages', async () => {
     restoreGlobalProperty('navigator', originalNavigator);
 });
 
+test('local profile, avatars, achievements, and richer stats stay aligned', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    const expectations = {
+        tr: ['Profil ve İlerleme', 'Anadolu Nazar', 'Başarımlar', 'Maç Başına Hamle'],
+        en: ['Profile & Progress', 'Anatolian Eye', 'Achievements', 'Moves per Match'],
+        ru: ['Профиль и прогресс', 'Анатолийский оберег', 'Достижения', 'Ходов за матч']
+    };
+
+    for (const [language, values] of Object.entries(expectations)) {
+        i18n.setLanguage(language);
+        assert.equal(i18n.t('profile.title'), values[0]);
+        assert.equal(i18n.t('avatar.anatolia'), values[1]);
+        assert.equal(i18n.t('achievements.title'), values[2]);
+        assert.equal(i18n.t('stats.averageMoves'), values[3]);
+        assert.match(i18n.t('stats.difficultyRecord', {
+            wins: 2,
+            matches: 3
+        }), /2/);
+    }
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
 test('language option names stay fixed across all UI languages', async () => {
     const savedStorage = new FakeStorage({ 'narde-language': 'en' });
     const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);

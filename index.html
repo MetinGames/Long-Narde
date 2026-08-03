@@ -263,11 +263,11 @@
                 <button
                     id="player-stats-button"
                     class="secondary-start-button"
-                    data-i18n="ui.statsButton"
-                    data-i18n-aria-label="ui.statsButton"
+                    data-i18n="ui.profileButton"
+                    data-i18n-aria-label="ui.profileButton"
                     type="button"
-                    aria-label="İstatistikler"
-                >İstatistikler</button>
+                    aria-label="Profil ve İlerleme"
+                >Profil ve İlerleme</button>
             </div>
             <div id="feedback-button-row">
                 <button
@@ -447,7 +447,7 @@
         >
             <div id="player-stats-card">
                 <div id="player-stats-header">
-                    <h3 id="player-stats-title" data-i18n="stats.title">İstatistikler</h3>
+                    <h3 id="player-stats-title" data-i18n="profile.title">Profil ve İlerleme</h3>
                     <button
                         id="stats-close-button"
                         class="guide-close"
@@ -457,49 +457,190 @@
                     >×</button>
                 </div>
 
-                <p id="stats-empty-state" data-i18n="stats.empty">Henüz tamamlanan maç yok.</p>
+                <div id="player-profile-content">
+                    <section id="local-profile-card" aria-labelledby="profile-section-title">
+                        <h4 id="profile-section-title" data-i18n="profile.localTitle">Yerel Oyuncu Profili</h4>
+                        <div id="profile-summary">
+                            <div id="profile-preview-avatar" aria-hidden="true">🧿</div>
+                            <div id="profile-name-field">
+                                <label for="profile-display-name" data-i18n="profile.displayName">Oyuncu adı</label>
+                                <input
+                                    id="profile-display-name"
+                                    type="text"
+                                    maxlength="24"
+                                    autocomplete="off"
+                                    data-i18n-aria-label="profile.displayName"
+                                    aria-label="Oyuncu adı"
+                                >
+                                <strong id="profile-preview-name">Nardora Player</strong>
+                            </div>
+                        </div>
 
-                <div id="player-stats-cards" hidden aria-hidden="true">
-                    <div class="stats-row">
-                        <div class="stats-mini-card">
-                            <div class="stats-label" data-i18n="stats.totalMatches">Toplam Maç</div>
-                            <div class="stats-value" id="stats-total-matches-value">0</div>
-                        </div>
-                        <div class="stats-mini-card">
-                            <div class="stats-label" data-i18n="stats.wins">Galibiyet</div>
-                            <div class="stats-value" id="stats-wins-value">0</div>
-                        </div>
-                        <div class="stats-mini-card">
-                            <div class="stats-label" data-i18n="stats.losses">Mağlubiyet</div>
-                            <div class="stats-value" id="stats-losses-value">0</div>
-                        </div>
-                    </div>
+                        <p id="profile-local-note" data-i18n="profile.localOnly">Adınız, avatarınız ve ilerlemeniz yalnızca bu cihazda saklanır.</p>
 
-                    <div class="stats-row">
-                        <div class="stats-mini-card">
-                            <div class="stats-label" data-i18n="stats.winRate">Kazanma Oranı</div>
-                            <div class="stats-value" id="stats-win-rate-value">0.0%</div>
-                        </div>
-                        <div class="stats-mini-card">
-                            <div class="stats-label" data-i18n="stats.totalMoves">Toplam Hamle</div>
-                            <div class="stats-value" id="stats-total-moves-value">0</div>
-                        </div>
-                        <div class="stats-mini-card">
-                            <div class="stats-label" data-i18n="stats.bestWinMoves">En İyi Galibiyet</div>
-                            <div class="stats-value" id="stats-best-win-value">-</div>
-                        </div>
-                    </div>
+                        <fieldset id="profile-avatar-picker">
+                            <legend data-i18n="profile.chooseAvatar">Avatar seç</legend>
+                            <div id="profile-avatar-grid">
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-anatolia" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.anatolia" aria-label="Anadolu Nazar">
+                                    <span aria-hidden="true">🧿</span><small data-i18n="avatar.anatolia">Anadolu Nazar</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-pottery" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.pottery" aria-label="Anadolu Çömleği">
+                                    <span aria-hidden="true">🏺</span><small data-i18n="avatar.pottery">Anadolu Çömleği</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-eagle" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.eagle" aria-label="Kartal">
+                                    <span aria-hidden="true">🦅</span><small data-i18n="avatar.eagle">Kartal</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-wolf" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.wolf" aria-label="Bozkurt">
+                                    <span aria-hidden="true">🐺</span><small data-i18n="avatar.wolf">Bozkurt</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-lion" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.lion" aria-label="Aslan">
+                                    <span aria-hidden="true">🦁</span><small data-i18n="avatar.lion">Aslan</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-horse" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.horse" aria-label="At">
+                                    <span aria-hidden="true">🐎</span><small data-i18n="avatar.horse">At</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-fox" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.fox" aria-label="Tilki">
+                                    <span aria-hidden="true">🦊</span><small data-i18n="avatar.fox">Tilki</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-bear" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.bear" aria-label="Ayı">
+                                    <span aria-hidden="true">🐻</span><small data-i18n="avatar.bear">Ayı</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-owl" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.owl" aria-label="Baykuş">
+                                    <span aria-hidden="true">🦉</span><small data-i18n="avatar.owl">Baykuş</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-moon" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.moon" aria-label="Ay">
+                                    <span aria-hidden="true">🌙</span><small data-i18n="avatar.moon">Ay</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-sun" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.sun" aria-label="Güneş">
+                                    <span aria-hidden="true">☀️</span><small data-i18n="avatar.sun">Güneş</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-mountain" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.mountain" aria-label="Dağ">
+                                    <span aria-hidden="true">⛰️</span><small data-i18n="avatar.mountain">Dağ</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-sea" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.sea" aria-label="Deniz">
+                                    <span aria-hidden="true">🌊</span><small data-i18n="avatar.sea">Deniz</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-robot" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.robot" aria-label="Robot">
+                                    <span aria-hidden="true">🤖</span><small data-i18n="avatar.robot">Robot</small>
+                                </button>
+                                <button class="profile-avatar-option" type="button" data-avatar-id="avatar-dice" data-selected="false" aria-pressed="false" data-i18n-aria-label="avatar.dice" aria-label="Altın Zar">
+                                    <span aria-hidden="true">🎲</span><small data-i18n="avatar.dice">Altın Zar</small>
+                                </button>
+                            </div>
+                        </fieldset>
 
-                    <div class="stats-row stats-row-small">
-                        <div class="stats-mini-card">
-                            <div class="stats-label" data-i18n="stats.normalLosses">Normal Mağlubiyet</div>
-                            <div class="stats-value" id="stats-normal-losses-value">0</div>
+                        <div id="profile-actions">
+                            <button id="profile-save-button" type="button" data-i18n="profile.save">Profili Kaydet</button>
+                            <button id="profile-reset-button" class="secondary-start-button" type="button" data-i18n="profile.reset">Profili Sıfırla</button>
                         </div>
-                        <div class="stats-mini-card">
-                            <div class="stats-label" data-i18n="stats.timeoutLosses">Süre Aşımı Mağlubiyeti</div>
-                            <div class="stats-value" id="stats-timeout-losses-value">0</div>
+                        <p id="profile-status" role="status" aria-live="polite"></p>
+                    </section>
+
+                    <section id="player-achievements" aria-labelledby="achievements-title">
+                        <h4 id="achievements-title" data-i18n="achievements.title">Başarımlar</h4>
+                        <div id="achievement-grid">
+                            <article id="achievement-first-match" class="achievement-card" data-unlocked="false">
+                                <span class="achievement-icon" aria-hidden="true">🎯</span>
+                                <strong data-i18n="achievements.firstMatch.title">İlk Masa</strong>
+                                <span data-i18n="achievements.firstMatch.detail">İlk maçını tamamla.</span>
+                                <small class="achievement-state" data-achievement-state="first-match" data-i18n="achievements.locked">Kilitli</small>
+                            </article>
+                            <article id="achievement-first-win" class="achievement-card" data-unlocked="false">
+                                <span class="achievement-icon" aria-hidden="true">🏆</span>
+                                <strong data-i18n="achievements.firstWin.title">İlk Zafer</strong>
+                                <span data-i18n="achievements.firstWin.detail">İlk galibiyetini kazan.</span>
+                                <small class="achievement-state" data-achievement-state="first-win" data-i18n="achievements.locked">Kilitli</small>
+                            </article>
+                            <article id="achievement-ten-matches" class="achievement-card" data-unlocked="false">
+                                <span class="achievement-icon" aria-hidden="true">🔟</span>
+                                <strong data-i18n="achievements.tenMatches.title">Masa Müdavimi</strong>
+                                <span data-i18n="achievements.tenMatches.detail">10 maç tamamla.</span>
+                                <small class="achievement-state" data-achievement-state="ten-matches" data-i18n="achievements.locked">Kilitli</small>
+                            </article>
+                            <article id="achievement-champion-win" class="achievement-card" data-unlocked="false">
+                                <span class="achievement-icon" aria-hidden="true">👑</span>
+                                <strong data-i18n="achievements.championWin.title">Şampiyon Avcısı</strong>
+                                <span data-i18n="achievements.championWin.detail">Şampiyon botu yen.</span>
+                                <small class="achievement-state" data-achievement-state="champion-win" data-i18n="achievements.locked">Kilitli</small>
+                            </article>
                         </div>
-                    </div>
+                    </section>
+
+                    <section id="player-statistics" aria-labelledby="statistics-title">
+                        <h4 id="statistics-title" data-i18n="stats.title">İstatistikler</h4>
+                        <p id="stats-empty-state" data-i18n="stats.empty">Henüz tamamlanan maç yok.</p>
+
+                        <div id="player-stats-cards" hidden aria-hidden="true">
+                            <div class="stats-row">
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="stats.totalMatches">Toplam Maç</div>
+                                    <div class="stats-value" id="stats-total-matches-value">0</div>
+                                </div>
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="stats.wins">Galibiyet</div>
+                                    <div class="stats-value" id="stats-wins-value">0</div>
+                                </div>
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="stats.losses">Mağlubiyet</div>
+                                    <div class="stats-value" id="stats-losses-value">0</div>
+                                </div>
+                            </div>
+
+                            <div class="stats-row">
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="stats.winRate">Kazanma Oranı</div>
+                                    <div class="stats-value" id="stats-win-rate-value">0.0%</div>
+                                </div>
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="stats.totalMoves">Toplam Hamle</div>
+                                    <div class="stats-value" id="stats-total-moves-value">0</div>
+                                </div>
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="stats.bestWinMoves">En Az Hamlede Galibiyet</div>
+                                    <div class="stats-value" id="stats-best-win-value">-</div>
+                                </div>
+                            </div>
+
+                            <div class="stats-row stats-row-four">
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="stats.normalLosses">Normal Mağlubiyet</div>
+                                    <div class="stats-value" id="stats-normal-losses-value">0</div>
+                                </div>
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="stats.timeoutLosses">Süre Aşımı Mağlubiyeti</div>
+                                    <div class="stats-value" id="stats-timeout-losses-value">0</div>
+                                </div>
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="stats.averageMoves">Maç Başına Hamle</div>
+                                    <div class="stats-value" id="stats-average-moves-value">0.0</div>
+                                </div>
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="stats.bestWinStreak">En İyi Seri</div>
+                                    <div class="stats-value" id="stats-best-streak-value">0</div>
+                                </div>
+                            </div>
+
+                            <h5 class="stats-subtitle" data-i18n="stats.botPerformance">Bot Seviyesine Göre</h5>
+                            <div class="stats-row stats-row-four">
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="difficulty.easy">Kolay</div>
+                                    <div class="stats-value" id="stats-easy-record-value">0G / 0M</div>
+                                </div>
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="difficulty.medium">Orta</div>
+                                    <div class="stats-value" id="stats-medium-record-value">0G / 0M</div>
+                                </div>
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="difficulty.hard">Usta</div>
+                                    <div class="stats-value" id="stats-hard-record-value">0G / 0M</div>
+                                </div>
+                                <div class="stats-mini-card">
+                                    <div class="stats-label" data-i18n="difficulty.champion">Şampiyon</div>
+                                    <div class="stats-value" id="stats-champion-record-value">0G / 0M</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
 
                 <div id="player-stats-footer">

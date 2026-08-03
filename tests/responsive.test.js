@@ -20,6 +20,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#player-stats-modal'), 'Player stats modal style missing');
     assert.ok(css.includes('#player-stats-cards'), 'Player stats cards style missing');
     assert.ok(css.includes('#player-stats-footer'), 'Player stats footer style missing');
+    assert.ok(css.includes('#player-profile-content'), 'Profile content style missing');
+    assert.ok(css.includes('#profile-avatar-grid'), 'Avatar grid style missing');
+    assert.ok(css.includes('#achievement-grid'), 'Achievement grid style missing');
+    assert.ok(css.includes('.profile-avatar-option:focus-visible'), 'Avatar keyboard focus style missing');
     assert.ok(css.includes('#start-language-container'), 'Start language container style missing');
     assert.ok(css.includes('#start-language-select'), 'Start language select style missing');
     assert.ok(css.includes('#language-select option'), 'Side language option contrast style missing');
@@ -81,6 +85,12 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="guide-next-button"'), 'Guide next button missing');
     assert.ok(html.includes('id="guide-start-button"'), 'Guide start button missing');
     assert.ok(html.includes('id="stats-reset-button"'), 'Stats reset button missing');
+    assert.ok(html.includes('id="profile-display-name"'), 'Profile display-name input missing');
+    assert.ok(html.includes('id="profile-save-button"'), 'Profile save button missing');
+    assert.ok(html.includes('id="profile-reset-button"'), 'Profile reset button missing');
+    assert.ok(html.includes('id="player-achievements"'), 'Achievements section missing');
+    assert.equal((html.match(/data-avatar-id="avatar-/g) || []).length, 15, 'Exactly 15 built-in avatar choices should be available');
+    assert.ok(/id="profile-display-name"[\s\S]*?maxlength="24"/i.test(html), 'Profile name length guard missing');
     assert.ok(html.includes('id="restart-button"'), 'Restart button missing');
     assert.ok(html.includes('id="die-right-1"'), 'Double move indicator 1 missing');
     assert.ok(html.includes('id="die-right-4"'), 'Double move indicator 4 missing');

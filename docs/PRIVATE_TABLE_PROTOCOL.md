@@ -137,7 +137,9 @@ The v1 local identity projection accepts only:
 
 Unknown identity fields are discarded. No email, phone number, custom photo,
 location, account credential, or remote identifier is collected or uploaded.
-Issue #15 owns the versioned local profile schema and reset/migration behavior.
+Issue #15 delivers the versioned local profile schema and reset/migration
+behavior in `engine/playerIdentity.js`. `toPrivateTableIdentity()` projects
+exactly these three fields; local achievements and statistics are discarded.
 
 ## Immediate safety seam
 
