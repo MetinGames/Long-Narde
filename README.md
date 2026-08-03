@@ -6,11 +6,11 @@ Live game: https://metingames.github.io/Long-Narde/
 
 ## Project overview
 
-Long Narde is a static, installable browser-based long narde game with a local human player, a bot opponent, offline play, turn timer handling, local player statistics, a how-to-play guide, and responsive UI support for desktop and mobile layouts. The codebase is organized around a small app bootstrap and a set of focused engine modules that handle game rules, rendering, input, UI state, feedback, timing, statistics, themes, and internationalization.
+Long Narde is a static, installable browser-based long narde game with a local human player, a bot opponent, offline play, turn timer handling, local player statistics, a how-to-play guide, and responsive UI support for desktop and mobile layouts. The codebase is organized around a small app bootstrap and a set of focused engine modules that handle game rules, rendering, input, UI state, feedback, timing, statistics, themes, internationalization, and a provider-neutral private-table contract.
 
 ## Current status
 
-The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, exposes the bot difficulty before play, and shows Friend Match and Online as visibly unavailable future modes instead of launching placeholder flows. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes local player statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, and multiple feedback helpers for game state changes.
+The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, exposes the bot difficulty before play, and shows Friend Match and Online as visibly unavailable future modes instead of launching placeholder flows. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes local player statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, multiple feedback helpers, and a tested in-memory private-table protocol foundation for future client work.
 
 This project is not documented here as having online multiplayer, user accounts, cloud sync, ranked matchmaking, or a backend service.
 
@@ -29,6 +29,7 @@ This project is not documented here as having online multiplayer, user accounts,
 - Optional Quick Bear-Off when the continuation is unambiguous.
 - Licensed sampled dice/checker audio with safe preload and event de-duplication.
 - Installable PWA shell with offline local bot play and versioned cache updates.
+- Versioned private-table command/event contract with deterministic in-memory invite, presence, reconnect, authority, and safety seams.
 
 ## Supported languages
 
@@ -129,6 +130,7 @@ Verified engine modules currently present:
 - `engine/mobileThemeLabelController.js`
 - `engine/playerStats.js`
 - `engine/playerStatsModal.js`
+- `engine/privateTableProtocol.js`
 - `engine/pwa.js`
 - `engine/renderer.js`
 - `engine/restartButtonLock.js`
@@ -154,6 +156,7 @@ Verified test files currently present:
 - `tests/mobile-theme-label-controller.test.js`
 - `tests/player-stats-modal.test.js`
 - `tests/player-stats.test.js`
+- `tests/private-table-protocol.test.js`
 - `tests/pwa.test.js`
 - `tests/renderer-theme-storage.test.js`
 - `tests/responsive.test.js`
@@ -193,7 +196,7 @@ To list or run the Playwright browser suite:
 
 ## Architecture overview
 
-`app.js` is the bootstrap and orchestration layer. It creates the game, renderer, bot, UI manager, and support helpers, then wires DOM events and start-screen flow. The `engine/` folder contains the core game model, board rules, bot logic, rendering logic, timeout controller, i18n, statistics, and feedback helpers. The `tests/` folder mirrors these responsibilities with focused behavioral and regression tests.
+`app.js` is the bootstrap and orchestration layer. It creates the game, renderer, bot, UI manager, and support helpers, then wires DOM events and start-screen flow. The `engine/` folder contains the core game model, board rules, bot logic, rendering logic, timeout controller, i18n, statistics, feedback helpers, and the provider-neutral private-table protocol. The `tests/` folder mirrors these responsibilities with focused behavioral and regression tests.
 
 The app uses the same i18n system for the start screen and the side panel. Language changes update the DOM immediately and are persisted through localStorage. `engine/startModeController.js` owns the available and unavailable mode listeners, prevents duplicate starts, and exposes explicit reset/cleanup lifecycle methods.
 
@@ -203,7 +206,7 @@ The current UI includes aria labels, aria-live status updates, modal dialog sema
 
 ## Known limitations
 
-- The game is local single-player against a bot; there is no online multiplayer in the current code.
+- The playable game is local single-player against a bot. The private-table contract and in-memory adapter are development foundations, not online multiplayer or a backend.
 - There is no user account system, profile sync, or cloud storage.
 - There is no built-in leaderboard or matchmaking service.
 - The current asset set is small; several asset folders are placeholders only.
@@ -213,6 +216,7 @@ The current UI includes aria labels, aria-live status updates, modal dialog sema
 
 - [PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md): product north star, player promise, quality bar, decision filters, risks, and working authority.
 - [APP_ORCHESTRATION.md](docs/APP_ORCHESTRATION.md): current `app.js` responsibility and listener-ownership map plus the next safe extraction order.
+- [PRIVATE_TABLE_PROTOCOL.md](docs/PRIVATE_TABLE_PROTOCOL.md): versioned room, invite, authority, reconnect, privacy, and safety contract for future Friend Match work.
 - [DECISION_LOG.md](docs/DECISION_LOG.md): durable product and architecture decisions with unresolved decisions kept visible.
 - [ROADMAP.md](ROADMAP.md): verified phases, dates, current gaps, and research-backed open items.
 - [TOOLING_STRATEGY.md](docs/TOOLING_STRATEGY.md): phased plugin, service, program and data-access decisions.

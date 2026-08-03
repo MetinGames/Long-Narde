@@ -16,6 +16,7 @@ Last reviewed: **2026-08-03**
 | Victory and game-over orchestration | `app.js` + victory/statistics modules | Candidate after end-state integration tests expand |
 | Slot selection and move application | `app.js` + game/input modules | Rule-sensitive; leave until its boundary is fully characterized |
 | Modal, language, fullscreen, feedback, and control assembly | `app.js` + focused UI modules | Keep assembly in `app.js`; controllers own their listeners |
+| Provider-neutral room, invite, presence, reconnect, and authority contract | `privateTableProtocol.js` | Keep outside `app.js`; future Friend Match controllers consume the adapter surface |
 | Resume synchronization on visibility, focus, and page restore | `appResumeController.js` | Extracted; controller owns bind, idempotence, and cleanup |
 | Compact mobile theme label | `mobileThemeLabelController.js` | Extracted; controller owns media/select listeners, cleanup, and translation refresh |
 | Initial DOM bootstrap | `app.js` | Keep as composition-root work while startup remains a single page |
@@ -39,3 +40,8 @@ Last reviewed: **2026-08-03**
 Issue #4's focused lifecycle checkpoint is complete after the resume and mobile-theme listener slices. First-gesture audio unlock and diagnostics feedback remain valid future candidates, but they should be extracted only when adjacent product work touches them or evidence shows lifecycle risk. Nardora now returns to player-facing work on the social-platform critical path instead of extending cleanup for its own sake.
 
 Future slices must preserve game rules and public behavior, add focused lifecycle tests, keep Playwright green, and update this map when ownership changes.
+
+Issue #16 adds no listener or gameplay ownership to `app.js`. Its in-memory
+adapter exposes `dispatch`, `getSnapshot`, and `subscribe`; a future Friend
+Match controller will own the corresponding UI lifecycle without enabling the
+currently disabled social mode until a real end-to-end flow exists.
