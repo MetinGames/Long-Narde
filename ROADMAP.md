@@ -27,6 +27,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Local player statistics, how-to-play guide, feedback modal, and GitHub issue forms.
 - Runtime diagnostics export for player bug reports.
 - Responsive desktop/mobile layouts, iOS safe-area handling, orientation guidance, and fullscreen/focus mode.
+- Installable PWA shell with versioned updates and offline local bot play.
 - Anadolu and walnut themes.
 - Automated GitHub Actions test workflow.
 - Player-facing Nardora migration across the page title, welcome flow, TR/EN/RU copy, and splash experience.
@@ -34,7 +35,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Champion bot mode with deterministic multi-move planning and callback safety.
 - Automatic pass when no legal move exists, without starting a stale human timer.
 - Licensed sampled dice and checker sounds integrated as a review baseline; final original recordings remain planned.
-- **227 automated tests passing as of 2026-08-03.**
+- **236 automated tests passing as of 2026-08-03.**
 
 ## Current gaps and risks
 
@@ -45,12 +46,12 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - The how-to-play guide is static; there is no contextual rule explanation system or interactive first-match tutorial yet.
 - The start flow does not yet provide the approved minimal mode menu, and theme selection is not yet a dedicated visual management screen.
 - Advertising-safe responsive zones and Yandex-specific layout behavior have not been designed or tested.
-- There is no PWA manifest/service worker, store package, backend, account system, online room, chat, ranking, or moderation layer.
+- There is no store package, backend, account system, online room, chat, ranking, or moderation layer.
 
 ## Active 14-day worklist — 2026-08-03 to 2026-08-16
 
-1. **Active — [#4](https://github.com/MetinGames/Long-Narde/issues/4):** extract the next coherent, test-backed `app.js` orchestration slice; keep 227+ unit tests and relevant Playwright smoke tests green.
-2. **Next — [#5](https://github.com/MetinGames/Long-Narde/issues/5):** deliver the conservative installable/offline PWA foundation with predictable cache updates.
+1. **Active — [#4](https://github.com/MetinGames/Long-Narde/issues/4):** extract the next coherent, test-backed `app.js` orchestration slice; keep 236+ unit tests and relevant Playwright smoke tests green.
+2. **Completed — [#5](https://github.com/MetinGames/Long-Narde/issues/5):** delivered the conservative installable/offline PWA foundation with predictable cache updates.
 3. **Queued — [#8](https://github.com/MetinGames/Long-Narde/issues/8):** configure the unified GitHub Project view, Phase 0/1 milestones, and lightweight workflow metadata.
 4. **Queued — [#6](https://github.com/MetinGames/Long-Narde/issues/6):** classify all 35 non-main branches; prepare an approval list but delete nothing.
 5. **Phase 1 ready — [#9](https://github.com/MetinGames/Long-Narde/issues/9):** begin contextual rule explanations and the interactive first-match tutorial only after the Phase 0 exit gate is met.
@@ -59,6 +60,7 @@ Completed in this synchronization cycle:
 
 - [#2](https://github.com/MetinGames/Long-Narde/issues/2) Issue/ROADMAP synchronization workflow established and closed.
 - [#3](https://github.com/MetinGames/Long-Narde/issues/3) Playwright cross-browser/mobile coverage verified and closed.
+- [#5](https://github.com/MetinGames/Long-Narde/issues/5) installable/offline PWA foundation delivered with focused lifecycle and offline-play tests.
 - No open pull request or new GitHub player-feedback submission requires triage; closed draft PR [#7](https://github.com/MetinGames/Long-Narde/pull/7) is superseded by the Nardora work already delivered to `main`.
 
 ## Phase 0 — Active sprint: synchronization and delivery safety
@@ -71,7 +73,7 @@ Target: **2026-08-14**
 - **Queued:** Inventory all 35 non-main branches in [#6](https://github.com/MetinGames/Long-Narde/issues/6) and remove only branches proven merged or obsolete after Metin approves the exact cleanup list.
 - **In progress:** Continue small, test-backed extraction from `app.js` in [#4](https://github.com/MetinGames/Long-Narde/issues/4); review UI/core ownership and event-listener lifecycle.
 - **Done:** Playwright CI covers Chromium, Firefox, WebKit, iPhone 16e portrait, iPhone 17 Pro Max landscape, fullscreen/focus fallback, orientation transitions, and stable high-value visual baselines.
-- **Queued:** Add the PWA foundation in [#5](https://github.com/MetinGames/Long-Narde/issues/5): app manifest, icons, service worker, installability, predictable updates, and offline local play.
+- **Done:** Added a small PWA foundation with app manifest, original Nardora icons, conservative versioned updates, installability metadata, and offline local bot play.
 - **Research:** Measure move-search cost, memoization effectiveness, JSON state-copy cost, Web Worker need, and audio/image preload behavior before optimizing.
 
 Exit criteria:

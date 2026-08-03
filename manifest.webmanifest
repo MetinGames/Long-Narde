@@ -1,0 +1,35 @@
+{
+  "id": "./",
+  "name": "Nardora: Long Narde Game",
+  "short_name": "Nardora",
+  "description": "A polished offline Long Narde game against a local bot.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1d120b",
+  "theme_color": "#3b2415",
+  "categories": ["games", "entertainment"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./assets/branding/icons/nardora-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/branding/icons/nardora-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/branding/icons/nardora-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -97,6 +97,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Consequences:** Champion may be described as shipped, but not as unbeatable. Any stronger search or Web Worker change still requires measurement and regression coverage.
 **Review trigger:** Real-match evidence shows repeatable strategic weaknesses, unacceptable turn latency, or a legality regression.
 
+### D-017 — Offline updates preserve a coherent playable version
+
+**Date:** 2026-08-03
+**Status:** Accepted
+**Decision:** Nardora uses a dependency-free, versioned app-shell cache for its first PWA foundation. Required local-play assets are precached atomically. An installed update waits during the current session, activates on the next page load, removes only older Nardora caches, and reloads once under the new version.
+**Reason:** Offline play must not leave testers with a partially cached build or switch JavaScript versions during a match. The buildless GitHub Pages deployment also benefits from a small auditable service worker instead of a new runtime dependency.
+**Consequences:** Every precached shell change must increment `CACHE_VERSION` in `service-worker.js`; focused tests verify the cache inventory and update lifecycle. A no-op replacement service worker remains the recovery path if offline interception ever needs to be disabled.
+**Review trigger:** The app introduces code splitting, a build pipeline, large asset growth, background sync, or update behavior that cannot be kept coherent with this policy.
+
 ## Open decisions
 
 1. **Monetization:** premium purchase, ads, cosmetic purchases, subscription or hybrid.

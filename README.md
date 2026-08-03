@@ -6,7 +6,7 @@ Live game: https://metingames.github.io/Long-Narde/
 
 ## Project overview
 
-Long Narde is a static, browser-based long narde game with a local human player, a bot opponent, turn timer handling, local player statistics, a how-to-play guide, and responsive UI support for desktop and mobile layouts. The codebase is organized around a small app bootstrap and a set of focused engine modules that handle game rules, rendering, input, UI state, feedback, timing, statistics, themes, and internationalization.
+Long Narde is a static, installable browser-based long narde game with a local human player, a bot opponent, offline play, turn timer handling, local player statistics, a how-to-play guide, and responsive UI support for desktop and mobile layouts. The codebase is organized around a small app bootstrap and a set of focused engine modules that handle game rules, rendering, input, UI state, feedback, timing, statistics, themes, and internationalization.
 
 ## Current status
 
@@ -27,6 +27,7 @@ This project is not documented here as having online multiplayer, user accounts,
 - Easy, Medium, Master, and Champion bot difficulty levels.
 - Optional Quick Bear-Off when the continuation is unambiguous.
 - Licensed sampled dice/checker audio with safe preload and event de-duplication.
+- Installable PWA shell with offline local bot play and versioned cache updates.
 
 ## Supported languages
 
@@ -83,6 +84,13 @@ The UI includes mobile media queries for portrait and landscape layouts, safe-ar
 - CSS for responsive layout and theming.
 - Node.js built-in test runner for automated verification.
 - Playwright for Chromium, Firefox, WebKit, and mobile/touch smoke testing.
+- Web App Manifest and a dependency-free service worker for installation and offline play.
+
+## PWA and offline updates
+
+The service worker precaches only the files required to open Nardora and play against the local bot. Installation is atomic: if a required file cannot be cached, the previous working service worker remains active. A waiting update is activated on the next page load and then reloads once under the new cache, avoiding a mid-match version switch.
+
+When a precached app-shell file changes, increment `CACHE_VERSION` in `service-worker.js`. The focused PWA tests verify that every listed cache path exists, every engine module is covered, the manifest has 192×192 and 512×512 icons, and old Nardora caches are removed without touching unrelated browser caches.
 
 ## Verified project structure
 
@@ -90,7 +98,9 @@ Verified top-level structure:
 
 - `app.js`
 - `index.html`
+- `manifest.webmanifest`
 - `package.json`
+- `service-worker.js`
 - `style.css`
 - `assets/`
 - `engine/`
@@ -114,6 +124,7 @@ Verified engine modules currently present:
 - `engine/languageSelectors.js`
 - `engine/playerStats.js`
 - `engine/playerStatsModal.js`
+- `engine/pwa.js`
 - `engine/renderer.js`
 - `engine/restartButtonLock.js`
 - `engine/themes.js`
@@ -135,6 +146,7 @@ Verified test files currently present:
 - `tests/language-selectors.test.js`
 - `tests/player-stats-modal.test.js`
 - `tests/player-stats.test.js`
+- `tests/pwa.test.js`
 - `tests/renderer-theme-storage.test.js`
 - `tests/responsive.test.js`
 - `tests/timeout-deadlines.test.js`

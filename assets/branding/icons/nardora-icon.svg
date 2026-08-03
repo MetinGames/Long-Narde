@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Nardora app icon</title>
+  <desc id="desc">A geometric gold N on a dark walnut board with subtle checker details.</desc>
+  <defs>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4a2a18"/>
+      <stop offset="0.52" stop-color="#2b180f"/>
+      <stop offset="1" stop-color="#160d08"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe49a"/>
+      <stop offset="0.48" stop-color="#e0ad49"/>
+      <stop offset="1" stop-color="#9a5b15"/>
+    </linearGradient>
+    <radialGradient id="checker" cx="35%" cy="30%" r="70%">
+      <stop offset="0" stop-color="#705039"/>
+      <stop offset="1" stop-color="#21140e"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="9" stdDeviation="9" flood-color="#000" flood-opacity=".55"/>
+    </filter>
+    <pattern id="grain" width="34" height="34" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
+      <path d="M0 8H34M0 25H34" stroke="#d7a14b" stroke-opacity=".045" stroke-width="3"/>
+    </pattern>
+  </defs>
+  <rect width="512" height="512" fill="url(#wood)"/>
+  <rect width="512" height="512" fill="url(#grain)"/>
+  <rect x="26" y="26" width="460" height="460" rx="86" fill="none" stroke="#c88a2d" stroke-opacity=".58" stroke-width="8"/>
+  <rect x="45" y="45" width="422" height="422" rx="69" fill="none" stroke="#f1cf78" stroke-opacity=".22" stroke-width="3"/>
+  <g opacity=".72">
+    <circle cx="126" cy="126" r="45" fill="url(#checker)" stroke="#d7a64b" stroke-width="6"/>
+    <circle cx="126" cy="126" r="29" fill="none" stroke="#f4d886" stroke-opacity=".3" stroke-width="3"/>
+    <circle cx="386" cy="386" r="45" fill="url(#checker)" stroke="#d7a64b" stroke-width="6"/>
+    <circle cx="386" cy="386" r="29" fill="none" stroke="#f4d886" stroke-opacity=".3" stroke-width="3"/>
+  </g>
+  <path
+    d="M157 368V144H210L304 279V144H355V368H305L208 231V368Z"
+    fill="url(#gold)"
+    stroke="#ffe7a4"
+    stroke-width="5"
+    stroke-linejoin="round"
+    filter="url(#shadow)"
+  />
+  <path d="M178 347V166H198L325 347H314L187 166H178Z" fill="#fff2bd" opacity=".18"/>
+</svg>

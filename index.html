@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#3b2415">
+    <meta name="application-name" content="Nardora">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Nardora">
     <title>Nardora: Long Narde Game</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="./assets/branding/icons/nardora-icon.svg">
+    <link rel="apple-touch-icon" href="./assets/branding/icons/apple-touch-icon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="assets/branding/nardora-splash.css">
 </head>
@@ -435,5 +444,6 @@
     <!-- Oyunu Başlatan Ana Script -->
     <script type="module">import { mountNardoraSplash } from "./engine/nardoraSplash.js"; mountNardoraSplash();</script>
     <script type="module" src="app.js"></script>
+    <script type="module" src="./engine/pwa.js"></script>
 </body>
 </html>
