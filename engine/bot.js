@@ -1,5 +1,8 @@
 // engine/bot.js
 
+const CHAMPION_REPLY_FINALIST_LIMIT = 12;
+const STANDARD_DIE_FACES = 6;
+
 export class NardeBot {
     constructor(
         playerNumber = 2,
@@ -11,6 +14,10 @@ export class NardeBot {
         this.difficulty = difficulty;
         this.random = random;
         this.useRuleAnalysisCache = options.useRuleAnalysisCache !== false;
+        this.useOpponentAwareStrategy =
+            options.useOpponentAwareStrategy !== false;
+        this.useOpponentReplyLookahead =
+            options.useOpponentReplyLookahead !== false;
         this.lastRuleAnalysisCacheMetrics = null;
         this.plannedTurnMoves = [];
         this.plannedTurnStateKey = '';
@@ -214,7 +221,24 @@ export class NardeBot {
         }
 
         candidates.sort((a, b) => this.compareChampionPlans(a, b));
-        return candidates[0];
+        const finalists = candidates.slice(
+            0,
+            CHAMPION_REPLY_FINALIST_LIMIT
+        );
+
+        if (
+            this.useOpponentAwareStrategy &&
+            this.useOpponentReplyLookahead
+        ) {
+            this.applyOpponentReplyLookahead(
+                game,
+                finalists,
+                startSnapshot
+            );
+            finalists.sort((a, b) => this.compareChampionPlans(a, b));
+        }
+
+        return finalists[0];
     }
 
     compareChampionPlans(a, b) {
@@ -286,6 +310,7 @@ export class NardeBot {
         const rearProgress = this.getRearCheckerProgress(game, player);
         const homeCount = this.getHomeCheckerCount(game, player);
         const stackPenalty = this.getStackPenalty(game, player);
+        const blockingStructure = this.getBlockingStructure(game, player);
 
         const winNow = game.board.hasPlayerWon(player) ? 1 : 0;
 
@@ -296,14 +321,22 @@ export class NardeBot {
         score += homeCount * 40;
         score += (startHeadCount - headCount) * 300;
         score += (rearProgress - startRearProgress) * 180;
-        score += prime3 * 220;
-        score += prime4 * 520;
-        score += prime5 * 980;
-        score += Math.max(0, madePoints - startMadePoints) * 140;
-        score += Math.max(0, longestPrime - startLongestPrime) * 260;
-        score -= Math.max(0, startMadePoints - madePoints) * 200;
-        score -= Math.max(0, startLongestPrime - longestPrime) * 260;
-        score -= stackPenalty * 130;
+        if (this.useOpponentAwareStrategy) {
+            score += blockingStructure.pressure * 80;
+            score += blockingStructure.prime3 * 600;
+            score += blockingStructure.prime4 * 1_200;
+            score += blockingStructure.prime5 * 2_200;
+            score -= stackPenalty * 300;
+        } else {
+            score += prime3 * 220;
+            score += prime4 * 520;
+            score += prime5 * 980;
+            score += Math.max(0, madePoints - startMadePoints) * 140;
+            score += Math.max(0, longestPrime - startLongestPrime) * 260;
+            score -= Math.max(0, startMadePoints - madePoints) * 200;
+            score -= Math.max(0, startLongestPrime - longestPrime) * 260;
+            score -= stackPenalty * 130;
+        }
         score -= opponentPipGain * 15;
 
         const tieBreakKey = moves
@@ -318,8 +351,77 @@ export class NardeBot {
             remainingPip,
             winNow,
             score,
+            stackPenalty,
+            blockingStructure,
+            opponentReplyMobility: null,
             tieBreakKey,
             isBearOffStage
+        };
+    }
+
+    applyOpponentReplyLookahead(game, candidates, startSnapshot) {
+        try {
+            for (const candidate of candidates) {
+                game.restoreMoveState(startSnapshot);
+                let valid = true;
+
+                for (const move of candidate.moves) {
+                    if (!game.executeMove(move.from, move.dice, false)) {
+                        valid = false;
+                        break;
+                    }
+                }
+
+                if (!valid) continue;
+
+                const mobility = this.getOpponentReplyMobility(game);
+                candidate.opponentReplyMobility = mobility;
+                candidate.score += mobility.blockedDice * 400;
+                candidate.score -= mobility.legalMoveCount * 35;
+            }
+        } finally {
+            game.restoreMoveState(startSnapshot);
+        }
+    }
+
+    getOpponentReplyMobility(game) {
+        // Bounded beta lookahead: inspect the opponent's next legal single
+        // move for every possible die face, not a full unknown-dice turn tree.
+        const saved = {
+            currentPlayer: game.currentPlayer,
+            availableMoves: [...game.availableMoves],
+            diceValues: [...game.dice.values],
+            headMoves: game.headMovesThisTurn,
+            status: game.gameStatus
+        };
+        const opponent = this.playerNumber === 1 ? 2 : 1;
+        let legalMoveCount = 0;
+        let blockedDice = 0;
+
+        try {
+            game.currentPlayer = opponent;
+            game.headMovesThisTurn = 0;
+            game.gameStatus = 'PLAYING';
+
+            for (let die = 1; die <= STANDARD_DIE_FACES; die++) {
+                game.availableMoves = [die];
+                game.dice.values = [die];
+                const legalMoves = game.getRawLegalSingleMoves();
+                legalMoveCount += legalMoves.length;
+                if (legalMoves.length === 0) blockedDice++;
+            }
+        } finally {
+            game.currentPlayer = saved.currentPlayer;
+            game.availableMoves = saved.availableMoves;
+            game.dice.values = saved.diceValues;
+            game.headMovesThisTurn = saved.headMoves;
+            game.gameStatus = saved.status;
+        }
+
+        return {
+            legalMoveCount,
+            blockedDice,
+            playableDice: STANDARD_DIE_FACES - blockedDice
         };
     }
 
@@ -431,6 +533,52 @@ export class NardeBot {
             penalty += slot.count - 4;
         }
         return penalty;
+    }
+
+    getBlockingStructure(game, player) {
+        const opponent = player === 1 ? 2 : 1;
+        const opponentRear = this.getRearCheckerProgress(game, opponent);
+        let pressure = 0;
+        let current = 0;
+        let longest = 0;
+        let prime3 = 0;
+        let prime4 = 0;
+        let prime5 = 0;
+
+        for (
+            let opponentProgress = opponentRear + 1;
+            opponentProgress < 24;
+            opponentProgress++
+        ) {
+            const slotId = game.board.getSlotFromProgress(
+                opponent,
+                opponentProgress
+            );
+            const slot = game.board.slots[slotId];
+            const blocks = slot.player === player && slot.count > 0;
+
+            if (!blocks) {
+                current = 0;
+                continue;
+            }
+
+            const distance = opponentProgress - opponentRear;
+            if (distance <= 12) pressure += 13 - distance;
+
+            current++;
+            longest = Math.max(longest, current);
+            if (current >= 3) prime3++;
+            if (current >= 4) prime4++;
+            if (current >= 5) prime5++;
+        }
+
+        return {
+            pressure,
+            longest,
+            prime3,
+            prime4,
+            prime5
+        };
     }
 
     getRearCheckerProgress(game, player) {

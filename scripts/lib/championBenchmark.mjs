@@ -484,6 +484,7 @@ export function runChampionBenchmark({
             seeds: normalizedSeeds,
             pairedMatches: matches.length,
             maxTurns: normalizeMaxTurns(maxTurns),
+            championStrategy: 'runtime default',
             championEngineDifficulty: 'champion',
             masterEngineDifficulty: 'hard'
         },
@@ -561,7 +562,8 @@ export function formatChampionBenchmarkMarkdown(report) {
         '',
         `Seeds: ${configuration.seeds.join(', ')}  `,
         `Paired matches: ${configuration.pairedMatches}  `,
-        `Turn limit: ${configuration.maxTurns}`,
+        `Turn limit: ${configuration.maxTurns}  `,
+        `Champion strategy: ${configuration.championStrategy}`,
         '',
         '| Outcome | Count |',
         '|---|---:|',
@@ -589,6 +591,6 @@ export function formatChampionBenchmarkMarkdown(report) {
         ...matchRows,
         '',
         'This benchmark is deterministic and informational. It measures the ' +
-            'current engine without changing dice, legal-move rules, or bot weights.'
+            'selected bot configuration without changing dice or legal-move rules.'
     ].join('\n');
 }

@@ -102,5 +102,6 @@ test('paired report swaps Champion sides and stays informational', () => {
     const markdown = formatChampionBenchmarkMarkdown(report);
     assert.match(markdown, /deterministic and informational/i);
     assert.match(markdown, /Champion wins/);
+    assert.match(markdown, /Champion strategy: runtime default/);
     assert.match(markdown, /Master wins/);
 });

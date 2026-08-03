@@ -46,6 +46,12 @@ Produce machine-readable evidence:
 npm run bot:benchmark -- --json
 ```
 
+Reproduce the pre-opponent-aware strategy as a development control:
+
+```bash
+npm run bot:benchmark -- --legacy-strategy
+```
+
 Reproduce and profile the known double-four slow state against the live
 Champion engine:
 
@@ -196,6 +202,57 @@ effective first response than a Web Worker. The live integration preserves the
 same evidence, keeps strategy and rules unchanged, and advances the PWA cache
 from `v8` to `v9` so offline players receive a coherent engine version.
 
+## Opponent-aware beta strategy
+
+Two representative positions now turn Metin's observed checker-stacking
+weakness into deterministic trade-offs:
+
+| Fixture | Immediate control | Opponent-aware choice | Measured change |
+|---|---|---|---|
+| `321328a7`, roll 1–4 | `7 → 11`, `11 → 12` | `2 → 3`, `6 → 10` | Maximum stack 6 → 5; front pressure 19 → 30; longest front prime 2 → 3; opponent first-move replies 21 → 19 |
+| `6ae6c047`, roll 6–4 | `1 → 7`, `4 → 8` | `9 → 15`, `1 → 5` | Opponent first-move replies 34 → 32 |
+
+The first evaluation boundary rewards occupied points only when they are ahead
+of the opponent's rearmost checker, weights nearer blocking points more heavily,
+and increases the existing penalty for stacks above four checkers. A prime
+behind every opposing checker no longer receives a blocking bonus.
+
+The second boundary applies a bounded one-move reply check to the best 12
+immediate plans. For each hypothetical result it counts the opponent's legal
+first moves for possible die faces 1 through 6, rewards fully blocked die faces,
+and prefers fewer replies. This is intentionally a beta approximation: it does
+not predict the next roll or search a complete two-dice opponent turn. Every
+hypothetical move still uses the live rule engine, and the original board,
+current player, dice, available moves, head-move count, and game status are
+restored after analysis.
+
+Observed local four-seed/eight-match comparison on 2026-08-03:
+
+| Strategy | Champion | Master | Draws | Champion avg | P95 | Maximum |
+|---|---:|---:|---:|---:|---:|---:|
+| Pre-opponent-aware control | 5 | 3 | 0 | 5.89 ms | 19.74 ms | 380.18 ms |
+| Opponent-aware beta | 8 | 0 | 0 | 7.86 ms | 20.99 ms | 538.17 ms |
+
+Opponent-aware deterministic traces:
+
+| Seed | Champion side | Winner | Turns | Trace |
+|---:|---|---|---:|---|
+| 1103 | P1 | Champion | 91 | `f1fa394c` |
+| 1103 | P2 | Champion | 82 | `0cf64c86` |
+| 2207 | P1 | Champion | 91 | `ecd5e920` |
+| 2207 | P2 | Champion | 90 | `4a755d8d` |
+| 3301 | P1 | Champion | 91 | `780a711d` |
+| 3301 | P2 | Champion | 92 | `d2433106` |
+| 4409 | P1 | Champion | 103 | `0e955a96` |
+| 4409 | P2 | Champion | 98 | `88789e23` |
+
+Both sides retain exactly 15 checkers in every match. The deterministic dice
+generator and seeds are unchanged; changed play can change match length, so
+each comparison consumes the same roll-sequence prefix rather than promising
+identical full-match dice hashes. Eight wins are encouraging evidence, not a
+claim that Champion is unbeatable. The PWA cache advances from `v9` to `v10`
+with the engine change.
+
 ## Next evidence-driven slices
 
 1. **Completed:** profiled state `addb3dba`; repeated rule-sequence analysis,
@@ -205,9 +262,10 @@ from `v8` to `v9` so offline players receive a coherent engine version.
    0.45 seconds in the recorded run.
 3. **Completed:** integrated the proven cache boundary into the runtime engine
    with exact legality, trace, lifecycle, PWA version, and fallback coverage.
-4. Convert Metin's reported checker-stacking weakness into one or more board
-   fixtures with explicit desired trade-offs.
-5. Change one evaluation boundary at a time and compare the same seeds.
+4. **Completed:** converted Metin's checker-stacking report into front-block and
+   opponent-reply fixtures with explicit, state-restoring trade-offs.
+5. **Completed:** changed the opponent-aware evaluation boundary and compared
+   the same four seeds; Champion moved from 5–3 to 8–0 in the paired sample.
 6. Expand to a larger agreed sample only after the harness is stable.
 7. Consider a Web Worker only if optimized profiling still shows
    player-visible blocking.
