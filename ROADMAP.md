@@ -39,11 +39,11 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **309 Node tests and 28 executed Playwright checks passing as of 2026-08-03** (50-case browser/device matrix with 22 intentional project skips).
+- **312 Node tests and 28 executed Playwright checks passing as of 2026-08-03** (50-case browser/device matrix with 22 intentional project skips).
 
 ## Current gaps and risks
 
-- `app.js` is 1,396 lines after local Friend Match composition; `engine/renderer.js` remains about 1,181 lines and `style.css` 3,543 lines after the responsive preview layer. The focused preview behavior and listeners live in `friendMatchPreviewController.js`; further extraction remains evidence-driven.
+- `app.js` is 1,400 lines after local Friend Match composition; `engine/renderer.js` remains about 1,181 lines and `style.css` 3,543 lines after the responsive preview layer. The focused preview behavior and listeners live in `friendMatchPreviewController.js`; further extraction remains evidence-driven.
 - The repository has 35 non-main remote branches that need a verified merged/stale inventory before deletion.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
 - Community-sourced sample sounds are integrated and licensed, but Metin's final original dice/checker recordings, volume controls, and device-level listening review are not complete.
@@ -60,8 +60,9 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 5. **Completed — [#10](https://github.com/MetinGames/Long-Narde/issues/10):** replaced the single start action with an honest, responsive mode entry; Quick Play and Bot Match work, while Friend Match and Online remain visibly disabled until real flows exist.
 6. **Completed — [#9](https://github.com/MetinGames/Long-Narde/issues/9):** added engine-owned contextual explanations for common Long Narde restrictions and a dismissible, reopenable first-visit guide with keyboard, touch, responsive, offline and localization coverage.
 7. **Completed — [#25](https://github.com/MetinGames/Long-Narde/issues/25):** established evidence-driven file-health thresholds, an informational CI report, red-zone growth justification, and a staged `style.css` extraction plan without changing visuals.
-8. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and [#6](https://github.com/MetinGames/Long-Narde/issues/6):** configure project metadata and inventory branches without blocking the social critical path or deleting unverified work.
-9. **Hosted approval gate:** [#20](https://github.com/MetinGames/Long-Narde/issues/20) remains blocked until Metin explicitly approves the candidate provider, EU region, minimal data map, retention, and any spend after reviewing [#19](https://github.com/MetinGames/Long-Narde/issues/19).
+8. **In progress — [#11](https://github.com/MetinGames/Long-Narde/issues/11):** establish deterministic Champion-versus-Master paired benchmarks and decision-time evidence before changing strategy or adding a Web Worker.
+9. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and [#6](https://github.com/MetinGames/Long-Narde/issues/6):** configure project metadata and inventory branches without blocking the social critical path or deleting unverified work.
+10. **Hosted approval gate:** [#20](https://github.com/MetinGames/Long-Narde/issues/20) remains blocked until Metin explicitly approves the candidate provider, EU region, minimal data map, retention, and any spend after reviewing [#19](https://github.com/MetinGames/Long-Narde/issues/19).
 
 Completed in this synchronization cycle:
 
@@ -121,7 +122,7 @@ Target: **2026-09-30**
 - **Done:** Evaluated provider, privacy, cost, regional latency, limits, export, and lock-in evidence in [#19](https://github.com/MetinGames/Long-Narde/issues/19). Supabase leads only the synthetic trial; Cloudflare Durable Objects is the fallback and no provider is committed.
 - **Approval gated:** Keep the hosted adapter [#20](https://github.com/MetinGames/Long-Narde/issues/20) blocked until Metin explicitly approves the provider, EU region, minimal data map, retention, and any spend.
 - Integrate the user's original high-quality dice and checker recordings, with volume controls and safe preload behavior ([#12](https://github.com/MetinGames/Long-Narde/issues/12)).
-- Benchmark and refine the shipped Champion bot against representative positions and Metin's real matches; move heavy calculation to a Web Worker only if measurements justify it ([#11](https://github.com/MetinGames/Long-Narde/issues/11)).
+- **In progress:** Benchmark and refine the shipped Champion bot against representative positions and Metin's real matches; move heavy calculation to a Web Worker only if measurements justify it ([#11](https://github.com/MetinGames/Long-Narde/issues/11)).
 - **Done:** Built a contextual **Rule Explanation System** that explains common blocked, mandatory, bearing-off, prime and automatic-pass states from engine-owned reasons ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Added a dismissible and reopenable **Interactive First-Match Tutorial** using the existing localized guide, with a local-only versioned seen flag and keyboard/touch/small-screen coverage ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - Build a visual theme-management screen and prepare approved Anatolian theme families without weakening board readability ([#14](https://github.com/MetinGames/Long-Narde/issues/14)).
