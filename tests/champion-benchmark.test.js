@@ -75,6 +75,17 @@ test('benchmark roll expands doubles without using runtime randomness', () => {
     assert.equal(game.gameStatus, 'PLAYING');
 });
 
+test('benchmark reports the symmetric initial pip distance for player two', () => {
+    const match = playDeterministicBotMatch({
+        seed: 1103,
+        maxTurns: 1,
+        now: createStepClock()
+    });
+
+    assert.equal(match.final.pips[2], 360);
+    assert.ok(match.final.pips[1] < 360);
+});
+
 test('same seed and sides produce the same bounded match evidence', () => {
     const first = playDeterministicBotMatch({
         seed: 1103,

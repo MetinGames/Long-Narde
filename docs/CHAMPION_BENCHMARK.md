@@ -1,6 +1,6 @@
 # Champion Bot Benchmark
 
-Last reviewed: **2026-08-03**  
+Last reviewed: **2026-08-04**  
 Owner: **MetinGames + Codex**  
 Execution issue: [#11](https://github.com/MetinGames/Long-Narde/issues/11)
 
@@ -220,7 +220,7 @@ weakness into deterministic trade-offs:
 
 | Fixture | Immediate control | Opponent-aware choice | Measured change |
 |---|---|---|---|
-| `321328a7`, roll 1–4 | `7 → 11`, `11 → 12` | `2 → 3`, `6 → 10` | Maximum stack 6 → 5; front pressure 19 → 30; longest front prime 2 → 3; opponent first-move replies 21 → 19 |
+| `321328a7`, roll 1–4 | `7 → 11`, `24 → 1` | `6 → 10`, `24 → 1` | Black wrap progress is preserved; front pressure 19 → 30; longest front prime 2 → 3; opponent first-move replies 24 → 22 |
 | `6ae6c047`, roll 6–4 | `1 → 7`, `4 → 8` | `9 → 15`, `1 → 5` | Opponent first-move replies 34 → 32 |
 
 The first evaluation boundary rewards occupied points only when they are ahead
@@ -314,6 +314,76 @@ slowest Champion decision is 1,032.97 ms at state `db3406da`; that isolated
 double-two state is explicit follow-up evidence, not by itself justification
 for moving all search into a Web Worker.
 
+This table is retained as historical pre-fix evidence. Its player-two pip
+totals used a home-board bearing-off helper outside its valid domain, so the
+27–5 result is not the current runtime baseline.
+
+## Symmetric pip-distance training
+
+Four of the five losses in the first extended opponent-aware run occurred with
+Champion as player two. The shared cause was not the dice or a Long Narde rule:
+Champion and the benchmark summed every checker with
+`Board.getBearOffDistance`, even though that helper is defined for bearing off
+inside a player's home board. For player two it made early-board values zero or
+negative and made the legal `24 → 1` wrap look like a 23-pip regression.
+
+The engine now owns a general all-board measure:
+`Board.getPipDistance(player, slot) = 24 - getProgress(player, slot)`. Both the
+Champion evaluator and benchmark reporter use this same method. Initial pip
+totals are therefore 360 for both sides, and player-two distance changes
+continuously from 13 at slot 24 to 12 at slot 1. Move legality, dice generation,
+and rule weights are unchanged.
+
+Representative regression fixture:
+
+| Fixture | Asymmetric metric | Symmetric metric | Measured change |
+|---|---|---|---|
+| `a200798a`, P2 roll 6–3 | −52 pips; `13 → 16`, `16 → 22` | 284 pips; `22 → 4`, `24 → 3` | Advances both rear checkers across the wrap; opponent first-move replies 32 → 30 |
+
+The fixed 16-seed/32-match sample separates the pip correction from the
+opponent-aware layer:
+
+| Strategy | Pip metric | Champion | Master | Draws | Decisive win rate | Champion avg | P95 | Maximum |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Pre-opponent-aware control | Asymmetric historical | 20 | 12 | 0 | 62.50% | 6.23 ms | 19.13 ms | 992.78 ms |
+| Pre-opponent-aware control | Symmetric | 26 | 6 | 0 | 81.25% | 9.64 ms | 28.76 ms | 957.80 ms |
+| Opponent-aware beta | Asymmetric historical | 27 | 5 | 0 | 84.38% | 8.39 ms | 22.78 ms | 1,032.97 ms |
+| Opponent-aware beta | Symmetric | 31 | 1 | 0 | 96.88% | 9.86 ms | 26.17 ms | 1,096.10 ms |
+
+The symmetry correction gains six wins in the control and four in the live
+opponent-aware strategy. With the same corrected metric, opponent awareness
+still adds five wins, so the two improvements have independent evidence. All
+16 player-two matches now finish as Champion wins. The one remaining loss is
+seed `14303` with Champion as player one; it is preserved as evidence rather
+than tuned away without a representative real-match weakness.
+
+Symmetric opponent-aware extended traces:
+
+| Seed | Champion as P1 | Champion as P2 |
+|---:|---|---|
+| 1103 | Champion, `f1fa394c` | Champion, `1d6e2d08` |
+| 2207 | Champion, `ecd5e920` | Champion, `f7ca2a21` |
+| 3301 | Champion, `780a711d` | Champion, `57206081` |
+| 4409 | Champion, `0e955a96` | Champion, `7e584e7e` |
+| 5501 | Champion, `5b66d39d` | Champion, `90f0d01d` |
+| 6607 | Champion, `ab3cfee4` | Champion, `e5724e12` |
+| 7703 | Champion, `16c5c0d9` | Champion, `b00d5076` |
+| 8807 | Champion, `7e5756c6` | Champion, `7ec7a37f` |
+| 9901 | Champion, `18b2ee40` | Champion, `923b5e3d` |
+| 11003 | Champion, `379b2584` | Champion, `5520319b` |
+| 12101 | Champion, `05bceb82` | Champion, `909c0c42` |
+| 13217 | Champion, `6f7fc7d4` | Champion, `1373b10a` |
+| 14303 | Master, `65ff75d9` | Champion, `aeca676b` |
+| 15401 | Champion, `d6a56d7d` | Champion, `d21562ef` |
+| 16519 | Champion, `05a24a47` | Champion, `339cc3c1` |
+| 17609 | Champion, `b6c56980` | Champion, `a0963372` |
+
+All 32 matches finish without a turn-limit draw and retain exactly 15 checkers
+per player. Trace hashes are unchanged across repeated final runs; timing is
+device-dependent. The same `db3406da` double-two state remains the slowest
+decision. The PWA cache advances from `v10` to `v11` so offline clients receive
+the board, evaluator, and reporting change coherently.
+
 ## Next evidence-driven slices
 
 1. **Completed:** profiled state `addb3dba`; repeated rule-sequence analysis,
@@ -330,7 +400,11 @@ for moving all search into a Web Worker.
 6. **Completed:** fixed the extended v1 sample before observing outcomes and
    ran both strategies over 16 seeds/32 matches; opponent-aware Champion moved
    from 20–12 to 27–5 while retaining exact legality and checker conservation.
-7. Convert additional real Metin match weaknesses into explicit strategy
-   fixtures, including any repeatable failure represented by the five losses.
-8. Consider a Web Worker only if optimized profiling still shows
+7. **Completed:** traced four of the five losses to an asymmetric player-two
+   pip metric, centralized the symmetric distance in `Board`, and raised the
+   fixed sample from 27–5 to 31–1 with direct and match-level regressions.
+8. Convert additional real Metin match weaknesses into explicit strategy
+   fixtures. Inspect seed `14303` only if it represents a repeatable real-match
+   weakness; do not tune solely to remove the last benchmark loss.
+9. Consider a Web Worker only if optimized profiling still shows
    player-visible blocking.

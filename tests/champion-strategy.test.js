@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { NardeBot } from '../engine/bot.js';
+import { NardeGame } from '../engine/game.js';
 import { createChampionProfileGame } from '../scripts/lib/championProfile.mjs';
 
 const FRONT_BLOCK_FIXTURE = Object.freeze({
@@ -24,6 +25,15 @@ const REPLY_LOOKAHEAD_FIXTURE = Object.freeze({
     turnsCompleted: Object.freeze({ 1: 10, 2: 10 })
 });
 
+const BLACK_WRAP_PROGRESS_FIXTURE = Object.freeze({
+    stateHash: 'a200798a',
+    stateKey: '2|0|6,3|0|0|' +
+        '1:1:7;5:1:1;6:1:1;7:1:1;8:1:1;9:1:2;10:1:2;' +
+        '11:2:1;13:2:7;19:2:3;21:2:2;22:2:1;24:2:1;',
+    roll: Object.freeze([6, 3]),
+    turnsCompleted: Object.freeze({ 1: 8, 2: 7 })
+});
+
 function createFixture(fixture) {
     return createChampionProfileGame(fixture);
 }
@@ -37,7 +47,63 @@ function applyPlan(game, plan) {
     }
 }
 
-test('Champion trades a rear stack for a prime in front of the opponent', () => {
+function getLegacyPipTotal(game, player) {
+    let total = 0;
+    for (let slotId = 1; slotId <= 24; slotId++) {
+        const slot = game.board.slots[slotId];
+        if (slot.player !== player || slot.count <= 0) continue;
+        total += game.board.getBearOffDistance(player, slotId) * slot.count;
+    }
+    return total;
+}
+
+test('Champion pip distance is symmetric and continuous across black wrap', () => {
+    const initial = new NardeGame();
+    initial.initGame();
+    const champion = new NardeBot(2, 'champion', () => 0.5);
+
+    assert.equal(champion.getPipTotal(initial, 1), 360);
+    assert.equal(champion.getPipTotal(initial, 2), 360);
+
+    for (let slotId = 1; slotId <= 24; slotId++) {
+        initial.board.slots[slotId] = { count: 0, player: null };
+    }
+    initial.board.slots[24] = { count: 1, player: 2 };
+    assert.equal(champion.getPipTotal(initial, 2), 13);
+
+    initial.board.slots[24] = { count: 0, player: null };
+    initial.board.slots[1] = { count: 1, player: 2 };
+    assert.equal(champion.getPipTotal(initial, 2), 12);
+});
+
+test('Champion advances the black rear checker across the wrap boundary', () => {
+    const legacyGame = createFixture(BLACK_WRAP_PROGRESS_FIXTURE);
+    const legacy = new NardeBot(2, 'champion', () => 0.5);
+    legacy.getPipTotal = (game, player) => getLegacyPipTotal(game, player);
+    const legacyPlan = legacy.buildChampionPlan(legacyGame);
+
+    const game = createFixture(BLACK_WRAP_PROGRESS_FIXTURE);
+    const champion = new NardeBot(2, 'champion', () => 0.5);
+    const plan = champion.buildChampionPlan(game);
+
+    assert.equal(legacy.getPipTotal(legacyGame, 2), -52);
+    assert.equal(champion.getPipTotal(game, 2), 284);
+    assert.deepEqual(legacyPlan.moves, [
+        { from: 13, dice: 3, target: 16 },
+        { from: 16, dice: 6, target: 22 }
+    ]);
+    assert.deepEqual(plan.moves, [
+        { from: 22, dice: 6, target: 4 },
+        { from: 24, dice: 3, target: 3 }
+    ]);
+    assert.ok(
+        plan.opponentReplyMobility.legalMoveCount <
+        legacyPlan.opponentReplyMobility.legalMoveCount
+    );
+    assert.equal(game.getSearchStateKey(), BLACK_WRAP_PROGRESS_FIXTURE.stateKey);
+});
+
+test('Champion extends a front prime without stalling black wrap progress', () => {
     const legacyGame = createFixture(FRONT_BLOCK_FIXTURE);
     const legacy = new NardeBot(
         2,
@@ -52,13 +118,12 @@ test('Champion trades a rear stack for a prime in front of the opponent', () => 
 
     assert.deepEqual(legacy.moves, [
         { from: 7, dice: 4, target: 11 },
-        { from: 11, dice: 1, target: 12 }
+        { from: 24, dice: 1, target: 1 }
     ]);
     assert.deepEqual(plan.moves, [
-        { from: 2, dice: 1, target: 3 },
-        { from: 6, dice: 4, target: 10 }
+        { from: 6, dice: 4, target: 10 },
+        { from: 24, dice: 1, target: 1 }
     ]);
-    assert.ok(plan.stackPenalty < legacy.stackPenalty);
     assert.ok(
         plan.blockingStructure.pressure >
         legacy.blockingStructure.pressure
