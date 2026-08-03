@@ -142,6 +142,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Consequences:** A future approved trial must keep all provider code behind the #16 adapter, submit gameplay commands to trusted transactional code, keep client Broadcast outcome-neutral, use synthetic identities, exercise deletion/export, and retain the local preview as the no-provider fallback. Issue #20 remains blocked until Metin explicitly approves the provider, EU region, minimal data map, retention, and any spend.
 **Review trigger:** The synthetic trial misses an authority/privacy test, command-to-event p95 exceeds 350 ms on agreed routes, reconnect p95 exceeds two seconds, the beta model exceeds the evaluation ceiling, export/restore fails, or current provider pricing/limits materially change.
 
+### D-022 — File growth uses evidence-driven health thresholds
+
+**Date:** 2026-08-03
+**Status:** Accepted
+**Decision:** Treat source files at 1,000+ lines as split candidates, 2,000+ as requiring a documented refactor plan, and 3,000+ as red-zone priorities. Combine line count with responsibility mix, churn, coupling, ownership and testability. Prefer small test-backed extractions over rewrites.
+**Reason:** Nardora's shared UI and composition files are growing, but arbitrary splitting can create more coupling than it removes. Explicit thresholds make risk visible while preserving evidence-based judgment.
+**Consequences:** CI publishes an informational report; legacy crossings do not block unrelated work. Every red-zone file needs a staged plan, and new red-zone growth needs written justification and a rollback/extraction boundary.
+**Review trigger:** The thresholds create repeated false positives, fail to predict change risk, or the project adopts generated/bundled sources that require a different measurement model.
+
 ## Open decisions
 
 1. **Monetization:** premium purchase, ads, cosmetic purchases, subscription or hybrid.

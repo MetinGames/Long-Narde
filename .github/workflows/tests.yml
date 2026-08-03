@@ -37,6 +37,9 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Report code health (informational)
+        run: npm run code-health:report
+
   browser-smoke-tests:
     needs: unit-tests
     runs-on: ubuntu-latest
