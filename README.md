@@ -10,14 +10,14 @@ Long Narde is a static, installable browser-based long narde game with a local h
 
 ## Current status
 
-The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, exposes the bot difficulty before play, and shows Friend Match and Online as visibly unavailable future modes instead of launching placeholder flows. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes a local profile with 15 built-in avatars, achievements, difficulty-based statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, multiple feedback helpers, and a tested in-memory private-table protocol foundation for future client work.
+The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, exposes the bot difficulty before play, and keeps the real Friend Match and Online entries visibly unavailable. A separate **Local Table Preview** demonstrates the private-table lifecycle on one device without claiming that networking or online play exists. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes a local profile with 15 built-in avatars, achievements, difficulty-based statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, multiple feedback helpers, and a tested in-memory private-table protocol foundation.
 
 This project is not documented here as having online multiplayer, user accounts, cloud sync, ranked matchmaking, or a backend service.
 
 ## Main features
 
 - Local human-vs-bot long narde gameplay.
-- Honest mode-entry screen with working Quick Play/Bot Match choices, synchronized difficulty, and disabled Friend Match/Online previews.
+- Honest mode-entry screen with working Quick Play/Bot Match choices, synchronized difficulty, disabled Friend Match/Online entries, and an explicitly local same-device table-flow preview.
 - Start-screen language, how-to-play, profile/progression, and feedback entry points.
 - Shared Turkish, English, and Russian interface support.
 - Turn timer and timeout handling.
@@ -31,6 +31,7 @@ This project is not documented here as having online multiplayer, user accounts,
 - Licensed sampled dice/checker audio with safe preload and event de-duplication.
 - Installable PWA shell with offline local bot play and versioned cache updates.
 - Versioned private-table command/event contract with deterministic in-memory invite, presence, reconnect, authority, and safety seams.
+- Lifecycle-safe local Friend Match preview controller covering room creation, invite, join, ready, active, disconnect, resume, leave, and close without networking or trusted game outcomes.
 
 ## Supported languages
 
@@ -57,7 +58,7 @@ Long Narde in this repository follows the long narde rules implemented in the co
 ## Controls and turn flow
 
 - Quick Play begins immediately with the current bot settings; Bot Match exposes the synchronized difficulty selector before starting.
-- Friend Match and Online are disabled and labelled as upcoming until their real flows exist.
+- Friend Match and Online remain disabled and labelled as upcoming until their real hosted flows exist. **Local Table Preview** is a separate same-device state simulation; it does not start an online or bot match.
 - The language selects on the start screen and side panel update the same i18n state.
 - The bot-difficulty select changes the bot level before or during play.
 - Undo reverts the current turn where allowed.
@@ -79,6 +80,12 @@ The profile and progression center stores all data on the current device. The ve
 Statistics use a v2 schema that migrates existing v1 totals without data loss. The current model includes total matches, wins, losses, moves, best win, average moves, current/best win streak, normal/timeout losses, and win/match records for Easy, Medium, Master, and Champion. Four local achievements are derived and persisted from these records. Profile reset changes only identity; statistics have a separate confirmed reset.
 
 `engine/playerIdentity.js` exposes an exact `{ id, displayName, avatarId }` projection for the private-table contract. Achievements and local statistics never enter that projection and are not trusted as online outcomes. See [LOCAL_PLAYER_PROFILE.md](docs/LOCAL_PLAYER_PROFILE.md).
+
+## Local Friend Match preview
+
+The start screen exposes a separate **Local Table Preview** below the unavailable social modes. It uses the current device profile as the host and a fixed built-in simulated friend identity, then walks through the provider-neutral v1 protocol states. Its controller owns dialog, keyboard, subscription, cleanup, stale-callback, reconnect-token, and translation refresh behavior.
+
+The preview runs only in page memory. It sends no network request, creates no account or shareable invite link, uploads no personal data, and never fabricates authoritative dice, moves, results, scores, or ratings. The real Friend Match button remains disabled. See [LOCAL_FRIEND_MATCH_PREVIEW.md](docs/LOCAL_FRIEND_MATCH_PREVIEW.md).
 
 ## Responsive/mobile support
 
@@ -125,6 +132,7 @@ Verified engine modules currently present:
 - `engine/botMoveFeedback.js`
 - `engine/botTurnTouchFeedback.js`
 - `engine/dice.js`
+- `engine/friendMatchPreviewController.js`
 - `engine/game.js`
 - `engine/gameFeedbackToast.js`
 - `engine/howToPlayGuide.js`
@@ -152,6 +160,7 @@ Verified test files currently present:
 - `tests/core-rules.test.js`
 - `tests/game-feedback-toast.test.js`
 - `tests/gameplay-feedback.test.js`
+- `tests/friend-match-preview-controller.test.js`
 - `tests/how-to-play-guide.test.js`
 - `tests/i18n.test.js`
 - `tests/input-feedback-integration.test.js`
@@ -202,17 +211,17 @@ To list or run the Playwright browser suite:
 
 ## Architecture overview
 
-`app.js` is the bootstrap and orchestration layer. It creates the game, renderer, bot, UI manager, and support helpers, then wires DOM events and start-screen flow. The `engine/` folder contains the core game model, board rules, bot logic, rendering logic, timeout controller, i18n, local identity/statistics, feedback helpers, and the provider-neutral private-table protocol. The `tests/` folder mirrors these responsibilities with focused behavioral and regression tests.
+`app.js` is the bootstrap and orchestration layer. It creates the game, renderer, bot, UI manager, and support helpers, then wires DOM events and start-screen flow. The `engine/` folder contains the core game model, board rules, bot logic, rendering logic, timeout controller, i18n, local identity/statistics, feedback helpers, the provider-neutral private-table protocol, and the local Friend Match preview controller. The `tests/` folder mirrors these responsibilities with focused behavioral and regression tests.
 
 The app uses the same i18n system for the start screen and the side panel. Language changes update the DOM immediately and are persisted through localStorage. `engine/startModeController.js` owns the available and unavailable mode listeners, prevents duplicate starts, and exposes explicit reset/cleanup lifecycle methods.
 
 ## Accessibility
 
-The current UI includes aria labels, aria-live status updates, modal dialog semantics, keyboard navigation inside the how-to-play and profile/progression dialogs, visible focus states, and touch-sized avatar controls. The mode menu is an explicitly labelled group; unavailable social modes use native disabled buttons and visible status badges. The start-screen language and difficulty controls use visible labels and native select elements so they remain keyboard-friendly.
+The current UI includes aria labels, aria-live status updates, modal dialog semantics, keyboard navigation and focus containment inside the how-to-play, profile/progression, and local table preview dialogs, visible focus states, and touch-sized avatar controls. The mode menu is an explicitly labelled group; unavailable social modes use native disabled buttons and visible status badges. The start-screen language and difficulty controls use visible labels and native select elements so they remain keyboard-friendly.
 
 ## Known limitations
 
-- The playable game is local single-player against a bot. The private-table contract and in-memory adapter are development foundations, not online multiplayer or a backend.
+- The playable game is local single-player against a bot. The private-table contract, in-memory adapter, and local lifecycle preview are development foundations, not online multiplayer or a backend.
 - There is no user account system, profile sync, custom photo upload, or cloud storage.
 - There is no built-in leaderboard or matchmaking service.
 - The current asset set is small; several asset folders are placeholders only.
@@ -223,6 +232,7 @@ The current UI includes aria labels, aria-live status updates, modal dialog sema
 - [PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md): product north star, player promise, quality bar, decision filters, risks, and working authority.
 - [APP_ORCHESTRATION.md](docs/APP_ORCHESTRATION.md): current `app.js` responsibility and listener-ownership map plus the next safe extraction order.
 - [PRIVATE_TABLE_PROTOCOL.md](docs/PRIVATE_TABLE_PROTOCOL.md): versioned room, invite, authority, reconnect, privacy, and safety contract for future Friend Match work.
+- [LOCAL_FRIEND_MATCH_PREVIEW.md](docs/LOCAL_FRIEND_MATCH_PREVIEW.md): same-device controller flow, honest availability boundary, lifecycle ownership, and verification coverage.
 - [LOCAL_PLAYER_PROFILE.md](docs/LOCAL_PLAYER_PROFILE.md): local identity schema, built-in avatars, progression migration, reset behavior, and private-table projection.
 - [DECISION_LOG.md](docs/DECISION_LOG.md): durable product and architecture decisions with unresolved decisions kept visible.
 - [ROADMAP.md](ROADMAP.md): verified phases, dates, current gaps, and research-backed open items.

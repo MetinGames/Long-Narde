@@ -35,6 +35,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#feedback-button'), 'Feedback button style missing');
     assert.ok(css.includes('#feedback-modal-card'), 'Feedback modal style missing');
     assert.ok(css.includes('#feedback-modal-links a'), 'Feedback modal link style missing');
+    assert.ok(css.includes('#friend-preview-entry'), 'Local friend preview entry style missing');
+    assert.ok(css.includes('#friend-preview-modal'), 'Local friend preview modal style missing');
+    assert.ok(css.includes('#friend-preview-timeline'), 'Local friend preview timeline style missing');
+    assert.ok(css.includes('#friend-preview-button:focus-visible'), 'Local friend preview keyboard focus style missing');
     assert.ok(css.includes('#game-feedback-toast'), 'Game feedback toast style missing');
     assert.ok(css.includes('#game-feedback-toast.is-visible'), 'Game feedback toast visibility style missing');
     assert.ok(css.includes('#fullscreen-toggle'), 'Fullscreen toggle style missing');
@@ -66,6 +70,12 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(/id="start-mode-menu"[^>]*role="group"[^>]*aria-labelledby="start-mode-menu-title"/i.test(html), 'Mode menu accessible group missing');
     assert.ok(/id="friend-match-button"[\s\S]*?disabled[\s\S]*?aria-disabled="true"/i.test(html), 'Friend match honest disabled state missing');
     assert.ok(/id="online-match-button"[\s\S]*?disabled[\s\S]*?aria-disabled="true"/i.test(html), 'Online honest disabled state missing');
+    assert.ok(html.includes('id="friend-preview-button"'), 'Local friend preview entry missing');
+    assert.ok(html.includes('id="friend-preview-modal"'), 'Local friend preview modal missing');
+    assert.ok(/id="friend-preview-modal"[^>]*aria-modal="true"/i.test(html), 'Local friend preview aria-modal missing');
+    assert.ok(/id="friend-preview-modal"[^>]*data-i18n-aria-label="friendPreview\.modalLabel"/i.test(html), 'Local friend preview i18n aria-label missing');
+    assert.ok(html.includes('data-i18n="friendPreview.disclosure"'), 'Local friend preview disclosure missing');
+    assert.ok(html.includes('id="friend-preview-next-button"'), 'Local friend preview next action missing');
     assert.ok(html.includes('id="how-to-play-button"'), 'How-to-play button missing');
     assert.ok(html.includes('id="player-stats-button"'), 'Player stats button missing');
     assert.ok(html.includes('id="start-language-container"'), 'Start screen language row missing');

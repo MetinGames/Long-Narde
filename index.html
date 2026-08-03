@@ -269,6 +269,18 @@
                     aria-label="Profil ve İlerleme"
                 >Profil ve İlerleme</button>
             </div>
+            <div id="friend-preview-entry">
+                <button
+                    id="friend-preview-button"
+                    class="secondary-start-button"
+                    data-i18n="friendPreview.entry"
+                    data-i18n-aria-label="friendPreview.entry"
+                    type="button"
+                    aria-describedby="friend-preview-entry-note"
+                    aria-label="Yerel Masa Önizlemesi"
+                >Yerel Masa Önizlemesi</button>
+                <p id="friend-preview-entry-note" data-i18n="friendPreview.entryNote">Bu cihazda iki oyunculu durum simülasyonu — çevrimiçi değildir.</p>
+            </div>
             <div id="feedback-button-row">
                 <button
                     id="feedback-button"
@@ -278,6 +290,123 @@
                     type="button"
                     aria-label="Görüş Bildir"
                 >Görüş Bildir</button>
+            </div>
+        </div>
+
+        <div
+            id="friend-preview-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-hidden="true"
+            aria-labelledby="friend-preview-title"
+            aria-describedby="friend-preview-disclosure"
+            data-i18n-aria-label="friendPreview.modalLabel"
+            aria-label="Yerel arkadaş masası önizlemesi"
+        >
+            <div id="friend-preview-card">
+                <div id="friend-preview-header">
+                    <div>
+                        <span id="friend-preview-badge" data-i18n="friendPreview.badge">YEREL ÖNİZLEME</span>
+                        <h3 id="friend-preview-title" data-i18n="friendPreview.title">Arkadaş Masası Akış Önizlemesi</h3>
+                    </div>
+                    <button
+                        id="friend-preview-close-button"
+                        class="guide-close"
+                        type="button"
+                        data-i18n-aria-label="friendPreview.close"
+                        aria-label="Kapat"
+                    >×</button>
+                </div>
+
+                <div id="friend-preview-disclosure" role="note">
+                    <strong data-i18n="friendPreview.disclosure">Gerçek bir çevrimiçi maç değildir.</strong>
+                    <span data-i18n="friendPreview.disclosureDetail">İkinci oyuncu bu cihazda simüle edilir; ağ, hesap, davet bağlantısı veya kişisel veri gönderimi yoktur.</span>
+                </div>
+
+                <section id="friend-preview-current-stage" aria-live="polite" aria-atomic="true">
+                    <h4 id="friend-preview-stage-title">Yerel masa oluşturmaya hazır</h4>
+                    <p id="friend-preview-stage-detail">Önizleme yalnızca bu sayfanın belleğinde çalışır.</p>
+                </section>
+
+                <dl id="friend-preview-metadata">
+                    <div>
+                        <dt data-i18n="friendPreview.meta.roomCode">Masa Kodu</dt>
+                        <dd id="friend-preview-room-code">Oluşturulmadı</dd>
+                    </div>
+                    <div>
+                        <dt data-i18n="friendPreview.meta.roomStatus">Masa Durumu</dt>
+                        <dd id="friend-preview-room-status">Oluşturulmadı</dd>
+                    </div>
+                    <div>
+                        <dt data-i18n="friendPreview.meta.revision">Sürüm</dt>
+                        <dd id="friend-preview-revision">—</dd>
+                    </div>
+                    <div>
+                        <dt data-i18n="friendPreview.meta.invite">Davet</dt>
+                        <dd id="friend-preview-invite-status">Bekliyor</dd>
+                    </div>
+                    <div>
+                        <dt data-i18n="friendPreview.meta.protocol">Protokol</dt>
+                        <dd id="friend-preview-protocol-version">v1</dd>
+                    </div>
+                </dl>
+
+                <section id="friend-preview-members" aria-labelledby="friend-preview-members-title">
+                    <h4 id="friend-preview-members-title" data-i18n="friendPreview.membersTitle">Masa Oyuncuları</h4>
+                    <div id="friend-preview-member-grid">
+                        <article id="friend-preview-host-card" class="friend-preview-member" data-state="pending">
+                            <span id="friend-preview-host-avatar" class="friend-preview-avatar" aria-hidden="true">🧿</span>
+                            <div>
+                                <small data-i18n="friendPreview.hostRole">Ev Sahibi • Bu cihaz</small>
+                                <strong id="friend-preview-host-name">—</strong>
+                                <span id="friend-preview-host-status">Bekliyor</span>
+                            </div>
+                        </article>
+                        <article id="friend-preview-friend-card" class="friend-preview-member" data-state="pending">
+                            <span id="friend-preview-friend-avatar" class="friend-preview-avatar" aria-hidden="true">🤖</span>
+                            <div>
+                                <small data-i18n="friendPreview.friendRole">Simüle Arkadaş • Bu cihaz</small>
+                                <strong id="friend-preview-friend-name">Nardora Friend</strong>
+                                <span id="friend-preview-friend-status">Bekliyor</span>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section id="friend-preview-timeline" aria-labelledby="friend-preview-timeline-title">
+                    <h4 id="friend-preview-timeline-title" data-i18n="friendPreview.timelineTitle">Önizleme Adımları</h4>
+                    <ol>
+                        <li data-step-index="0" data-state="pending" data-i18n="friendPreview.timeline.room">Masa</li>
+                        <li data-step-index="1" data-state="pending" data-i18n="friendPreview.timeline.invite">Davet</li>
+                        <li data-step-index="2" data-state="pending" data-i18n="friendPreview.timeline.join">Katıl</li>
+                        <li data-step-index="3" data-state="pending" data-i18n="friendPreview.timeline.ready">Hazır</li>
+                        <li data-step-index="4" data-state="pending" data-i18n="friendPreview.timeline.active">Başlat</li>
+                        <li data-step-index="5" data-state="pending" data-i18n="friendPreview.timeline.disconnect">Kesinti</li>
+                        <li data-step-index="6" data-state="pending" data-i18n="friendPreview.timeline.resume">Devam</li>
+                        <li data-step-index="7" data-state="pending" data-i18n="friendPreview.timeline.leave">Ayrıl</li>
+                        <li data-step-index="8" data-state="pending" data-i18n="friendPreview.timeline.close">Kapat</li>
+                    </ol>
+                </section>
+
+                <p id="friend-preview-live-status" role="status" aria-live="polite" aria-atomic="true" data-state="ok"></p>
+
+                <div id="friend-preview-footer">
+                    <button
+                        id="friend-preview-reset-button"
+                        class="secondary-start-button"
+                        type="button"
+                        data-i18n="friendPreview.reset"
+                        disabled
+                        aria-disabled="true"
+                    >Önizlemeyi Sıfırla</button>
+                    <button id="friend-preview-next-button" type="button">Yerel Masa Oluştur</button>
+                    <button
+                        id="friend-preview-close-footer-button"
+                        class="secondary-start-button"
+                        type="button"
+                        data-i18n="friendPreview.close"
+                    >Kapat</button>
+                </div>
             </div>
         </div>
 

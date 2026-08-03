@@ -399,6 +399,49 @@ test('social mode entry is honest and localized in all supported languages', asy
     restoreGlobalProperty('navigator', originalNavigator);
 });
 
+test('local friend preview is explicit, complete, and localized', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    const expectations = {
+        tr: [
+            'Yerel Masa Önizlemesi',
+            'Gerçek bir çevrimiçi maç değildir.',
+            'Yerel masa kapatıldı'
+        ],
+        en: [
+            'Local Table Preview',
+            'This is not a real online match.',
+            'Local table closed'
+        ],
+        ru: [
+            'Локальный просмотр стола',
+            'Это не настоящий онлайн-матч.',
+            'Локальный стол закрыт'
+        ]
+    };
+
+    for (const [language, values] of Object.entries(expectations)) {
+        i18n.setLanguage(language);
+        assert.equal(i18n.t('friendPreview.entry'), values[0]);
+        assert.equal(i18n.t('friendPreview.disclosure'), values[1]);
+        assert.equal(i18n.t('friendPreview.stage.closed.title'), values[2]);
+        assert.notEqual(i18n.t('friendPreview.action.create-room'), 'friendPreview.action.create-room');
+        assert.notEqual(i18n.t('friendPreview.action.resume-friend'), 'friendPreview.action.resume-friend');
+        assert.notEqual(i18n.t('friendPreview.error.staleRevision'), 'friendPreview.error.staleRevision');
+    }
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
 test('player stats keys are localized in all supported languages', async () => {
     const savedStorage = new FakeStorage({ 'narde-language': 'en' });
     const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);

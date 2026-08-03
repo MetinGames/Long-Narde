@@ -17,6 +17,7 @@ Last reviewed: **2026-08-03**
 | Slot selection and move application | `app.js` + game/input modules | Rule-sensitive; leave until its boundary is fully characterized |
 | Modal, language, fullscreen, feedback, and control assembly | `app.js` + focused UI modules | Keep assembly in `app.js`; controllers own their listeners |
 | Provider-neutral room, invite, presence, reconnect, and authority contract | `privateTableProtocol.js` | Keep outside `app.js`; future Friend Match controllers consume the adapter surface |
+| Same-device Friend Match lifecycle preview and localized rendering | `friendMatchPreviewController.js` | Controller owns protocol commands, subscription, modal state, focus, cleanup, stale callbacks, and translation refresh; `app.js` only assembles dependencies/elements |
 | Local identity, built-in avatar catalog, migration, and table projection | `playerIdentity.js` | Store only device-local identity; keep trusted outcomes out of the projection |
 | Local progression, achievements, and profile dialog listeners | `playerStats.js` + `playerStatsModal.js` | Controller owns modal/profile listeners; `app.js` only assembles elements and supplies the current bot difficulty at match end |
 | Resume synchronization on visibility, focus, and page restore | `appResumeController.js` | Extracted; controller owns bind, idempotence, and cleanup |
@@ -33,6 +34,7 @@ Last reviewed: **2026-08-03**
 | Language selector changes | `languageSelectors.js` | Controller-owned listeners and `dispose()` |
 | Mobile theme media-query and theme selection changes | `mobileThemeLabelController.js` | Idempotent `start()`, explicit `stop()`, translation-aware `refresh()` |
 | Modal keyboard/click events | Each modal controller | Controller-owned listeners |
+| Local Friend Match modal, actions, and room subscription | `friendMatchPreviewController.js` | Idempotent `start()`, explicit `stop()`, one active subscription, stale lifecycle callback guard |
 | First pointer/key audio unlock | `app.js` | One-shot listeners; candidate for extraction |
 | Buttons for restart, start, undo, confirm, theme, and difficulty | `app.js` | Review in small groups; do not create a catch-all event bus |
 | `DOMContentLoaded` | `app.js` | Bootstrap-only composition root |
@@ -44,9 +46,16 @@ Issue #4's focused lifecycle checkpoint is complete after the resume and mobile-
 Future slices must preserve game rules and public behavior, add focused lifecycle tests, keep Playwright green, and update this map when ownership changes.
 
 Issue #16 adds no listener or gameplay ownership to `app.js`. Its in-memory
-adapter exposes `dispatch`, `getSnapshot`, and `subscribe`; a future Friend
-Match controller will own the corresponding UI lifecycle without enabling the
-currently disabled social mode until a real end-to-end flow exists.
+adapter exposes `dispatch`, `getSnapshot`, and `subscribe`; Issue #18 consumes
+that surface through `friendMatchPreviewController.js`. The controller owns its
+modal/action listeners, one room subscription, revision-aware commands,
+disconnect/resume authority rotation, focus containment, cleanup, and stale
+callback rejection. The composition root supplies the local identity store,
+translations, DOM elements, and sanitized diagnostic callback.
+
+This controller does not enable the hosted social mode. The public Friend Match
+and Online buttons remain disabled; the separate local preview is an explicit
+same-device state simulation and never initiates gameplay or trusted outcomes.
 
 Issue #15 keeps identity and progression provider-neutral. `app.js` constructs
 the stores and profile modal, while `playerIdentity.js` owns the versioned local

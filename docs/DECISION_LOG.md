@@ -124,6 +124,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Consequences:** The profile works offline without a provider, legacy local statistics migrate, and the Friend Match controller can consume a stable identity contract. Custom photos, cloud sync, account recovery, public profiles, and remote ranking remain gated by account/privacy/moderation decisions.
 **Review trigger:** An approved hosted account model requires identity linking, deletion/export, recovery, age handling, or a moderated custom-avatar policy.
 
+### D-020 — Local Friend Match preview never implies online availability
+
+**Date:** 2026-08-03
+**Status:** Accepted
+**Decision:** Nardora may expose a separate same-device Friend Match lifecycle preview driven by the provider-neutral in-memory adapter. The real Friend Match and Online mode entries remain natively disabled until an approved hosted flow works end to end. The preview must state that the second player is simulated locally and that no network, account, shareable invite, personal-data upload, or authoritative game outcome exists.
+**Reason:** The client needs a player-facing contract proof for room, invite, presence, reconnect, leave, and close behavior without misleading players or prematurely committing to a provider and data model.
+**Consequences:** The local controller can validate UI lifecycle, localization, accessibility, stale-callback handling, revision ordering, and resume-token rotation now. It cannot start a playable online table, fabricate dice/moves/results, or be relabelled as online availability. Hosted work stays behind [#19](https://github.com/MetinGames/Long-Narde/issues/19) evidence and Metin's explicit approval gate for [#20](https://github.com/MetinGames/Long-Narde/issues/20).
+**Review trigger:** A hosted adapter, approved account/privacy model, authoritative rule service, and end-to-end invite/reconnect flow are ready for controlled testing.
+
 ## Open decisions
 
 1. **Monetization:** premium purchase, ads, cosmetic purchases, subscription or hybrid.
