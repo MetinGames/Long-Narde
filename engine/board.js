@@ -69,6 +69,10 @@ export class Board {
         return player === 1 ? 25 - slotId : 13 - slotId;
     }
 
+    getPipDistance(player, slotId) {
+        return 24 - this.getProgress(player, slotId);
+    }
+
     areAllPiecesInHomeBoard(player) {
         const home = new Set(this.getHomeSlots(player));
 

@@ -270,6 +270,17 @@ test('siyah pul 24 sınırından 1 hanesine doğru sarılır', () => {
     });
 });
 
+test('pip mesafesi iki oyuncunun yolunda ve siyah sarımında simetriktir', () => {
+    const game = prepareGame();
+
+    assert.equal(game.board.getPipDistance(1, 1), 24);
+    assert.equal(game.board.getPipDistance(1, 24), 1);
+    assert.equal(game.board.getPipDistance(2, 13), 24);
+    assert.equal(game.board.getPipDistance(2, 24), 13);
+    assert.equal(game.board.getPipDistance(2, 1), 12);
+    assert.equal(game.board.getPipDistance(2, 12), 1);
+});
+
 test('siyah ev bölgesinden taş toplarken yeniden 1 hanesine sarılmaz', () => {
     const game = prepareGame({
         player: 2,

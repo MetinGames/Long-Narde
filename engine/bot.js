@@ -494,7 +494,7 @@ export class NardeBot {
             const slot = game.board.slots[slotId];
             if (slot.player !== player || slot.count <= 0) continue;
 
-            total += game.board.getBearOffDistance(player, slotId) * slot.count;
+            total += game.board.getPipDistance(player, slotId) * slot.count;
         }
         return total;
     }
