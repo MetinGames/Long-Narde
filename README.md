@@ -106,6 +106,7 @@ Verified top-level structure:
 - `style.css`
 - `assets/`
 - `engine/`
+- `scripts/`
 - `tests/`
 
 Verified engine modules currently present:
@@ -157,6 +158,7 @@ Verified test files currently present:
 - `tests/renderer-theme-storage.test.js`
 - `tests/responsive.test.js`
 - `tests/start-mode-controller.test.js`
+- `tests/sync-main.test.js`
 - `tests/timeout-deadlines.test.js`
 - `tests/undo-action-buttons.test.js`
 - `tests/victory-moment.test.js`
@@ -176,6 +178,12 @@ To run tests:
 
 - Windows: `npm.cmd test`
 - Cross-platform: `npm test`
+
+### Safe VS Code synchronization
+
+Opening the repository in VS Code offers the workspace task **Nardora: main ile güvenli eşitle**. After automatic tasks are allowed for the trusted workspace, it runs on folder open; it can also be started manually from **Terminal → Run Task**. The same check is available from any terminal with `npm run sync:main`.
+
+The task fetches `origin/main` and applies only a clean fast-forward. It never switches branches, overwrites uncommitted work, pushes local commits, or resolves divergent history automatically; those situations stop with an explanatory message.
 
 To list or run the Playwright browser suite:
 

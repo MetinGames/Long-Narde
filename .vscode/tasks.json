@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Nardora: main ile güvenli eşitle",
+            "type": "process",
+            "command": "npm",
+            "windows": {
+                "command": "npm.cmd"
+            },
+            "args": [
+                "run",
+                "sync:main"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        }
+    ]
+}

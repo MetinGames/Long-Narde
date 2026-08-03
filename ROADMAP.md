@@ -35,7 +35,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Champion bot mode with deterministic multi-move planning and callback safety.
 - Automatic pass when no legal move exists, without starting a stale human timer.
 - Licensed sampled dice and checker sounds integrated as a review baseline; final original recordings remain planned.
-- **251 automated tests passing as of 2026-08-03.**
+- **257 automated tests passing as of 2026-08-03.**
 
 ## Current gaps and risks
 
