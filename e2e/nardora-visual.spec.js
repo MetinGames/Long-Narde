@@ -55,6 +55,7 @@ test('game shell visual baseline', async ({ page }) => {
     await expect(page.locator('#start-screen')).toBeHidden();
     await expect(page.locator('#die1')).not.toHaveText('-');
     await expect(page.locator('#die2')).not.toHaveText('-');
+    await expect(page.locator('#timer-countdown')).toHaveText('30');
 
     await expect(page.locator('#game-container')).toHaveScreenshot(
         'game-shell.png',
