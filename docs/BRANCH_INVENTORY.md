@@ -3,7 +3,8 @@
 Last reviewed: **2026-08-04**  
 Owner: **MetinGames + Codex**  
 Execution issue: [#6](https://github.com/MetinGames/Long-Narde/issues/6)  
-Comparison base: `main` at `91f308b2b9ddb06735998cc118cbe7bcd7f8a359`
+Initial comparison base: `main` at `91f308b2b9ddb06735998cc118cbe7bcd7f8a359`  
+Post-delivery reconciliation base: `main` at `dcab074be93972480ebef2bc05603313b8f39fcf`
 
 ## Purpose and safety boundary
 
@@ -22,13 +23,15 @@ is an archive and approval aid, not deletion authorization.
 
 | Classification | Count | Meaning |
 |---|---:|---|
-| Cleanup candidate | 44 | 31 branches are fully contained in `main`; 13 are the recorded heads of squash-merged PRs |
+| Cleanup candidate | 45 | 31 branches are fully contained in `main`; 14 are the recorded heads of squash-merged PRs |
 | Active — preserve | 1 | Open Supabase trial PR #24 remains intentionally unmerged |
 | Manual review — preserve | 4 | Unique commits have no matching merged PR and may contain reusable work |
-| **Total non-main branches** | **49** | Inventory replaces the earlier stale count of 35 |
+| **Total non-main branches** | **50** | Inventory replaces the earlier stale count of 35 and includes its own merged delivery branch |
 
-`Ahead/behind` values below are relative to the recorded comparison base and
-are written as `ahead/behind`.
+The initial comparison found 49 non-main branches. Publishing it created
+`agent/branch-inventory`; after PR #36 merged, that branch became the 50th and
+the 45th cleanup candidate. Its row is reconciled against `dcab074`; all other
+`ahead/behind` values remain the reproducible initial `91f308b` snapshot.
 
 ## Active branch — preserve
 
@@ -75,6 +78,7 @@ These branches appear ahead because squash merging creates a new commit on
 | `agent/champion-runtime-rule-cache` | [`2b88709`](https://github.com/MetinGames/Long-Narde/commit/2b887093a2f1dd611b64cbc2be2a2dffc1810b9c) | 9/8 | [#32](https://github.com/MetinGames/Long-Narde/pull/32) merged by squash |
 | `agent/champion-slow-state-profile` | [`b042898`](https://github.com/MetinGames/Long-Narde/commit/b0428983f3d91223ca420f6f8b56e1822470bdd6) | 7/11 | [#30](https://github.com/MetinGames/Long-Narde/pull/30) merged by squash |
 | `agent/champion-symmetric-pip-training` | [`d066278`](https://github.com/MetinGames/Long-Narde/commit/d06627803dc930c4e66900a7a81cc926051a748f) | 2/2 | [#35](https://github.com/MetinGames/Long-Narde/pull/35) merged by squash |
+| `agent/branch-inventory` | [`72b12a9`](https://github.com/MetinGames/Long-Narde/commit/72b12a9df8bd33dfa8cd20a09f4a6c70121ca270) | 2/2 | [#36](https://github.com/MetinGames/Long-Narde/pull/36) merged by squash; post-delivery reconciliation |
 | `agent/code-health-guardrails` | [`d8ced5d`](https://github.com/MetinGames/Long-Narde/commit/d8ced5d1134996aacc00a9dcabdd56c086269d25) | 10/13 | [#28](https://github.com/MetinGames/Long-Narde/pull/28) merged by squash |
 | `agent/local-friend-match` | [`6de7b8f`](https://github.com/MetinGames/Long-Narde/commit/6de7b8f308d282c039f5a22b0751bdf48ab0f1b3) | 2/16 | [#22](https://github.com/MetinGames/Long-Narde/pull/22) merged by squash |
 | `agent/local-identity-foundation` | [`e579ea7`](https://github.com/MetinGames/Long-Narde/commit/e579ea7a14eaff655ad8cc6abf19b24e06957d75) | 3/17 | [#21](https://github.com/MetinGames/Long-Narde/pull/21) merged by squash |
@@ -123,12 +127,12 @@ ancestor of the recorded comparison base.
 
 ## Proposed cleanup gate
 
-If Metin later approves deletion of the exact 44 cleanup candidates above:
+If Metin later approves deletion of the exact 45 cleanup candidates above:
 
 1. Re-run the inventory against the then-current `main`.
 2. Stop if any candidate becomes active, gains a new commit, or opens a PR.
 3. Preserve the active Supabase branch and all four manual-review branches.
-4. Delete only the still-matching 44 named refs.
+4. Delete only the still-matching 45 named refs.
 5. Re-list remote branches and record the result in Issue #6 or a dedicated
    cleanup Issue.
 
