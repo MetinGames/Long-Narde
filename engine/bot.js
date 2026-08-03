@@ -1,10 +1,17 @@
 // engine/bot.js
 
 export class NardeBot {
-    constructor(playerNumber = 2, difficulty = 'medium', random = Math.random) {
+    constructor(
+        playerNumber = 2,
+        difficulty = 'medium',
+        random = Math.random,
+        options = {}
+    ) {
         this.playerNumber = playerNumber;
         this.difficulty = difficulty;
         this.random = random;
+        this.useRuleAnalysisCache = options.useRuleAnalysisCache !== false;
+        this.lastRuleAnalysisCacheMetrics = null;
         this.plannedTurnMoves = [];
         this.plannedTurnStateKey = '';
     }
@@ -87,6 +94,21 @@ export class NardeBot {
     }
 
     makeChampionDecision(game) {
+        const cacheScope =
+            this.useRuleAnalysisCache &&
+            typeof game.beginRuleAnalysisCacheScope === 'function'
+                ? game.beginRuleAnalysisCacheScope()
+                : null;
+
+        try {
+            return this.makeChampionDecisionWithinScope(game);
+        } finally {
+            this.lastRuleAnalysisCacheMetrics =
+                cacheScope?.finish() || null;
+        }
+    }
+
+    makeChampionDecisionWithinScope(game) {
         if (
             game.currentPlayer !== this.playerNumber ||
             game.availableMoves.length === 0 ||
