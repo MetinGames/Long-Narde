@@ -2,7 +2,7 @@ import {
     DEFAULT_CHAMPION_BENCHMARK_SEEDS,
     formatChampionBenchmarkMarkdown,
     runChampionBenchmark
-} from '../engine/championBenchmark.js';
+} from './lib/championBenchmark.mjs';
 
 function parseSeeds(value) {
     const seeds = value
