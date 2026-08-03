@@ -68,9 +68,9 @@ A later stage must not destabilize the quality gate of an earlier one.
 Until Phase 0 exits, the priorities are:
 
 1. keep ROADMAP, Issues, code and tests synchronized after each delivery and playtest cycle;
-2. add cross-browser/mobile Playwright coverage;
+2. keep cross-browser/mobile Playwright and offline PWA release gates green;
 3. reduce large-file risk through small tested extractions;
-4. add an installable, safely updating offline PWA foundation;
+4. configure the unified Project/milestone view for the approved Phase 0/1 queue;
 5. preserve unmerged branch work until the branch inventory is verified.
 
 The player-facing Nardora migration is complete. Champion mode, optional Quick Bear-Off,

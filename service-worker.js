@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v1-2026-08-03';
+const CACHE_VERSION = 'v2-2026-08-03';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -18,6 +18,7 @@ const PRECACHE_PATHS = [
     './assets/sounds/freesound_community-gamemisc_dice-roll-on-wood_jaku5-37414.mp3',
     './assets/sounds/sumaga123-wood-hit-432148.mp3',
     './engine/animations.js',
+    './engine/appResumeController.js',
     './engine/appRuntimeState.js',
     './engine/assets.js',
     './engine/autoBearOff.js',

@@ -109,6 +109,7 @@ Verified top-level structure:
 Verified engine modules currently present:
 
 - `engine/animations.js`
+- `engine/appResumeController.js`
 - `engine/assets.js`
 - `engine/board.js`
 - `engine/bot.js`
@@ -135,6 +136,7 @@ Verified engine modules currently present:
 
 Verified test files currently present:
 
+- `tests/app-resume-controller.test.js`
 - `tests/core-rules.test.js`
 - `tests/game-feedback-toast.test.js`
 - `tests/gameplay-feedback.test.js`
@@ -196,6 +198,7 @@ The current UI includes aria labels, aria-live status updates, modal dialog sema
 ## Project operating documents
 
 - [PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md): product north star, player promise, quality bar, decision filters, risks, and working authority.
+- [APP_ORCHESTRATION.md](docs/APP_ORCHESTRATION.md): current `app.js` responsibility and listener-ownership map plus the next safe extraction order.
 - [DECISION_LOG.md](docs/DECISION_LOG.md): durable product and architecture decisions with unresolved decisions kept visible.
 - [ROADMAP.md](ROADMAP.md): verified phases, dates, current gaps, and research-backed open items.
 - [TOOLING_STRATEGY.md](docs/TOOLING_STRATEGY.md): phased plugin, service, program and data-access decisions.

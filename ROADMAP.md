@@ -35,7 +35,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Champion bot mode with deterministic multi-move planning and callback safety.
 - Automatic pass when no legal move exists, without starting a stale human timer.
 - Licensed sampled dice and checker sounds integrated as a review baseline; final original recordings remain planned.
-- **236 automated tests passing as of 2026-08-03.**
+- **240 automated tests passing as of 2026-08-03.**
 
 ## Current gaps and risks
 
@@ -50,7 +50,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 
 ## Active 14-day worklist — 2026-08-03 to 2026-08-16
 
-1. **Active — [#4](https://github.com/MetinGames/Long-Narde/issues/4):** extract the next coherent, test-backed `app.js` orchestration slice; keep 236+ unit tests and relevant Playwright smoke tests green.
+1. **Active — [#4](https://github.com/MetinGames/Long-Narde/issues/4):** browser resume-event ownership is extracted and mapped; continue with the compact mobile theme-label listener slice while keeping 240+ unit tests and relevant Playwright smoke tests green.
 2. **Completed — [#5](https://github.com/MetinGames/Long-Narde/issues/5):** delivered the conservative installable/offline PWA foundation with predictable cache updates.
 3. **Queued — [#8](https://github.com/MetinGames/Long-Narde/issues/8):** configure the unified GitHub Project view, Phase 0/1 milestones, and lightweight workflow metadata.
 4. **Queued — [#6](https://github.com/MetinGames/Long-Narde/issues/6):** classify all 35 non-main branches; prepare an approval list but delete nothing.
@@ -71,7 +71,7 @@ Target: **2026-08-14**
 - **Done:** Establish and run the Issue/ROADMAP synchronization workflow; recurring weekly review continues under the documented operating loop.
 - **Queued:** Configure the unified GitHub Project view, milestones, and workflow metadata in [#8](https://github.com/MetinGames/Long-Narde/issues/8); the approved priority Phase 1 backlog now exists as Issues.
 - **Queued:** Inventory all 35 non-main branches in [#6](https://github.com/MetinGames/Long-Narde/issues/6) and remove only branches proven merged or obsolete after Metin approves the exact cleanup list.
-- **In progress:** Continue small, test-backed extraction from `app.js` in [#4](https://github.com/MetinGames/Long-Narde/issues/4); review UI/core ownership and event-listener lifecycle.
+- **In progress:** Continue small, test-backed extraction from `app.js` in [#4](https://github.com/MetinGames/Long-Narde/issues/4); resume-event ownership now has an idempotent controller and the remaining listener boundaries are mapped.
 - **Done:** Playwright CI covers Chromium, Firefox, WebKit, iPhone 16e portrait, iPhone 17 Pro Max landscape, fullscreen/focus fallback, orientation transitions, and stable high-value visual baselines.
 - **Done:** Added a small PWA foundation with app manifest, original Nardora icons, conservative versioned updates, installability metadata, and offline local bot play.
 - **Research:** Measure move-search cost, memoization effectiveness, JSON state-copy cost, Web Worker need, and audio/image preload behavior before optimizing.

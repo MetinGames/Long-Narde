@@ -53,6 +53,7 @@ import {
     applyNoLegalMoveAutoPass,
     hasAnyRuleCompliantTurnStart
 } from './engine/noLegalMoveAutoPass.js';
+import { createAppResumeController } from './engine/appResumeController.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -152,6 +153,13 @@ const autoBearOffFlow = createAutoBearOffFlow({
         }
 
         finishCurrentTurn();
+    }
+});
+
+const appResumeController = createAppResumeController({
+    onResume: () => {
+        synchronizeTimeoutState();
+        synchronizeAutoBearOffFlow();
     }
 });
 
@@ -1222,22 +1230,7 @@ function bindEvents() {
         onSlotClick: handleSlotClick
     });
 
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            synchronizeTimeoutState();
-            synchronizeAutoBearOffFlow();
-        }
-    });
-
-    window.addEventListener('focus', () => {
-        synchronizeTimeoutState();
-        synchronizeAutoBearOffFlow();
-    });
-
-    window.addEventListener('pageshow', () => {
-        synchronizeTimeoutState();
-        synchronizeAutoBearOffFlow();
-    });
+    appResumeController.start();
 
     updateAutoBearOffControl();
 }
