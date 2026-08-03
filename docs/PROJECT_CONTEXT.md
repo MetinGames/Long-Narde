@@ -1,6 +1,6 @@
 # Nardora Project Context
 
-Last reviewed: **2026-08-01**  
+Last reviewed: **2026-08-03**
 Status: **Active project charter**
 
 This is Nardora's durable product context. It explains what we are building, for whom, how decisions are evaluated, what quality means, and how Metin and Codex work together. Implementation status and dates live in [ROADMAP.md](../ROADMAP.md); active execution lives in GitHub Issues; durable decisions live in [DECISION_LOG.md](DECISION_LOG.md).
@@ -67,12 +67,15 @@ A later stage must not destabilize the quality gate of an earlier one.
 
 Until Phase 0 exits, the priorities are:
 
-1. complete the player-facing **Nardora** brand migration;
-2. keep ROADMAP, Issues, code and tests synchronized;
-3. add cross-browser/mobile Playwright coverage;
-4. reduce large-file risk through small tested extractions;
-5. add an installable, safely updating offline PWA foundation;
-6. preserve unmerged branch work until the branch inventory is verified.
+1. keep ROADMAP, Issues, code and tests synchronized after each delivery and playtest cycle;
+2. add cross-browser/mobile Playwright coverage;
+3. reduce large-file risk through small tested extractions;
+4. add an installable, safely updating offline PWA foundation;
+5. preserve unmerged branch work until the branch inventory is verified.
+
+The player-facing Nardora migration is complete. Champion mode, optional Quick Bear-Off,
+sampled audio review assets, and no-legal-move auto-pass have also reached `main`; their
+remaining work is refinement and real-device validation rather than initial delivery.
 
 New ideas are captured, classified and scheduled; they do not silently displace these priorities.
 

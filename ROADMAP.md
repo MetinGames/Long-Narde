@@ -1,6 +1,6 @@
 # Nardora Roadmap
 
-Last synchronized: **2026-08-01**
+Last synchronized: **2026-08-03**
 
 Nardora is the player-facing brand. The repository and existing GitHub Pages URL may remain `Long-Narde` to avoid breaking links.
 
@@ -29,26 +29,32 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Responsive desktop/mobile layouts, iOS safe-area handling, orientation guidance, and fullscreen/focus mode.
 - Anadolu and walnut themes.
 - Automated GitHub Actions test workflow.
-- **152 automated tests passing as of 2026-08-01.**
+- Player-facing Nardora migration across the page title, welcome flow, TR/EN/RU copy, and splash experience.
+- Optional Quick Bear-Off that acts only when the legal continuation is unambiguous.
+- Champion bot mode with deterministic multi-move planning and callback safety.
+- Automatic pass when no legal move exists, without starting a stale human timer.
+- Licensed sampled dice and checker sounds integrated as a review baseline; final original recordings remain planned.
+- **226 automated tests passing as of 2026-08-03.**
 
 ## Current gaps and risks
 
-- The interface still exposes `Classic Long Narde` / `Welcome to Long Narde`; the Nardora brand migration is not implemented.
-- `app.js` is about 1,017 lines, `engine/renderer.js` about 1,181 lines, and `style.css` about 2,373 lines; modularization is only partly complete.
-- The repository has 27 non-main branches that need a verified merged/stale inventory before deletion.
+- `app.js` is about 1,314 lines, `engine/renderer.js` about 1,181 lines, and `style.css` about 2,525 lines; recent features increased orchestration and styling pressure while modularization remains incomplete.
+- The repository has 35 non-main remote branches that need a verified merged/stale inventory before deletion.
 - The first six sprint Issues now exist; a GitHub Project view, milestones, and the remaining Phase 1 backlog still need configuration.
-- The sound folders are placeholders; the requested real dice/checker recordings are not integrated.
-- The UI exposes Easy, Medium, and Master. A separate Champion mode is not present in the current code.
+- Community-sourced sample sounds are integrated and licensed, but Metin's final original dice/checker recordings, volume controls, and device-level listening review are not complete.
+- The how-to-play guide is static; there is no contextual rule explanation system or interactive first-match tutorial yet.
+- The start flow does not yet provide the approved minimal mode menu, and theme selection is not yet a dedicated visual management screen.
+- Advertising-safe responsive zones and Yandex-specific layout behavior have not been designed or tested.
 - There is no PWA manifest/service worker, store package, backend, account system, online room, chat, ranking, or moderation layer.
 
 ## Phase 0 — Active sprint: synchronization and delivery safety
 
 Target: **2026-08-14**
 
-- **In progress:** Replace the stale roadmap with this verified, dated plan.
+- **Done:** Complete the player-facing Nardora migration without changing the repository or GitHub Pages URL.
+- **In progress:** Synchronize the roadmap, GitHub Issues, and delivered `main` behavior after the 2026-08-02 playtest cycle.
 - **In progress:** Phase 0 work now exists as six prioritized GitHub Issues with estimates and acceptance criteria; create the Project view and remaining Phase 1 backlog.
-- **Queued:** Complete player-facing Nardora migration in HTML title, TR/EN/RU translations, welcome screen, feedback text, and documentation without changing the repository URL.
-- **Queued:** Inventory all 27 non-main branches and remove only branches proven merged or obsolete.
+- **Queued:** Inventory all 35 non-main branches and remove only branches proven merged or obsolete after Metin approves the exact cleanup list.
 - **In progress:** Continue small, test-backed extraction from `app.js`; review UI/core ownership and event-listener lifecycle.
 - **Queued:** Add Playwright smoke and visual-regression tests for Chromium, Firefox, WebKit, touch, portrait, and landscape layouts.
 - **Queued:** Add a small PWA foundation: app manifest, icons, service worker, installability, and offline local play.
@@ -66,10 +72,14 @@ Exit criteria:
 Target: **2026-09-30**
 
 - Integrate the user's original high-quality dice and checker recordings, with volume controls and safe preload behavior.
-- Build and benchmark Champion bot search with multi-move planning; move heavy calculation to a Web Worker only if measurements justify it.
-- Add optional **Quick Bear-Off**: auto-execute only when the legal continuation is unambiguous; keep player choice whenever alternatives matter.
+- Benchmark and refine the shipped Champion bot against representative positions and Metin's real matches; move heavy calculation to a Web Worker only if measurements justify it.
+- Build a contextual **Rule Explanation System** that explains why a move is legal, blocked, mandatory, or automatically passed.
+- Add an **Interactive First-Match Tutorial** for the distinctive Long Narde rules, using the existing guide as its reference source.
+- Replace the single start action with a minimal mode menu: Quick Play, Bot Match, Friend Match, Online, and How to Play; keep unavailable future modes clearly marked instead of starting fake flows.
+- Build a visual theme-management screen and prepare approved Anatolian theme families without weakening board readability.
 - Finish profile card, local avatar selection, achievements, and richer local statistics.
 - Polish onboarding, victory flow, active-player cues, touch targets, and accessibility.
+- Keep competitor/rival analysis as a research input for clarity, onboarding, retention, and monetization patterns; do not copy protected art or branding.
 - Run real-device tests on representative iPhone, Android, tablet, and desktop screen sizes.
 - Define release quality gates: no known critical rule bug, no layout overflow, tests green, diagnostics available, and asset licenses recorded.
 
@@ -78,6 +88,7 @@ Target: **2026-09-30**
 Targets: **Yandex candidate 2026-11-30; Android beta 2027-01-31; iOS beta 2027-03-31**
 
 - Add Yandex Games SDK integration, pause/focus behavior, localization, save policy, and submission assets.
+- Reserve and test advertising-safe responsive zones so monetization never covers the board, dice, timer, confirmation, undo, or accessibility controls.
 - Package the existing web game with Capacitor for Android and iOS rather than rewriting the game.
 - Add app icons, splash screens, privacy disclosures, store screenshots, descriptions, age rating, and release notes.
 - Test Android lifecycle/back-button behavior and iOS foreground/background, safe-area, rotation, audio, and WKWebView behavior.

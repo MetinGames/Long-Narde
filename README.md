@@ -1,6 +1,6 @@
 # Nardora
 
-Kısa Türkçe özet: Long Narde, Anadolu temasına sahip, yerel tek oyunculu uzun narde deneyimidir. Bu depo için oyuncuya görünen güncel marka Nardora'dır; bu dokümantasyon mevcut kodu ve mevcut arayüz adlarını değiştirmez.
+Kısa Türkçe özet: Nardora; Anadolu temasına sahip, yerel tek oyunculu bir uzun narde deneyimidir. Oyuncuya görünen marka Nardora'dır; `Long-Narde` depo adı ve mevcut GitHub Pages adresi bağlantıları bozmamak için korunur.
 
 Live game: https://metingames.github.io/Long-Narde/
 
@@ -10,7 +10,7 @@ Long Narde is a static, browser-based long narde game with a local human player,
 
 ## Current status
 
-The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user begins a match. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes local player statistics, a how-to-play modal, restart protection, and multiple feedback helpers for game state changes.
+The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user begins a match. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes local player statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, and multiple feedback helpers for game state changes.
 
 This project is not documented here as having online multiplayer, user accounts, cloud sync, ranked matchmaking, or a backend service.
 
@@ -24,6 +24,9 @@ This project is not documented here as having online multiplayer, user accounts,
 - How-to-play modal and player stats modal.
 - Responsive layouts for desktop, portrait mobile, and landscape mobile.
 - Theme selection with an Anadolu visual theme and an alternate walnut theme.
+- Easy, Medium, Master, and Champion bot difficulty levels.
+- Optional Quick Bear-Off when the continuation is unambiguous.
+- Licensed sampled dice/checker audio with safe preload and event de-duplication.
 
 ## Supported languages
 
@@ -58,7 +61,7 @@ Long Narde in this repository follows the long narde rules implemented in the co
 
 ## Bot difficulty levels
 
-The code exposes three difficulty labels in the UI: Easy, Medium, and Master. The bot uses a small rule-aware evaluation in normal play, and the hard mode adds deeper position scoring.
+The code exposes four difficulty labels in the UI: Easy, Medium, Master, and Champion. Champion evaluates complete legal move sequences deterministically and is regression-tested for dice-use, prime, bearing-off, callback-safety, and performance constraints. It receives no hidden rule or dice advantage.
 
 ## Timer and timeout behaviour
 

@@ -1,6 +1,6 @@
 # Nardora Decision Log
 
-Last reviewed: **2026-08-01**
+Last reviewed: **2026-08-03**
 
 This log records durable decisions and their reasoning. New entries are appended. If a decision changes, retain the original and mark it superseded by the new entry.
 
@@ -45,7 +45,7 @@ This log records durable decisions and their reasoning. New entries are appended
 
 ### D-007 — Champion is planned, not shipped
 
-**Status:** Accepted  
+**Status:** Superseded by D-016
 **Decision:** Current code exposes Easy, Medium and Master. Champion is a planned benchmarked level and must not be described as shipped until verified. Its aim is to defeat Metin through stronger play, not hidden advantages.
 
 ### D-008 — Quick Bear-Off preserves choice
@@ -87,6 +87,15 @@ This log records durable decisions and their reasoning. New entries are appended
 
 **Status:** Accepted  
 **Decision:** Install a tool or plugin only when it removes a current bottleneck, adds a missing safety/control layer, or measurably shortens a scheduled phase. Record its owner, purpose, cost, data access and removal trigger. Avoid overlapping tools for the same job without a time-boxed comparison.
+
+### D-016 — Champion is shipped and remains evidence-driven
+
+**Date:** 2026-08-03
+**Status:** Accepted
+**Decision:** Champion is a player-selectable TR/EN/RU bot level on `main`, backed by deterministic multi-move planning, legality regressions, callback safety, and performance checks. Future work strengthens its position evaluation against representative games; it never receives hidden dice or rule advantages.
+**Reason:** The implementation and automated verification now exist, so the previous planned-only status is stale.
+**Consequences:** Champion may be described as shipped, but not as unbeatable. Any stronger search or Web Worker change still requires measurement and regression coverage.
+**Review trigger:** Real-match evidence shows repeatable strategic weaknesses, unacceptable turn latency, or a legality regression.
 
 ## Open decisions
 
