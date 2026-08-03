@@ -57,6 +57,16 @@ Use `npm run bot:profile -- --json` for the complete state, call counts, and
 inclusive timing evidence. `--samples N` changes only the number of
 uninstrumented timing samples.
 
+Compare the current engine with a development-only, request-scoped reuse
+prototype:
+
+```bash
+npm run bot:cache-experiment
+```
+
+The experiment must stop with an error if any outcome, move trace, dice trace,
+final checker state, move count, or the profiled `3 → 7` choice changes.
+
 ## Recorded metrics
 
 - Champion wins, Master wins, and turn-limit draws;
@@ -144,15 +154,61 @@ next optimization experiment should reuse rule-compliance analysis within one
 search state and prove identical legal moves, selected plans, traces, and
 checker conservation before any runtime integration.
 
+## Request-scoped rule-analysis experiment
+
+The development-only `bot:cache-experiment` command reuses two results during
+one Champion decision:
+
+1. rule-compliant dice sequences keyed by the complete search state and source
+   slot;
+2. maximum playable move counts keyed by the complete search state.
+
+Each decision starts with empty caches and discards them before returning. Dice
+values and first-turn metadata remain constant inside that request, while the
+key includes current player, head moves, available dice, borne-off counts, and
+every occupied slot. Cached sequence arrays are cloned before returning so a
+caller cannot mutate stored evidence.
+
+Observed local four-seed/eight-match experiment on 2026-08-03:
+
+| Slow state | Baseline | Cached prototype | Change |
+|---|---:|---:|---:|
+| Average decision | 2,244.10 ms | 450.90 ms | 4.98× faster |
+| Memo lookups | 114,522 | 261 | 99.77% fewer |
+| Maximum-search calls | 843,956 | 24,682 | 97.08% fewer |
+| Snapshots created | 1,780,388 | 76,946 | 95.68% fewer |
+| Move attempts | 1,782,635 | 78,333 | 95.61% fewer |
+
+| Eight-match Champion timing | Baseline | Cached prototype | Change |
+|---|---:|---:|---:|
+| Average | 24.43 ms | 5.81 ms | 4.21× faster |
+| P95 | 68.30 ms | 19.62 ms | 3.48× faster |
+| Maximum | 2,446.08 ms | 376.41 ms | 6.50× faster |
+
+The slow-state sequence cache hit 92.97% of 120,091 queries. The maximum-move
+cache hit 96.97% of 24,682 queries and needed only 747 unique entries. Champion
+still won 5–3, all eight move traces remained `b867a88d`, `074b8818`,
+`23210155`, `b89f40b8`, `a9992998`, `644d68fa`, `078b0822`, and `0ec76117`,
+and every match preserved 15 checkers per player.
+
+Interpretation: request-scoped reuse is a substantially narrower and more
+effective first response than a Web Worker. This prototype is not yet wired
+into the browser engine. Runtime integration must preserve the same evidence,
+pass the complete rule/PWA suite, and increment the service-worker cache
+version because an engine file would change.
+
 ## Next evidence-driven slices
 
 1. **Completed:** profiled state `addb3dba`; repeated rule-sequence analysis,
    memo misses, and snapshot copying dominate the two-second outlier.
-2. Prototype request-scoped reuse of rule-compliance analysis and compare the
-   exact move/trace evidence before changing the live engine.
-3. Convert Metin's reported checker-stacking weakness into one or more board
+2. **Completed:** prototyped request-scoped rule-analysis reuse outside the live
+   engine; it preserved all eight traces and reduced the slow state to roughly
+   0.45 seconds in the recorded run.
+3. Integrate the proven cache boundary into the runtime engine with exact
+   legality, trace, lifecycle, PWA version, and fallback coverage.
+4. Convert Metin's reported checker-stacking weakness into one or more board
    fixtures with explicit desired trade-offs.
-4. Change one evaluation boundary at a time and compare the same seeds.
-5. Expand to a larger agreed sample only after the harness is stable.
-6. Consider a Web Worker only if optimized profiling still shows
+5. Change one evaluation boundary at a time and compare the same seeds.
+6. Expand to a larger agreed sample only after the harness is stable.
+7. Consider a Web Worker only if optimized profiling still shows
    player-visible blocking.
