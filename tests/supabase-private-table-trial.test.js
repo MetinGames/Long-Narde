@@ -3,13 +3,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const schemaPath = new URL(
-    '../supabase/schema/private_table_trial.sql',
+    '../supabase/schemas/private_table_trial.sql',
     import.meta.url
 );
 const functionPath = new URL(
     '../supabase/functions/private-table/index.ts',
     import.meta.url
 );
+const configPath = new URL('../supabase/config.toml', import.meta.url);
 
 test('Supabase trial schema keeps exposed tables behind grants and RLS', async () => {
     const sql = await readFile(schemaPath, 'utf8');
@@ -69,6 +70,7 @@ test('Realtime policy allows member Presence but no client Broadcast writes', as
 
 test('Edge Function verifies Auth user and never forwards client actor authority', async () => {
     const source = await readFile(functionPath, 'utf8');
+    const config = await readFile(configPath, 'utf8');
 
     assert.match(source, /\/auth\/v1\/user/);
     assert.match(source, /command\.actorId !== actorId/);
@@ -78,4 +80,7 @@ test('Edge Function verifies Auth user and never forwards client actor authority
     assert.doesNotMatch(source, /sb_secret_[A-Za-z0-9_-]+/);
     assert.doesNotMatch(source, /SUPABASE_SERVICE_ROLE_KEY/);
     assert.doesNotMatch(source, /console\.(log|error|warn)/);
+    assert.match(config, /\[functions\.private-table\]/);
+    assert.match(config, /verify_jwt\s*=\s*true/);
+    assert.match(config, /schema_paths\s*=\s*\["\.\/schemas\/\*\.sql"\]/);
 });

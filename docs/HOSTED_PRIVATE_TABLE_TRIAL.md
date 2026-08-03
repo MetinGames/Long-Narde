@@ -64,6 +64,8 @@ validation and results run on the server.
   transactions therefore fail safe without broadcasting when the managed
   function is missing. Realtime authorization remains a failed/open gate; it
   must not be replaced by client authority or hand-built provider internals.
+- A secret-free provider handoff is maintained in
+  [SUPABASE_REALTIME_INCIDENT.md](SUPABASE_REALTIME_INCIDENT.md).
 
 Realtime is a notification path, not canonical state. On every accepted event or
 reconnect, the client recovers its actor-scoped snapshot through the Edge
@@ -75,7 +77,8 @@ Function.
 |---|---|
 | `engine/hostedPrivateTableAdapter.js` | Provider-neutral async adapter, response authority checks, local resume-token custody, HTTP transport injection |
 | `supabase/functions/private-table/index.ts` | Authenticated command/snapshot front door; verified actor projection; managed secret use |
-| `supabase/schema/private_table_trial.sql` | Explicit grants, RLS, private data schema, lifecycle transaction, private Realtime policies and purge RPC |
+| `supabase/schemas/private_table_trial.sql` | Declarative schema with explicit grants, RLS, private data, lifecycle transaction, private Realtime policies and purge RPC |
+| `supabase/config.toml` | Standard declarative-schema path and explicit JWT-required function configuration |
 | `tests/hosted-private-table-adapter.test.js` | Adapter, secret-boundary and provider-error contract tests |
 | `tests/supabase-private-table-trial.test.js` | Static RLS, grants, token-storage, Realtime and Edge authority checks |
 
