@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+import { NardeBot } from '../engine/bot.js';
+import { NardeGame } from '../engine/game.js';
 import {
     compareChampionBenchmarkWithRuleCache,
     compareSlowStateWithRuleCache,
@@ -52,6 +54,53 @@ test('request-scoped cache returns cloned exact rule sequences', () => {
     assert.ok(metrics.maximum.hits > 0);
 });
 
+test('live Champion decision discards its request cache after returning', () => {
+    const game = createChampionProfileGame();
+    const bot = new NardeBot(2, 'champion', () => 0.5);
+
+    assert.deepEqual(bot.makeDecision(game), {
+        from: 3,
+        dice: 4,
+        target: 7
+    });
+    assert.ok(bot.lastRuleAnalysisCacheMetrics.sequence.hits > 0);
+    assert.ok(bot.lastRuleAnalysisCacheMetrics.maximum.hits > 0);
+
+    const freshScope = game.beginRuleAnalysisCacheScope();
+    const freshMetrics = freshScope.finish();
+    assert.equal(freshMetrics.sequence.entries, 0);
+    assert.equal(freshMetrics.maximum.entries, 0);
+});
+
+test('live Champion decision discards its cache when planning throws', () => {
+    const game = createChampionProfileGame();
+    const bot = new NardeBot(2, 'champion', () => 0.5);
+    bot.buildChampionPlan = () => {
+        throw new Error('planned failure');
+    };
+
+    assert.throws(() => bot.makeDecision(game), /planned failure/);
+
+    const freshScope = game.beginRuleAnalysisCacheScope();
+    const freshMetrics = freshScope.finish();
+    assert.equal(freshMetrics.sequence.entries, 0);
+    assert.equal(freshMetrics.maximum.entries, 0);
+});
+
+test('Champion safely falls back when request caching is unavailable', () => {
+    const game = new NardeGame();
+    game.initGame();
+    game.currentPlayer = 1;
+    game.gameStatus = 'PLAYING';
+    game.dice.values = [1, 2];
+    game.availableMoves = [1, 2];
+    game.beginRuleAnalysisCacheScope = undefined;
+    const bot = new NardeBot(1, 'champion', () => 0.5);
+
+    assert.ok(bot.makeDecision(game));
+    assert.equal(bot.lastRuleAnalysisCacheMetrics, null);
+});
+
 test('slow-state cache preserves the move and reduces repeated work', () => {
     const comparison = getSlowComparison();
 
@@ -94,7 +143,7 @@ test('cache experiment formatter states the safety boundary', () => {
         now: createStepClock()
     });
     const markdown = formatChampionRuleCacheExperimentMarkdown({
-        scope: 'development-only request-scoped cache',
+        scope: 'runtime request-scoped cache versus uncached control',
         slowState,
         benchmark
     });
@@ -102,5 +151,6 @@ test('cache experiment formatter states the safety boundary', () => {
     assert.match(markdown, /Slow-state move preserved: yes/);
     assert.match(markdown, /Full benchmark evidence preserved: yes/);
     assert.match(markdown, /development-only/i);
-    assert.match(markdown, /does not change the live engine/i);
+    assert.match(markdown, /live Champion engine boundary/i);
+    assert.match(markdown, /strategy weights, dice, and rules stay unchanged/i);
 });

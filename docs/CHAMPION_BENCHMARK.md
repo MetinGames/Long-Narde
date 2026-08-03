@@ -46,8 +46,8 @@ Produce machine-readable evidence:
 npm run bot:benchmark -- --json
 ```
 
-Reproduce and profile the known double-four slow state without changing the
-engine:
+Reproduce and profile the known double-four slow state against the live
+Champion engine:
 
 ```bash
 npm run bot:profile
@@ -57,15 +57,14 @@ Use `npm run bot:profile -- --json` for the complete state, call counts, and
 inclusive timing evidence. `--samples N` changes only the number of
 uninstrumented timing samples.
 
-Compare the current engine with a development-only, request-scoped reuse
-prototype:
+Compare the live request-scoped cache with an uncached control:
 
 ```bash
 npm run bot:cache-experiment
 ```
 
-The experiment must stop with an error if any outcome, move trace, dice trace,
-final checker state, move count, or the profiled `3 → 7` choice changes.
+The comparison command must stop with an error if any outcome, move trace, dice
+trace, final checker state, move count, or the profiled `3 → 7` choice changes.
 
 ## Recorded metrics
 
@@ -123,9 +122,10 @@ The `bot:profile` command reconstructs state `addb3dba` directly from its
 canonical search key. It verifies checker conservation, the exact restored
 state, and the same `3 → 7` Champion choice before reporting any timings. The
 profiler is development-only under `scripts/`; the player-facing engine and PWA
-shell are unchanged.
+shell use the same request-scoped cache boundary, while the profiler adds only
+development-time counters and timings.
 
-Observed local profile on 2026-08-03:
+Observed pre-integration local profile on 2026-08-03:
 
 | Evidence | Result |
 |---|---:|
@@ -147,43 +147,43 @@ The timings overlap because the measured methods are nested, but the
 deterministic counts identify the dominant shape: repeated legal-move analysis
 and snapshot copying, not Champion's position scoring.
 
-This evidence does **not** justify changing a rule or strategy weight. It also
-does not make a Web Worker the first response: a worker could hide main-thread
+This evidence did **not** justify changing a rule or strategy weight. It also
+did not make a Web Worker the first response: a worker could hide main-thread
 blocking while preserving almost two million copies and move attempts. The
-next optimization experiment should reuse rule-compliance analysis within one
-search state and prove identical legal moves, selected plans, traces, and
-checker conservation before any runtime integration.
+request-scoped reuse experiment below proved a narrower optimization first.
 
-## Request-scoped rule-analysis experiment
+## Runtime request-scoped rule-analysis cache
 
-The development-only `bot:cache-experiment` command reuses two results during
-one Champion decision:
+The live Champion engine now reuses two results during one decision:
 
 1. rule-compliant dice sequences keyed by the complete search state and source
    slot;
 2. maximum playable move counts keyed by the complete search state.
 
-Each decision starts with empty caches and discards them before returning. Dice
-values and first-turn metadata remain constant inside that request, while the
-key includes current player, head moves, available dice, borne-off counts, and
-every occupied slot. Cached sequence arrays are cloned before returning so a
-caller cannot mutate stored evidence.
+Each decision starts with empty caches and discards them in a `finally` block
+before returning or throwing. Nested scopes share the same request and release
+it only after the outer scope ends. Dice values and first-turn metadata remain
+constant inside that request, while the key includes current player, head
+moves, available dice, borne-off counts, and every occupied slot. Cached
+sequence arrays are cloned before returning so a caller cannot mutate stored
+evidence. Champion also falls back to the original uncached path when the scope
+API is unavailable.
 
-Observed local four-seed/eight-match experiment on 2026-08-03:
+Observed local four-seed/eight-match runtime comparison on 2026-08-03:
 
-| Slow state | Baseline | Cached prototype | Change |
+| Slow state | Uncached control | Live runtime | Change |
 |---|---:|---:|---:|
-| Average decision | 2,244.10 ms | 450.90 ms | 4.98× faster |
+| Average decision | 2,599.27 ms | 385.32 ms | 6.75× faster |
 | Memo lookups | 114,522 | 261 | 99.77% fewer |
 | Maximum-search calls | 843,956 | 24,682 | 97.08% fewer |
 | Snapshots created | 1,780,388 | 76,946 | 95.68% fewer |
 | Move attempts | 1,782,635 | 78,333 | 95.61% fewer |
 
-| Eight-match Champion timing | Baseline | Cached prototype | Change |
+| Eight-match Champion timing | Uncached control | Live runtime | Change |
 |---|---:|---:|---:|
-| Average | 24.43 ms | 5.81 ms | 4.21× faster |
-| P95 | 68.30 ms | 19.62 ms | 3.48× faster |
-| Maximum | 2,446.08 ms | 376.41 ms | 6.50× faster |
+| Average | 30.88 ms | 5.88 ms | 5.25× faster |
+| P95 | 89.50 ms | 19.69 ms | 4.54× faster |
+| Maximum | 2,690.30 ms | 364.56 ms | 7.38× faster |
 
 The slow-state sequence cache hit 92.97% of 120,091 queries. The maximum-move
 cache hit 96.97% of 24,682 queries and needed only 747 unique entries. Champion
@@ -192,10 +192,9 @@ still won 5–3, all eight move traces remained `b867a88d`, `074b8818`,
 and every match preserved 15 checkers per player.
 
 Interpretation: request-scoped reuse is a substantially narrower and more
-effective first response than a Web Worker. This prototype is not yet wired
-into the browser engine. Runtime integration must preserve the same evidence,
-pass the complete rule/PWA suite, and increment the service-worker cache
-version because an engine file would change.
+effective first response than a Web Worker. The live integration preserves the
+same evidence, keeps strategy and rules unchanged, and advances the PWA cache
+from `v8` to `v9` so offline players receive a coherent engine version.
 
 ## Next evidence-driven slices
 
@@ -204,8 +203,8 @@ version because an engine file would change.
 2. **Completed:** prototyped request-scoped rule-analysis reuse outside the live
    engine; it preserved all eight traces and reduced the slow state to roughly
    0.45 seconds in the recorded run.
-3. Integrate the proven cache boundary into the runtime engine with exact
-   legality, trace, lifecycle, PWA version, and fallback coverage.
+3. **Completed:** integrated the proven cache boundary into the runtime engine
+   with exact legality, trace, lifecycle, PWA version, and fallback coverage.
 4. Convert Metin's reported checker-stacking weakness into one or more board
    fixtures with explicit desired trade-offs.
 5. Change one evaluation boundary at a time and compare the same seeds.

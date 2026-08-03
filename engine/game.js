@@ -2,6 +2,34 @@
 import { Board } from './board.js';
 import { Dice } from './dice.js';
 
+function cloneDiceSequences(sequences) {
+    return sequences.map(sequence => [...sequence]);
+}
+
+function summarizeRuleAnalysisCache(scope) {
+    const summarize = (hits, misses, cache) => ({
+        queries: hits + misses,
+        hits,
+        misses,
+        hitRate: hits + misses === 0 ? 0 : hits / (hits + misses),
+        entries: cache.size
+    });
+
+    return {
+        scope: 'single-champion-decision',
+        sequence: summarize(
+            scope.sequenceHits,
+            scope.sequenceMisses,
+            scope.sequenceCache
+        ),
+        maximum: summarize(
+            scope.maximumHits,
+            scope.maximumMisses,
+            scope.maximumCache
+        )
+    };
+}
+
 export class NardeGame {
     constructor() {
         this.board = new Board();
@@ -19,6 +47,7 @@ export class NardeGame {
             memoHits: 0,
             memoMisses: 0
         };
+        this.ruleAnalysisCacheScope = null;
     }
 
     get gameStatus() {
@@ -64,6 +93,7 @@ export class NardeGame {
         this.headMovesThisTurn = 0;
         this.turnsCompleted = { 1: 0, 2: 0 };
         this.moveHistory = [];
+        this.ruleAnalysisCacheScope = null;
         this.resetAnalysisMetrics();
     }
 
@@ -102,6 +132,42 @@ export class NardeGame {
         return {
             memoHits: this.analysisMetrics.memoHits,
             memoMisses: this.analysisMetrics.memoMisses
+        };
+    }
+
+    beginRuleAnalysisCacheScope() {
+        let scope = this.ruleAnalysisCacheScope;
+        if (!scope) {
+            scope = {
+                depth: 0,
+                sequenceCache: new Map(),
+                maximumCache: new Map(),
+                sequenceHits: 0,
+                sequenceMisses: 0,
+                maximumHits: 0,
+                maximumMisses: 0
+            };
+            this.ruleAnalysisCacheScope = scope;
+        }
+
+        scope.depth++;
+        let finished = false;
+
+        return {
+            finish: () => {
+                if (!finished) {
+                    finished = true;
+                    scope.depth = Math.max(0, scope.depth - 1);
+                    if (
+                        scope.depth === 0 &&
+                        this.ruleAnalysisCacheScope === scope
+                    ) {
+                        this.ruleAnalysisCacheScope = null;
+                    }
+                }
+
+                return summarizeRuleAnalysisCache(scope);
+            }
         };
     }
 
@@ -400,13 +466,25 @@ export class NardeGame {
     }
 
     getMaximumPlayableMoveCount(options = {}) {
-        const memo = options.memo || new Map();
-        if (this.availableMoves.length === 0) return 0;
-
         const stateKey = this.getSearchStateKey();
+        const requestScope = this.ruleAnalysisCacheScope;
+        if (requestScope?.maximumCache.has(stateKey)) {
+            requestScope.maximumHits++;
+            return requestScope.maximumCache.get(stateKey);
+        }
+        if (requestScope) requestScope.maximumMisses++;
+
+        if (this.availableMoves.length === 0) {
+            requestScope?.maximumCache.set(stateKey, 0);
+            return 0;
+        }
+
+        const memo = options.memo || new Map();
         if (memo.has(stateKey)) {
             this.analysisMetrics.memoHits++;
-            return memo.get(stateKey);
+            const maximum = memo.get(stateKey);
+            requestScope?.maximumCache.set(stateKey, maximum);
+            return maximum;
         }
 
         this.analysisMetrics.memoMisses++;
@@ -414,6 +492,7 @@ export class NardeGame {
         const legalMoves = this.getRawLegalSingleMoves();
         if (legalMoves.length === 0) {
             memo.set(stateKey, 0);
+            requestScope?.maximumCache.set(stateKey, 0);
             return 0;
         }
 
@@ -437,6 +516,7 @@ export class NardeGame {
         }
 
         memo.set(stateKey, maximum);
+        requestScope?.maximumCache.set(stateKey, maximum);
         return maximum;
     }
 
@@ -477,9 +557,24 @@ export class NardeGame {
     }
 
     getRuleCompliantDiceSequences(fromSlot) {
+        const requestScope = this.ruleAnalysisCacheScope;
+        const cacheKey = requestScope
+            ? `${fromSlot}|${this.getSearchStateKey()}`
+            : null;
+        if (requestScope?.sequenceCache.has(cacheKey)) {
+            requestScope.sequenceHits++;
+            return cloneDiceSequences(
+                requestScope.sequenceCache.get(cacheKey)
+            );
+        }
+        if (requestScope) requestScope.sequenceMisses++;
+
         const memo = new Map();
         const maximum = this.getMaximumPlayableMoveCount({ memo });
-        if (maximum === 0) return [];
+        if (maximum === 0) {
+            requestScope?.sequenceCache.set(cacheKey, []);
+            return [];
+        }
 
         const requiredDice = new Set(this.getRequiredDiceValues());
         const compliant = [];
@@ -541,7 +636,11 @@ export class NardeGame {
             }
         }
 
-        return compliant;
+        if (!requestScope) return compliant;
+
+        const stored = cloneDiceSequences(compliant);
+        requestScope.sequenceCache.set(cacheKey, stored);
+        return cloneDiceSequences(stored);
     }
 
     getUnplayableReason(fromSlot) {

@@ -39,7 +39,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **324 Node tests and 28 executed Playwright checks passing as of 2026-08-03** (50-case browser/device matrix with 22 intentional project skips).
+- **327 Node tests and 28 executed Playwright checks passing as of 2026-08-03** (50-case browser/device matrix with 22 intentional project skips).
 
 ## Current gaps and risks
 
@@ -60,7 +60,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 5. **Completed — [#10](https://github.com/MetinGames/Long-Narde/issues/10):** replaced the single start action with an honest, responsive mode entry; Quick Play and Bot Match work, while Friend Match and Online remain visibly disabled until real flows exist.
 6. **Completed — [#9](https://github.com/MetinGames/Long-Narde/issues/9):** added engine-owned contextual explanations for common Long Narde restrictions and a dismissible, reopenable first-visit guide with keyboard, touch, responsive, offline and localization coverage.
 7. **Completed — [#25](https://github.com/MetinGames/Long-Narde/issues/25):** established evidence-driven file-health thresholds, an informational CI report, red-zone growth justification, and a staged `style.css` extraction plan without changing visuals.
-8. **In progress — [#11](https://github.com/MetinGames/Long-Narde/issues/11):** the deterministic baseline, slow-state profile, and development-only request-scoped rule-analysis experiment are merged through [#31](https://github.com/MetinGames/Long-Narde/pull/31); focused runtime integration is next.
+8. **In progress — [#11](https://github.com/MetinGames/Long-Narde/issues/11):** the deterministic baseline, slow-state profile, and development-only cache experiment are merged; [#32](https://github.com/MetinGames/Long-Narde/pull/32) integrates the proven request-scoped rule-analysis cache into the live Champion engine with lifecycle, fallback, PWA, and exact-trace coverage.
 9. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and [#6](https://github.com/MetinGames/Long-Narde/issues/6):** configure project metadata and inventory branches without blocking the social critical path or deleting unverified work.
 10. **Hosted approval gate:** [#20](https://github.com/MetinGames/Long-Narde/issues/20) remains blocked until Metin explicitly approves the candidate provider, EU region, minimal data map, retention, and any spend after reviewing [#19](https://github.com/MetinGames/Long-Narde/issues/19).
 

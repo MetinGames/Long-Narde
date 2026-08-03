@@ -13,10 +13,6 @@ function defaultNow() {
     return Date.now();
 }
 
-function cloneSequences(sequences) {
-    return sequences.map(sequence => [...sequence]);
-}
-
 function normalizeSamples(samples) {
     const normalized = Number(samples);
     if (!Number.isSafeInteger(normalized) || normalized <= 0) {
@@ -34,100 +30,12 @@ function reduction(before, after) {
     return before === 0 ? 0 : 1 - (after / before);
 }
 
-function summarizeCache(hits, misses, cache) {
-    const queries = hits + misses;
-    return {
-        queries,
-        hits,
-        misses,
-        hitRate: ratio(hits, queries),
-        entries: cache.size
-    };
-}
-
 export function installRuleAnalysisCache(game) {
-    if (typeof game?.getRuleCompliantDiceSequences !== 'function') {
+    if (typeof game?.beginRuleAnalysisCacheScope !== 'function') {
         throw new TypeError('Rule-analysis cache requires a NardeGame instance');
     }
 
-    const originalSequences = game.getRuleCompliantDiceSequences;
-    const originalMaximum = game.getMaximumPlayableMoveCount;
-    const sequenceCache = new Map();
-    const maximumCache = new Map();
-    let sequenceHits = 0;
-    let sequenceMisses = 0;
-    let maximumHits = 0;
-    let maximumMisses = 0;
-    let finished = false;
-
-    function cachedRuleCompliantDiceSequences(fromSlot) {
-        const stateKey = this.getSearchStateKey();
-        const cacheKey = `${fromSlot}|${stateKey}`;
-
-        if (sequenceCache.has(cacheKey)) {
-            sequenceHits++;
-            return cloneSequences(sequenceCache.get(cacheKey));
-        }
-
-        sequenceMisses++;
-        const sequences = originalSequences.call(this, fromSlot);
-        const stored = cloneSequences(sequences);
-        sequenceCache.set(cacheKey, stored);
-        return cloneSequences(stored);
-    }
-
-    function cachedMaximumPlayableMoveCount(options = {}) {
-        const stateKey = this.getSearchStateKey();
-        if (maximumCache.has(stateKey)) {
-            maximumHits++;
-            return maximumCache.get(stateKey);
-        }
-
-        maximumMisses++;
-        const maximum = originalMaximum.call(this, options);
-        maximumCache.set(stateKey, maximum);
-        return maximum;
-    }
-
-    game.getRuleCompliantDiceSequences =
-        cachedRuleCompliantDiceSequences;
-    game.getMaximumPlayableMoveCount =
-        cachedMaximumPlayableMoveCount;
-
-    return {
-        finish() {
-            if (!finished) {
-                game.getRuleCompliantDiceSequences = originalSequences;
-                game.getMaximumPlayableMoveCount = originalMaximum;
-                finished = true;
-            }
-
-            return {
-                scope: 'single-champion-decision',
-                sequence: summarizeCache(
-                    sequenceHits,
-                    sequenceMisses,
-                    sequenceCache
-                ),
-                maximum: summarizeCache(
-                    maximumHits,
-                    maximumMisses,
-                    maximumCache
-                )
-            };
-        }
-    };
-}
-
-class RuleAnalysisCacheChampionBot extends NardeBot {
-    makeChampionDecision(game) {
-        const cache = installRuleAnalysisCache(game);
-        try {
-            return super.makeChampionDecision(game);
-        } finally {
-            cache.finish();
-        }
-    }
+    return game.beginRuleAnalysisCacheScope();
 }
 
 export function createRuleCacheExperimentBot({
@@ -135,9 +43,20 @@ export function createRuleCacheExperimentBot({
     difficulty,
     random
 }) {
-    return difficulty === 'champion'
-        ? new RuleAnalysisCacheChampionBot(player, difficulty, random)
-        : new NardeBot(player, difficulty, random);
+    return new NardeBot(player, difficulty, random);
+}
+
+export function createUncachedExperimentBot({
+    player,
+    difficulty,
+    random
+}) {
+    return new NardeBot(
+        player,
+        difficulty,
+        random,
+        { useRuleAnalysisCache: false }
+    );
 }
 
 function compactBenchmark(report) {
@@ -190,7 +109,12 @@ export function compareChampionBenchmarkWithRuleCache({
     maxTurns = 240,
     now = defaultNow
 } = {}) {
-    const baseline = runChampionBenchmark({ seeds, maxTurns, now });
+    const baseline = runChampionBenchmark({
+        seeds,
+        maxTurns,
+        now,
+        createBot: createUncachedExperimentBot
+    });
     const cached = runChampionBenchmark({
         seeds,
         maxTurns,
@@ -239,12 +163,13 @@ export function compareSlowStateWithRuleCache({
     const normalizedSamples = normalizeSamples(samples);
     const baseline = profileChampionDecision({
         samples: normalizedSamples,
-        now
+        now,
+        createBot: createUncachedExperimentBot
     });
     const cached = profileChampionDecision({
         samples: normalizedSamples,
         now,
-        prepareRun: ({ game }) => installRuleAnalysisCache(game)
+        createBot: createRuleCacheExperimentBot
     });
 
     if (
@@ -310,7 +235,7 @@ export function runChampionRuleCacheExperiment({
     return {
         experimentVersion: 1,
         informational: true,
-        scope: 'development-only request-scoped cache',
+        scope: 'runtime request-scoped cache versus uncached control',
         slowState: compareSlowStateWithRuleCache({ samples, now }),
         benchmark: compareChampionBenchmarkWithRuleCache({
             seeds,
@@ -414,8 +339,9 @@ export function formatChampionRuleCacheExperimentMarkdown(report) {
         '|---:|---|---|',
         ...traceRows,
         '',
-        'This experiment is development-only. Cache entries live for one ' +
-            'Champion decision and return cloned sequence arrays. It does not ' +
-            'change the live engine, strategy weights, dice, or rules.'
+        'This comparison command is development-only. Its cached side uses ' +
+            'the live Champion engine boundary: entries live for one decision ' +
+            'and return cloned sequence arrays. The control disables only ' +
+            'that cache; strategy weights, dice, and rules stay unchanged.'
     ].join('\n');
 }
