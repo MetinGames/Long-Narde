@@ -46,6 +46,17 @@ Produce machine-readable evidence:
 npm run bot:benchmark -- --json
 ```
 
+Reproduce and profile the known double-four slow state without changing the
+engine:
+
+```bash
+npm run bot:profile
+```
+
+Use `npm run bot:profile -- --json` for the complete state, call counts, and
+inclusive timing evidence. `--samples N` changes only the number of
+uninstrumented timing samples.
+
 ## Recorded metrics
 
 - Champion wins, Master wins, and turn-limit draws;
@@ -96,12 +107,52 @@ search/state-copy profiling. This evidence does not yet justify a Web Worker.
 Issue #11 remains open until a larger repeatable sample and real-match weakness
 fixtures confirm an improvement.
 
+## Targeted slow-state profile
+
+The `bot:profile` command reconstructs state `addb3dba` directly from its
+canonical search key. It verifies checker conservation, the exact restored
+state, and the same `3 → 7` Champion choice before reporting any timings. The
+profiler is development-only under `scripts/`; the player-facing engine and PWA
+shell are unchanged.
+
+Observed local profile on 2026-08-03:
+
+| Evidence | Result |
+|---|---:|
+| Uninstrumented decision average (3 samples) | 2,106.14 ms |
+| Memo lookups | 114,522 |
+| Memo hits / misses | 38,736 / 75,786 |
+| Memo hit rate | 33.82% |
+| Maximum-search calls | 843,956 |
+| Raw legal-move scans | 89,467 |
+| Rule-sequence queries | 120,091 |
+| State keys built | 114,523 |
+| Snapshots created / restored | 1,780,388 / 1,780,388 |
+| Move execution attempts | 1,782,635 |
+| Terminal plans scored | 9,520 |
+
+Inclusive timing attributed roughly 2.36 seconds to
+`getRuleCompliantDiceSequences`, while terminal plan scoring used about 31 ms.
+The timings overlap because the measured methods are nested, but the
+deterministic counts identify the dominant shape: repeated legal-move analysis
+and snapshot copying, not Champion's position scoring.
+
+This evidence does **not** justify changing a rule or strategy weight. It also
+does not make a Web Worker the first response: a worker could hide main-thread
+blocking while preserving almost two million copies and move attempts. The
+next optimization experiment should reuse rule-compliance analysis within one
+search state and prove identical legal moves, selected plans, traces, and
+checker conservation before any runtime integration.
+
 ## Next evidence-driven slices
 
-1. Profile state `addb3dba`, especially double-dice branching, memo misses and
-   snapshot copying, without changing legal-move behavior.
-2. Convert Metin's reported checker-stacking weakness into one or more board
+1. **Completed:** profiled state `addb3dba`; repeated rule-sequence analysis,
+   memo misses, and snapshot copying dominate the two-second outlier.
+2. Prototype request-scoped reuse of rule-compliance analysis and compare the
+   exact move/trace evidence before changing the live engine.
+3. Convert Metin's reported checker-stacking weakness into one or more board
    fixtures with explicit desired trade-offs.
-3. Change one evaluation boundary at a time and compare the same seeds.
-4. Expand to a larger agreed sample only after the harness is stable.
-5. Consider a Web Worker only if profiling shows player-visible blocking.
+4. Change one evaluation boundary at a time and compare the same seeds.
+5. Expand to a larger agreed sample only after the harness is stable.
+6. Consider a Web Worker only if optimized profiling still shows
+   player-visible blocking.
