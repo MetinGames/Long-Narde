@@ -302,9 +302,15 @@ function installMethodProfiler({ game, bot, now }) {
     };
 }
 
-function runProfileDecision({ profileCase, now, instrument }) {
+function runProfileDecision({
+    profileCase,
+    now,
+    instrument,
+    prepareRun
+}) {
     const game = createChampionProfileGame(profileCase);
     const bot = new NardeBot(profileCase.player, 'champion', () => 0.5);
+    const preparedRun = prepareRun?.({ game, bot }) || null;
     const profiler = instrument
         ? installMethodProfiler({ game, bot, now })
         : null;
@@ -313,12 +319,14 @@ function runProfileDecision({ profileCase, now, instrument }) {
     let move;
     let elapsedMs;
     let methods = null;
+    let experiment = null;
 
     try {
         move = bot.makeDecision(game);
         elapsedMs = Math.max(0, Number(now()) - startedAt);
     } finally {
         methods = profiler?.finish() || null;
+        experiment = preparedRun?.finish?.() || null;
     }
 
     if (!Number.isFinite(elapsedMs)) {
@@ -334,14 +342,16 @@ function runProfileDecision({ profileCase, now, instrument }) {
         elapsedMs,
         move: { ...move },
         analysis: game.getAnalysisMetrics(),
-        methods
+        methods,
+        experiment
     };
 }
 
 export function profileChampionDecision({
     profileCase = CHAMPION_DOUBLE_FOUR_PROFILE_CASE,
     samples = DEFAULT_PROFILE_SAMPLES,
-    now = defaultNow
+    now = defaultNow,
+    prepareRun
 } = {}) {
     const sampleCount = normalizePositiveInteger(samples, 'Profile samples');
     const baselineRuns = [];
@@ -350,14 +360,16 @@ export function profileChampionDecision({
         baselineRuns.push(runProfileDecision({
             profileCase,
             now,
-            instrument: false
+            instrument: false,
+            prepareRun
         }));
     }
 
     const instrumented = runProfileDecision({
         profileCase,
         now,
-        instrument: true
+        instrument: true,
+        prepareRun
     });
     const analysis = instrumented.analysis;
     const memoLookups = analysis.memoHits + analysis.memoMisses;
