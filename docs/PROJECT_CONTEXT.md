@@ -68,14 +68,18 @@ A later capability must not destabilize an earlier quality gate. This is no long
 The Phase 0 product exit gate is met. The current priorities are:
 
 1. keep ROADMAP, Issues, code and tests synchronized while cross-browser/mobile and offline PWA gates stay green;
-2. ship the honest mode-entry journey in [#10](https://github.com/MetinGames/Long-Narde/issues/10) as the player-facing doorway to local and future social modes;
-3. define and test the provider-neutral private-table, invite, presence and reconnect contract in [#16](https://github.com/MetinGames/Long-Narde/issues/16);
-4. use the device-only identity and private-table foundations delivered in [#15](https://github.com/MetinGames/Long-Narde/issues/15) and [#16](https://github.com/MetinGames/Long-Narde/issues/16) to build the local Friend Match client slice in [#18](https://github.com/MetinGames/Long-Narde/issues/18);
-5. run provider/privacy research, distribution, Project configuration and branch inventory as parallel supporting work rather than blockers on the social critical path.
+2. preserve the honest mode-entry journey from [#10](https://github.com/MetinGames/Long-Narde/issues/10), including native-disabled hosted Friend Match and Online entries;
+3. preserve the provider-neutral private-table contract from [#16](https://github.com/MetinGames/Long-Narde/issues/16) and the device-only identity boundary from [#15](https://github.com/MetinGames/Long-Narde/issues/15);
+4. use the same-device Friend Match vertical slice delivered in [#18](https://github.com/MetinGames/Long-Narde/issues/18) as the client contract proof, never as a claim that online play exists;
+5. make [#19](https://github.com/MetinGames/Long-Narde/issues/19) the next social-path research step while the hosted adapter in [#20](https://github.com/MetinGames/Long-Narde/issues/20), paid services, personal-data collection, and provider commitment remain explicitly gated;
+6. run distribution, Project configuration and branch inventory as parallel supporting work rather than blockers on the social critical path.
 
 The player-facing Nardora migration is complete. Champion mode, optional Quick Bear-Off,
 sampled audio review assets, and no-legal-move auto-pass have also reached `main`; their
 remaining work is refinement and real-device validation rather than initial delivery.
+The local Friend Match controller now proves room, invite, join, ready, active,
+disconnect, resume, leave, and close states against the in-memory adapter. It
+does not add networking, accounts, cloud data, or authoritative outcomes.
 
 New ideas are captured, classified and scheduled; they do not silently displace these priorities. Further internal extraction is evidence-driven and must not become an open-ended substitute for player-facing progress.
 

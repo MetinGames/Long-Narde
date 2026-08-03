@@ -8,9 +8,11 @@ executable reference is `engine/privateTableProtocol.js`; the deterministic
 in-memory adapter is a local development and contract-test tool, not a hosted
 multiplayer service.
 
-Nardora still exposes Friend Match and Online as unavailable. This contract
-does not add accounts, networking, personal-data upload, matchmaking, chat,
-voice, video, cloud persistence, or a playable online mode.
+Nardora still exposes the real Friend Match and Online modes as unavailable.
+Issue #18 adds a separately labelled same-device lifecycle preview against the
+in-memory adapter; it is not a playable or networked mode. This contract does
+not add accounts, networking, personal-data upload, matchmaking, chat, voice,
+video, cloud persistence, or a playable online mode.
 
 ## Player outcome
 
@@ -178,13 +180,14 @@ const result = table.dispatch(createPrivateTableCommand({
 }));
 
 const stop = table.subscribe(result.snapshot.roomId, update => {
-    // A future Friend Match controller renders update.snapshot.
+    // The local Friend Match preview controller renders update.snapshot.
 });
 ```
 
 `dispatch`, `getSnapshot`, and `subscribe` form the provider-neutral client
-surface. A future network adapter should preserve these semantics while
-replacing in-memory maps with authenticated transport and persistence.
+surface. `engine/friendMatchPreviewController.js` now exercises all three in a
+same-device UI flow. A future network adapter should preserve these semantics
+while replacing in-memory maps with authenticated transport and persistence.
 
 ## Failure codes
 
@@ -200,7 +203,7 @@ Provider selection remains open. Before connecting this contract to a service:
 
 1. approve account/privacy and data-location assumptions;
 2. compare managed providers for cost, limits, latency, export, and lock-in;
-3. implement a local Friend Match controller against this adapter;
+3. preserve the verified local Friend Match controller contract and replace only its adapter boundary;
 4. add authoritative rule validation and deterministic reconnect integration;
 5. add abuse controls and operations before chat or public discovery;
 6. verify browser, mobile lifecycle, offline fallback, and observability.

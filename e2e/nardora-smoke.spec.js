@@ -137,6 +137,58 @@ test('start-screen dialogs open and close without starting a match', async ({
     expect(runtimeErrors).toEqual([]);
 });
 
+test('local friend preview completes the same-device lifecycle honestly', async ({
+    page
+}, testInfo) => {
+    test.skip(
+        !['desktop-chromium', 'iphone-16e-portrait'].includes(testInfo.project.name),
+        'The local friend preview is covered on desktop and portrait touch layouts.'
+    );
+
+    const runtimeErrors = captureRuntimeErrors(page);
+    await openReadyStartScreen(page);
+
+    await expect(page.locator('#friend-match-button')).toBeDisabled();
+    await page.locator('#friend-preview-button').click();
+
+    const modal = page.locator('#friend-preview-modal');
+    const stageTitle = page.locator('#friend-preview-stage-title');
+    const nextButton = page.locator('#friend-preview-next-button');
+
+    await expect(modal).toBeVisible();
+    await expect(page.locator('#friend-preview-disclosure')).toContainText(
+        'This is not a real online match.'
+    );
+    await expect(stageTitle).toHaveText('Ready to create a local table');
+
+    const stages = [
+        'Local table created',
+        'Local invite ready',
+        'Simulated friend joined',
+        'Host is ready',
+        'Both players are ready',
+        'Local table preview active',
+        'Simulated friend disconnected',
+        'Simulated friend resumed',
+        'Simulated friend left the table',
+        'Local table closed'
+    ];
+
+    for (const stage of stages) {
+        await nextButton.click();
+        await expect(stageTitle).toHaveText(stage);
+    }
+
+    await expect(page.locator('#friend-preview-revision')).toHaveText('10');
+    await expect(page.locator('#friend-preview-room-status')).toHaveText('Closed');
+    await expect(page.locator('#friend-preview-friend-status')).toHaveText('Left');
+
+    await page.locator('#friend-preview-close-footer-button').click();
+    await expect(modal).toBeHidden();
+    await expect(page.locator('#start-screen')).toBeVisible();
+    expect(runtimeErrors).toEqual([]);
+});
+
 test('responsive shell stays inside the viewport', async ({ page }) => {
     const runtimeErrors = captureRuntimeErrors(page);
     await openReadyStartScreen(page);

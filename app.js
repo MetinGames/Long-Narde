@@ -59,6 +59,9 @@ import {
     createMobileThemeLabelController
 } from './engine/mobileThemeLabelController.js';
 import { createStartModeController } from './engine/startModeController.js';
+import {
+    FriendMatchPreviewController
+} from './engine/friendMatchPreviewController.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -87,6 +90,7 @@ let languageSelectors = null;
 let fullscreenController = null;
 let mobileThemeLabelController = null;
 let startModeController = null;
+let friendMatchPreviewController = null;
 let autoBearOffEnabled = false;
 let autoBearOffContainer = null;
 let autoBearOffToggle = null;
@@ -264,6 +268,7 @@ function hideStartScreen() {
     if (!overlay) return;
     document.body?.classList.remove('is-start-screen-open');
     feedbackModal?.close({ returnFocus: false });
+    friendMatchPreviewController?.close({ returnFocus: false });
     overlay.style.display = 'none';
     overlay.setAttribute('aria-hidden', 'true');
     howToPlayGuide?.close({ returnFocus: false });
@@ -1017,6 +1022,10 @@ function bindEvents() {
         document.getElementById('how-to-play-modal');
     const statsButton =
         document.getElementById('player-stats-button');
+    const friendPreviewButton =
+        document.getElementById('friend-preview-button');
+    const friendPreviewModal =
+        document.getElementById('friend-preview-modal');
     const statsModal =
         document.getElementById('player-stats-modal');
     const statsCloseButtons = [
@@ -1116,6 +1125,52 @@ function bindEvents() {
         }
     });
 
+    friendMatchPreviewController = new FriendMatchPreviewController({
+        identityStore: playerIdentityStore,
+        translate: (key, values) => t(key, values),
+        elements: {
+            modal: friendPreviewModal,
+            openButton: friendPreviewButton,
+            closeButtons: [
+                document.getElementById('friend-preview-close-button'),
+                document.getElementById('friend-preview-close-footer-button')
+            ].filter(Boolean),
+            nextButton: document.getElementById('friend-preview-next-button'),
+            resetButton: document.getElementById('friend-preview-reset-button'),
+            stageTitle: document.getElementById('friend-preview-stage-title'),
+            stageDetail: document.getElementById('friend-preview-stage-detail'),
+            roomCode: document.getElementById('friend-preview-room-code'),
+            roomStatus: document.getElementById('friend-preview-room-status'),
+            revision: document.getElementById('friend-preview-revision'),
+            inviteStatus: document.getElementById('friend-preview-invite-status'),
+            protocolVersion: document.getElementById('friend-preview-protocol-version'),
+            hostCard: document.getElementById('friend-preview-host-card'),
+            hostAvatar: document.getElementById('friend-preview-host-avatar'),
+            hostName: document.getElementById('friend-preview-host-name'),
+            hostStatus: document.getElementById('friend-preview-host-status'),
+            friendCard: document.getElementById('friend-preview-friend-card'),
+            friendAvatar: document.getElementById('friend-preview-friend-avatar'),
+            friendName: document.getElementById('friend-preview-friend-name'),
+            friendStatus: document.getElementById('friend-preview-friend-status'),
+            timelineSteps: friendPreviewModal
+                ? friendPreviewModal.querySelectorAll('[data-step-index]')
+                : [],
+            liveStatus: document.getElementById('friend-preview-live-status')
+        },
+        onStateChange: ({ stage, errorKey, eventType, revision }) => {
+            runtimeDiagnostics.recordStateChange(
+                errorKey ? 'friend-preview-error' : 'friend-preview-state',
+                {
+                    stage,
+                    eventType: eventType || 'none',
+                    revision,
+                    error: errorKey || 'none'
+                }
+            );
+        }
+    });
+    friendMatchPreviewController.start();
+
     feedbackModal = new FeedbackModal({
         modal: feedbackModalElement,
         openButton: feedbackButton,
@@ -1207,6 +1262,7 @@ function bindEvents() {
         onLanguageApplied: () => {
             howToPlayGuide?.refreshForLanguage();
             playerStatsModal?.refreshForLanguage();
+            friendMatchPreviewController?.refreshForLanguage();
             fullscreenController?.refreshLabels();
             mobileThemeLabelController?.refresh();
             updateScreen();
