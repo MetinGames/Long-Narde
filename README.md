@@ -123,6 +123,7 @@ Verified engine modules currently present:
 - `engine/input.js`
 - `engine/layout.js`
 - `engine/languageSelectors.js`
+- `engine/mobileThemeLabelController.js`
 - `engine/playerStats.js`
 - `engine/playerStatsModal.js`
 - `engine/pwa.js`
@@ -146,6 +147,7 @@ Verified test files currently present:
 - `tests/input.test.js`
 - `tests/layout.test.js`
 - `tests/language-selectors.test.js`
+- `tests/mobile-theme-label-controller.test.js`
 - `tests/player-stats-modal.test.js`
 - `tests/player-stats.test.js`
 - `tests/pwa.test.js`

@@ -25,7 +25,7 @@ This log records durable decisions and their reasoning. New entries are appended
 
 ### D-003 — Web-first staged delivery
 
-**Status:** Accepted  
+**Status:** Superseded by D-018
 **Decision:** Stabilize web/PWA first; then Yandex Games, Android, iOS, online private tables and social features in sequence.
 
 ### D-004 — Preserve the engine; avoid a framework rewrite
@@ -105,6 +105,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Reason:** Offline play must not leave testers with a partially cached build or switch JavaScript versions during a match. The buildless GitHub Pages deployment also benefits from a small auditable service worker instead of a new runtime dependency.
 **Consequences:** Every precached shell change must increment `CACHE_VERSION` in `service-worker.js`; focused tests verify the cache inventory and update lifecycle. A no-op replacement service worker remains the recovery path if offline interception ever needs to be disabled.
 **Review trigger:** The app introduces code splitting, a build pipeline, large asset growth, background sync, or update behavior that cannot be kept coherent with this policy.
+
+### D-018 — Start the social-platform critical path before distribution completes
+
+**Date:** 2026-08-03
+**Status:** Accepted
+**Decision:** Nardora will keep its web/PWA quality gates while pulling social-platform foundations into Phase 1. Honest mode entry, local identity seams, and a provider-neutral private-table contract may progress before Yandex/mobile packaging is complete. Hosted accounts, personal-data collection, paid services, and provider commitments remain behind their explicit approval gates.
+**Reason:** The product goal is a safe social game platform, and strictly postponing every identity, room, invite, presence, and reconnect boundary until after all distribution work would delay the highest-leverage architecture and player journey.
+**Consequences:** Issues [#10](https://github.com/MetinGames/Long-Narde/issues/10), [#15](https://github.com/MetinGames/Long-Narde/issues/15), and [#16](https://github.com/MetinGames/Long-Narde/issues/16) form the immediate social critical path. Distribution continues in parallel. Unavailable online modes remain honest, trusted outcomes remain server-authoritative, and low-value cleanup cannot displace this path without evidence.
+**Review trigger:** The local vertical slice exposes a contract flaw, real-device/release quality regresses, or provider/privacy evidence changes the safe implementation order.
 
 ## Open decisions
 

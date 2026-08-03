@@ -54,30 +54,30 @@ Every Nardora release should make the player feel:
 
 English is the default interface for international reach. Turkish and Russian remain first-class and synchronized.
 
-## 4. Product stages
+## 4. Product stages and parallel tracks
 
-1. **Strong local game:** accurate rules, premium board, strong bot, sounds, onboarding, statistics and reliable mobile play.
-2. **Installable distribution:** offline PWA, Yandex Games candidate, Android beta and iOS/TestFlight beta.
-3. **Online private tables:** accounts, invitations, reconnect/resume, authoritative state and text/emoji communication.
-4. **Social Nardora:** opt-in voice/video, rankings, groups/clans, moderation, privacy and operational hardening.
+1. **Trusted game foundation:** accurate rules, premium board, strong bot, onboarding, statistics and reliable mobile/PWA play.
+2. **Social-ready local product:** honest mode entry, local identity/profile seams, and provider-neutral room/invite/reconnect contracts.
+3. **Distribution and private-table delivery:** Yandex/mobile packaging progresses in parallel with an authoritative invite-only table vertical slice.
+4. **Social Nardora:** accounts, presence, text/emoji, opt-in voice/video, rankings, groups/clans, moderation, privacy and operational hardening.
 
-A later stage must not destabilize the quality gate of an earlier one.
+A later capability must not destabilize an earlier quality gate. This is no longer a strictly serial plan: safe, provider-neutral social foundations start before distribution packaging is complete, while hosted services and personal-data flows remain explicitly gated.
 
 ## 5. Current strategic focus
 
-Until Phase 0 exits, the priorities are:
+The Phase 0 product exit gate is met. The current priorities are:
 
-1. keep ROADMAP, Issues, code and tests synchronized after each delivery and playtest cycle;
-2. keep cross-browser/mobile Playwright and offline PWA release gates green;
-3. reduce large-file risk through small tested extractions;
-4. configure the unified Project/milestone view for the approved Phase 0/1 queue;
-5. preserve unmerged branch work until the branch inventory is verified.
+1. keep ROADMAP, Issues, code and tests synchronized while cross-browser/mobile and offline PWA gates stay green;
+2. ship the honest mode-entry journey in [#10](https://github.com/MetinGames/Long-Narde/issues/10) as the player-facing doorway to local and future social modes;
+3. define and test the provider-neutral private-table, invite, presence and reconnect contract in [#16](https://github.com/MetinGames/Long-Narde/issues/16);
+4. evolve local profile work in [#15](https://github.com/MetinGames/Long-Narde/issues/15) so identity can later transition cleanly to an approved account model;
+5. run distribution, Project configuration and branch inventory as parallel supporting work rather than blockers on the social critical path.
 
 The player-facing Nardora migration is complete. Champion mode, optional Quick Bear-Off,
 sampled audio review assets, and no-legal-move auto-pass have also reached `main`; their
 remaining work is refinement and real-device validation rather than initial delivery.
 
-New ideas are captured, classified and scheduled; they do not silently displace these priorities.
+New ideas are captured, classified and scheduled; they do not silently displace these priorities. Further internal extraction is evidence-driven and must not become an open-ended substitute for player-facing progress.
 
 ## 6. Decision filters
 

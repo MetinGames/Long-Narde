@@ -35,11 +35,11 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Champion bot mode with deterministic multi-move planning and callback safety.
 - Automatic pass when no legal move exists, without starting a stale human timer.
 - Licensed sampled dice and checker sounds integrated as a review baseline; final original recordings remain planned.
-- **240 automated tests passing as of 2026-08-03.**
+- **245 automated tests passing as of 2026-08-03.**
 
 ## Current gaps and risks
 
-- `app.js` is about 1,314 lines, `engine/renderer.js` about 1,181 lines, and `style.css` about 2,525 lines; recent features increased orchestration and styling pressure while modularization remains incomplete.
+- `app.js` is 1,264 lines after two focused lifecycle extractions; `engine/renderer.js` remains about 1,181 lines and `style.css` about 2,525 lines. Further extraction is evidence-driven so cleanup does not block player-facing progress.
 - The repository has 35 non-main remote branches that need a verified merged/stale inventory before deletion.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
 - Community-sourced sample sounds are integrated and licensed, but Metin's final original dice/checker recordings, volume controls, and device-level listening review are not complete.
@@ -50,20 +50,21 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 
 ## Active 14-day worklist — 2026-08-03 to 2026-08-16
 
-1. **Active — [#4](https://github.com/MetinGames/Long-Narde/issues/4):** browser resume-event ownership is extracted and mapped; continue with the compact mobile theme-label listener slice while keeping 240+ unit tests and relevant Playwright smoke tests green.
-2. **Completed — [#5](https://github.com/MetinGames/Long-Narde/issues/5):** delivered the conservative installable/offline PWA foundation with predictable cache updates.
-3. **Queued — [#8](https://github.com/MetinGames/Long-Narde/issues/8):** configure the unified GitHub Project view, Phase 0/1 milestones, and lightweight workflow metadata.
-4. **Queued — [#6](https://github.com/MetinGames/Long-Narde/issues/6):** classify all 35 non-main branches; prepare an approval list but delete nothing.
-5. **Phase 1 ready — [#9](https://github.com/MetinGames/Long-Narde/issues/9):** begin contextual rule explanations and the interactive first-match tutorial only after the Phase 0 exit gate is met.
+1. **Active next — [#10](https://github.com/MetinGames/Long-Narde/issues/10):** replace the single start action with an honest, responsive mode entry that makes the path toward Friend Match and Online visible without launching fake flows.
+2. **Next — [#16](https://github.com/MetinGames/Long-Narde/issues/16):** define and test the provider-neutral private-table, invite, presence, authoritative-event and reconnect foundation.
+3. **Next — [#15](https://github.com/MetinGames/Long-Narde/issues/15):** shape local profile and built-in avatar identity so it can transition cleanly to a later approved account model.
+4. **Completed — [#4](https://github.com/MetinGames/Long-Narde/issues/4):** extracted resume and compact mobile-theme listener ownership with focused lifecycle tests; defer additional cleanup until product work or evidence requires it.
+5. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and [#6](https://github.com/MetinGames/Long-Narde/issues/6):** configure project metadata and inventory branches without blocking the social critical path or deleting unverified work.
 
 Completed in this synchronization cycle:
 
 - [#2](https://github.com/MetinGames/Long-Narde/issues/2) Issue/ROADMAP synchronization workflow established and closed.
 - [#3](https://github.com/MetinGames/Long-Narde/issues/3) Playwright cross-browser/mobile coverage verified and closed.
 - [#5](https://github.com/MetinGames/Long-Narde/issues/5) installable/offline PWA foundation delivered with focused lifecycle and offline-play tests.
+- [#4](https://github.com/MetinGames/Long-Narde/issues/4) two focused `app.js` lifecycle/listener slices delivered with explicit ownership and cleanup tests.
 - No open pull request or new GitHub player-feedback submission requires triage; closed draft PR [#7](https://github.com/MetinGames/Long-Narde/pull/7) is superseded by the Nardora work already delivered to `main`.
 
-## Phase 0 — Active sprint: synchronization and delivery safety
+## Phase 0 — Product exit gate met; maintenance continues
 
 Target: **2026-08-14**
 
@@ -71,7 +72,7 @@ Target: **2026-08-14**
 - **Done:** Establish and run the Issue/ROADMAP synchronization workflow; recurring weekly review continues under the documented operating loop.
 - **Queued:** Configure the unified GitHub Project view, milestones, and workflow metadata in [#8](https://github.com/MetinGames/Long-Narde/issues/8); the approved priority Phase 1 backlog now exists as Issues.
 - **Queued:** Inventory all 35 non-main branches in [#6](https://github.com/MetinGames/Long-Narde/issues/6) and remove only branches proven merged or obsolete after Metin approves the exact cleanup list.
-- **In progress:** Continue small, test-backed extraction from `app.js` in [#4](https://github.com/MetinGames/Long-Narde/issues/4); resume-event ownership now has an idempotent controller and the remaining listener boundaries are mapped.
+- **Done:** Complete the focused [#4](https://github.com/MetinGames/Long-Narde/issues/4) checkpoint: resume and mobile-theme event ownership are idempotent, removable and test-backed.
 - **Done:** Playwright CI covers Chromium, Firefox, WebKit, iPhone 16e portrait, iPhone 17 Pro Max landscape, fullscreen/focus fallback, orientation transitions, and stable high-value visual baselines.
 - **Done:** Added a small PWA foundation with app manifest, original Nardora icons, conservative versioned updates, installability metadata, and offline local bot play.
 - **Research:** Measure move-search cost, memoization effectiveness, JSON state-copy cost, Web Worker need, and audio/image preload behavior before optimizing.
@@ -83,17 +84,30 @@ Exit criteria:
 - Unit tests and cross-browser smoke tests pass in CI.
 - The game is installable as a basic PWA and remains playable offline against the bot.
 
-## Phase 1 — Strong local game and launch candidate
+All four product exit criteria are met. Project/milestone configuration and branch inventory remain useful maintenance work, not blockers on Phase 1 delivery.
+
+## Social-platform critical path
+
+1. **Entry:** [#10](https://github.com/MetinGames/Long-Narde/issues/10) gives every current and future mode an honest place in the product journey.
+2. **Identity seam:** [#15](https://github.com/MetinGames/Long-Narde/issues/15) establishes local, resettable identity and built-in avatars without collecting remote personal data.
+3. **Private-table contract:** [#16](https://github.com/MetinGames/Long-Narde/issues/16) defines room lifecycle, invites, presence, authoritative commands/events and reconnect snapshots with an in-memory test adapter.
+4. **Hosted vertical slice:** after provider/privacy approval, connect the proven contract to managed auth/realtime infrastructure and ship invite-only tables before public matchmaking.
+5. **Safe communication and community:** add text/emoji with leave, mute, block, report and rate limits; voice/video, rankings and groups follow only after the safety and operations layer is proven.
+
+Distribution and local-game quality proceed in parallel. No social milestone may weaken rule authority, mobile reliability, privacy defaults or honest availability states.
+
+## Phase 1 — Active: social-ready local game and launch candidate
 
 Target: **2026-09-30**
 
+- Replace the single start action with the honest mode entry in [#10](https://github.com/MetinGames/Long-Narde/issues/10); Quick Play/Bot Match work now, while Friend Match/Online expose accurate future availability.
+- Define and test the provider-neutral private-table foundation in [#16](https://github.com/MetinGames/Long-Narde/issues/16), including authoritative command/event boundaries and reconnect behavior.
+- Build local identity/profile seams in [#15](https://github.com/MetinGames/Long-Narde/issues/15) without remote personal-data collection.
 - Integrate the user's original high-quality dice and checker recordings, with volume controls and safe preload behavior ([#12](https://github.com/MetinGames/Long-Narde/issues/12)).
 - Benchmark and refine the shipped Champion bot against representative positions and Metin's real matches; move heavy calculation to a Web Worker only if measurements justify it ([#11](https://github.com/MetinGames/Long-Narde/issues/11)).
 - Build a contextual **Rule Explanation System** that explains why a move is legal, blocked, mandatory, or automatically passed ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - Add an **Interactive First-Match Tutorial** for the distinctive Long Narde rules, using the existing guide as its reference source (combined with [#9](https://github.com/MetinGames/Long-Narde/issues/9)).
-- Replace the single start action with a minimal mode menu: Quick Play, Bot Match, Friend Match, Online, and How to Play; keep unavailable future modes clearly marked instead of starting fake flows ([#10](https://github.com/MetinGames/Long-Narde/issues/10)).
 - Build a visual theme-management screen and prepare approved Anatolian theme families without weakening board readability ([#14](https://github.com/MetinGames/Long-Narde/issues/14)).
-- Finish profile card, local avatar selection, achievements, and richer local statistics ([#15](https://github.com/MetinGames/Long-Narde/issues/15)).
 - Polish onboarding, victory flow, active-player cues, touch targets, and accessibility; validate the release gate on real devices ([#13](https://github.com/MetinGames/Long-Narde/issues/13)).
 - Keep competitor/rival analysis as a research input for clarity, onboarding, retention, and monetization patterns; do not copy protected art or branding.
 - Run real-device tests on representative iPhone, Android, tablet, and desktop screen sizes ([#13](https://github.com/MetinGames/Long-Narde/issues/13)).
@@ -133,7 +147,9 @@ Target: **2027-09-30**
 ## Schedule range
 
 - Strong Nardora web/PWA release: **2026-09-30**.
+- Provider-neutral private-table contract and local vertical slice: **2026-09-30**.
 - Yandex submission candidate: **2026-11-30**.
+- Hosted invite-only private-table alpha: **2027-01-31**, subject to provider and privacy approval.
 - Android beta: **2027-01-31**.
 - iOS beta: **2027-03-31**.
 - Online private-table beta: **2027-05-31**.

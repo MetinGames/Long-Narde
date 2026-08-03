@@ -77,6 +77,7 @@ function createServiceWorkerHarness() {
                 'nardora-offline-v0',
                 'nardora-offline-v1-2026-08-03',
                 'nardora-offline-v2-2026-08-03',
+                'nardora-offline-v3-2026-08-03',
                 'unrelated-cache'
             ];
         },
@@ -207,7 +208,8 @@ test('service worker removes only old Nardora caches and claims clients', async 
 
     assert.deepEqual(harness.deletedCaches, [
         'nardora-offline-v0',
-        'nardora-offline-v1-2026-08-03'
+        'nardora-offline-v1-2026-08-03',
+        'nardora-offline-v2-2026-08-03'
     ]);
     assert.equal(harness.clientsClaimed, 1);
 

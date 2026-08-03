@@ -17,7 +17,8 @@ Last reviewed: **2026-08-03**
 | Slot selection and move application | `app.js` + game/input modules | Rule-sensitive; leave until its boundary is fully characterized |
 | Modal, language, fullscreen, feedback, and control assembly | `app.js` + focused UI modules | Keep assembly in `app.js`; controllers own their listeners |
 | Resume synchronization on visibility, focus, and page restore | `appResumeController.js` | Extracted; controller owns bind, idempotence, and cleanup |
-| Initial DOM bootstrap and compact mobile theme label | `app.js` | Next low-risk listener-lifecycle candidate |
+| Compact mobile theme label | `mobileThemeLabelController.js` | Extracted; controller owns media/select listeners, cleanup, and translation refresh |
+| Initial DOM bootstrap | `app.js` | Keep as composition-root work while startup remains a single page |
 
 ## Listener ownership
 
@@ -27,16 +28,14 @@ Last reviewed: **2026-08-03**
 | Canvas pointer/click input | `input.js` | Bound once during app setup |
 | Fullscreen and layout signals | `fullscreenController.js` | Controller-owned bind/destroy lifecycle |
 | Language selector changes | `languageSelectors.js` | Controller-owned listeners and `dispose()` |
+| Mobile theme media-query and theme selection changes | `mobileThemeLabelController.js` | Idempotent `start()`, explicit `stop()`, translation-aware `refresh()` |
 | Modal keyboard/click events | Each modal controller | Controller-owned listeners |
 | First pointer/key audio unlock | `app.js` | One-shot listeners; candidate for extraction |
 | Buttons for restart, start, undo, confirm, theme, and difficulty | `app.js` | Review in small groups; do not create a catch-all event bus |
-| `DOMContentLoaded` and mobile theme media-query changes | `app.js` | Bootstrap-only; mobile theme listener is the next candidate |
+| `DOMContentLoaded` | `app.js` | Bootstrap-only composition root |
 
-## Next extraction order
+## Extraction checkpoint
 
-1. Move compact mobile theme-label/media-query wiring into an idempotent controller.
-2. Isolate first-gesture audio unlock listener ownership.
-3. Separate diagnostics feedback buttons from the main DOM assembly.
-4. Reassess runtime scheduling and turn-flow boundaries only after the low-risk listener slices remain green in CI.
+Issue #4's focused lifecycle checkpoint is complete after the resume and mobile-theme listener slices. First-gesture audio unlock and diagnostics feedback remain valid future candidates, but they should be extracted only when adjacent product work touches them or evidence shows lifecycle risk. Nardora now returns to player-facing work on the social-platform critical path instead of extending cleanup for its own sake.
 
-Each slice must preserve game rules and public behavior, add focused listener lifecycle tests, keep Playwright green, and update this map plus Issue #4.
+Future slices must preserve game rules and public behavior, add focused lifecycle tests, keep Playwright green, and update this map when ownership changes.
