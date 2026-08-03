@@ -20,6 +20,24 @@ test('engine unplayable reasons map to stable explanation keys', () => {
         code: RULE_EXPLANATION_CODE.PIECE_BLOCKED,
         messageKey: 'ruleExplanation.pieceBlocked'
     });
+    assert.deepEqual(getUnplayableRuleExplanation('illegalPrime'), {
+        code: RULE_EXPLANATION_CODE.ILLEGAL_PRIME,
+        messageKey: 'ruleExplanation.illegalPrime'
+    });
+    assert.deepEqual(
+        getUnplayableRuleExplanation('bearingOffHomeRequired'),
+        {
+            code: RULE_EXPLANATION_CODE.BEARING_OFF_HOME_REQUIRED,
+            messageKey: 'ruleExplanation.bearingOffHomeRequired'
+        }
+    );
+    assert.deepEqual(
+        getUnplayableRuleExplanation('bearingOffFartherChecker'),
+        {
+            code: RULE_EXPLANATION_CODE.BEARING_OFF_FARTHER_CHECKER,
+            messageKey: 'ruleExplanation.bearingOffFartherChecker'
+        }
+    );
 });
 
 test('unknown reasons fail safe to the generic blocked-piece explanation', () => {
