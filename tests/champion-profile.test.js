@@ -46,9 +46,13 @@ test('slow Champion profile preserves the selected move and work counts', () => 
         target: 7
     });
     assert.equal(report.case.stateHash, 'addb3dba');
-    assert.equal(report.instrumented.analysis.memoHits, 38_736);
-    assert.equal(report.instrumented.analysis.memoMisses, 75_786);
-    assert.equal(report.derived.memoLookups, 114_522);
+    assert.equal(report.instrumented.analysis.memoHits, 0);
+    assert.equal(report.instrumented.analysis.memoMisses, 261);
+    assert.equal(report.derived.memoLookups, 261);
+    assert.equal(report.instrumented.experiment.sequence.hits, 111_647);
+    assert.equal(report.instrumented.experiment.sequence.misses, 8_444);
+    assert.equal(report.instrumented.experiment.maximum.hits, 23_935);
+    assert.equal(report.instrumented.experiment.maximum.misses, 747);
     assert.ok(report.derived.snapshotsCreated > 0);
     assert.equal(
         report.derived.snapshotsCreated,
