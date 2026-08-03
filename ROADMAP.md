@@ -56,7 +56,7 @@ Target: **2026-08-14**
 - **In progress:** Phase 0 work now exists as six prioritized GitHub Issues with estimates and acceptance criteria; create the Project view and remaining Phase 1 backlog.
 - **Queued:** Inventory all 35 non-main branches and remove only branches proven merged or obsolete after Metin approves the exact cleanup list.
 - **In progress:** Continue small, test-backed extraction from `app.js`; review UI/core ownership and event-listener lifecycle.
-- **Queued:** Add Playwright smoke and visual-regression tests for Chromium, Firefox, WebKit, touch, portrait, and landscape layouts.
+- **In progress:** Playwright smoke coverage now targets Chromium, Firefox, WebKit, iPhone 16e portrait, and iPhone 17 Pro Max landscape; add the first stable visual-regression baselines after CI smoke runs are green.
 - **Queued:** Add a small PWA foundation: app manifest, icons, service worker, installability, and offline local play.
 - **Research:** Measure move-search cost, memoization effectiveness, JSON state-copy cost, Web Worker need, and audio/image preload behavior before optimizing.
 

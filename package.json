@@ -3,9 +3,12 @@
   "private": true,
   "type": "module",
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "yaml": "^2.8.1"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "test:e2e": "playwright test",
+    "test:e2e:list": "playwright test --list"
   }
 }

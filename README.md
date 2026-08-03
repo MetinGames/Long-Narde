@@ -82,6 +82,7 @@ The UI includes mobile media queries for portrait and landscape layouts, safe-ar
 - HTML5 Canvas rendering.
 - CSS for responsive layout and theming.
 - Node.js built-in test runner for automated verification.
+- Playwright for Chromium, Firefox, WebKit, and mobile/touch smoke testing.
 
 ## Verified project structure
 
@@ -155,6 +156,12 @@ To run tests:
 
 - Windows: `npm.cmd test`
 - Cross-platform: `npm test`
+
+To list or run the Playwright browser suite:
+
+- List configured tests and devices: `npm run test:e2e:list`
+- Run all browser projects: `npm run test:e2e`
+- Install required local browsers first when needed: `npx playwright install chromium firefox webkit`
 
 ## Architecture overview
 
