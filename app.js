@@ -54,6 +54,10 @@ import {
     applyNoLegalMoveAutoPass,
     hasAnyRuleCompliantTurnStart
 } from './engine/noLegalMoveAutoPass.js';
+import {
+    getNoLegalMoveRuleExplanation,
+    getUnplayableRuleExplanation
+} from './engine/ruleExplanations.js';
 import { createAppResumeController } from './engine/appResumeController.js';
 import {
     createMobileThemeLabelController
@@ -512,7 +516,8 @@ function passCurrentTurnWhenNoLegalMove() {
         return false;
     }
 
-    const statusOverrideKey = 'status.noLegalMovesTurnPassed';
+    const statusOverrideKey =
+        getNoLegalMoveRuleExplanation().messageKey;
 
     if (autoPass.toPlayer === 1) {
         ui.setHumanTurnLayout();
@@ -846,20 +851,9 @@ function restartGame() {
 
 function explainUnplayableSlot(slotId) {
     const reason = game.getUnplayableReason(slotId);
+    const explanation = getUnplayableRuleExplanation(reason);
 
-    if (reason === 'headBlocked') {
-        setStatus(
-            t('status.headBlocked')
-        );
-    } else if (reason === 'maxMoveConstraint') {
-        setStatus(
-            t('status.maxMoveConstraint')
-        );
-    } else {
-        setStatus(
-            t('status.pieceBlocked')
-        );
-    }
+    setStatus(t(explanation.messageKey));
 }
 
 function selectPlayableSlot(slotId) {
