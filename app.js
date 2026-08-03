@@ -252,10 +252,10 @@ function hideStartScreen() {
     playerStatsModal?.close({ returnFocus: false });
 }
 
-async function startGame() {
-    if (!runtimeState.isInitialStartPending()) return;
+function startGame() {
+    if (!runtimeState.isInitialStartPending()) return false;
 
-    await sound.activateFromUserGesture();
+    void sound.activateFromUserGesture().catch(() => {});
 
     matchStatsRecorder.beginMatch();
     howToPlayGuide?.close({ returnFocus: false });
@@ -275,6 +275,7 @@ async function startGame() {
     ui.updateTimerText(getHumanTurnDuration());
     setStatus(t('status.starting'), { force: true });
     schedule(startAutomaticDiceRoll, 650);
+    return true;
 }
 
 function initializeBeforeStart() {
@@ -1138,9 +1139,7 @@ function bindEvents() {
     });
 
     restartButton?.addEventListener('click', restartGame);
-    startButton?.addEventListener('click', async () => {
-        await startGame();
-    });
+    startButton?.addEventListener('click', startGame);
     autoBearOffToggle?.addEventListener('change', event => {
         setAutoBearOffEnabled(event.target.checked);
     });

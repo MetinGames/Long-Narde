@@ -108,6 +108,25 @@ test('zar sesi klasik playDiceRoll ile degil roll token yolu ile tetiklenir', ()
     assert.equal(/sound\.playDiceRollForRoll\(/.test(source), true);
 });
 
+test('oyun baslangici ses contextinin acilmasini beklemez', () => {
+    const source = readAppSource();
+    const section = getSection(
+        source,
+        'function startGame() {',
+        'function initializeBeforeStart() {'
+    );
+
+    const audioActivationIdx = section.indexOf(
+        'void sound.activateFromUserGesture().catch(() => {});'
+    );
+    const hideStartScreenIdx = section.indexOf('hideStartScreen();');
+
+    assert.notEqual(audioActivationIdx, -1);
+    assert.notEqual(hideStartScreenIdx, -1);
+    assert.ok(audioActivationIdx < hideStartScreenIdx);
+    assert.equal(/await\s+sound\.activateFromUserGesture\(\)/.test(section), false);
+});
+
 test('hamlesiz tur otomatik pas kontrolu insan timer baslamadan once yapilir', () => {
     const source = readAppSource();
     const section = getSection(
