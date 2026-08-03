@@ -119,7 +119,7 @@ export class HowToPlayGuide {
     }
 
     open(triggerElement = null) {
-        if (!this.modal) return;
+        if (!this.modal) return false;
 
         const doc = this.getDocument();
         this.lastFocusedElement = triggerElement || doc?.activeElement || null;
@@ -133,6 +133,7 @@ export class HowToPlayGuide {
 
         doc?.addEventListener('keydown', this.boundOnKeyDown);
         this.focusFirstControl();
+        return true;
     }
 
     close({ returnFocus = true } = {}) {
