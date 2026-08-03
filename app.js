@@ -254,6 +254,7 @@ function terminateGame() {
 function showStartScreen() {
     const overlay = document.getElementById('start-screen');
     if (!overlay) return;
+    document.body?.classList.add('is-start-screen-open');
     overlay.style.display = 'flex';
     overlay.setAttribute('aria-hidden', 'false');
 }
@@ -261,6 +262,7 @@ function showStartScreen() {
 function hideStartScreen() {
     const overlay = document.getElementById('start-screen');
     if (!overlay) return;
+    document.body?.classList.remove('is-start-screen-open');
     feedbackModal?.close({ returnFocus: false });
     overlay.style.display = 'none';
     overlay.setAttribute('aria-hidden', 'true');

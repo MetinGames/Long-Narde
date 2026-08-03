@@ -1259,6 +1259,10 @@ button.start-mode-card:not(:disabled):focus-visible,
     #rotate-notice {
         display: flex;
     }
+
+    body.is-start-screen-open #rotate-notice {
+        display: none;
+    }
 }
 
 @media (orientation: landscape) {

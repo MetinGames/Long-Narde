@@ -222,6 +222,11 @@ test('portrait orientation notice responds to viewport rotation', async ({
     const portraitViewport = page.viewportSize();
     expect(portraitViewport).not.toBeNull();
     expect(portraitViewport.width).toBeLessThan(portraitViewport.height);
+    await expect(page.locator('#rotate-notice')).toBeHidden();
+
+    await page.locator('#start-button').click();
+    await expect(page.locator('#start-screen')).toBeHidden();
+    await expect(page.locator('#game-canvas')).toBeVisible();
     await expect(page.locator('#rotate-notice')).toBeVisible();
 
     await page.setViewportSize({
