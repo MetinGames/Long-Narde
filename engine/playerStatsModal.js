@@ -1,6 +1,7 @@
 // engine/playerStatsModal.js
 
 import { t } from './i18n.js';
+import { getBuiltInAvatar } from './playerIdentity.js';
 
 export class PlayerStatsModal {
     constructor({
@@ -12,6 +13,10 @@ export class PlayerStatsModal {
         valueElements,
         emptyState,
         cardsContainer,
+        identityStore = null,
+        profileElements = {},
+        avatarButtons = [],
+        achievementElements = {},
         confirmReset = message => window.confirm(message)
     }) {
         this.modal = modal;
@@ -22,7 +27,12 @@ export class PlayerStatsModal {
         this.valueElements = valueElements || {};
         this.emptyState = emptyState;
         this.cardsContainer = cardsContainer;
+        this.identityStore = identityStore;
+        this.profileElements = profileElements;
+        this.avatarButtons = Array.from(avatarButtons).filter(Boolean);
+        this.achievementElements = achievementElements;
         this.confirmReset = confirmReset;
+        this.selectedAvatarId = null;
 
         this.isOpen = false;
         this.lastFocusedElement = null;
@@ -49,6 +59,20 @@ export class PlayerStatsModal {
         this.resetButton?.addEventListener('click', () => {
             this.handleReset();
         });
+
+        this.profileElements.saveButton?.addEventListener('click', () => {
+            this.handleProfileSave();
+        });
+
+        this.profileElements.resetButton?.addEventListener('click', () => {
+            this.handleProfileReset();
+        });
+
+        for (const button of this.avatarButtons) {
+            button.addEventListener('click', () => {
+                this.selectAvatar(button.dataset?.avatarId);
+            });
+        }
     }
 
     getDocument() {
@@ -123,6 +147,94 @@ export class PlayerStatsModal {
         return `${rate.toFixed(1)}%`;
     }
 
+    formatDifficultyRecord(record) {
+        return t('stats.difficultyRecord', {
+            wins: record?.wins ?? 0,
+            matches: record?.matches ?? 0
+        });
+    }
+
+    renderIdentity(identity = this.identityStore?.load?.()) {
+        if (!identity) return;
+
+        this.selectedAvatarId = identity.avatarId;
+        const avatar = getBuiltInAvatar(identity.avatarId);
+        if (this.profileElements.displayNameInput) {
+            this.profileElements.displayNameInput.value = identity.displayName;
+        }
+        if (this.profileElements.previewGlyph) {
+            this.profileElements.previewGlyph.textContent = avatar.glyph;
+        }
+        if (this.profileElements.previewName) {
+            this.profileElements.previewName.textContent = identity.displayName;
+        }
+        this.renderAvatarSelection();
+    }
+
+    renderAvatarSelection() {
+        for (const button of this.avatarButtons) {
+            const selected = button.dataset?.avatarId === this.selectedAvatarId;
+            button.setAttribute('aria-pressed', String(selected));
+            button.setAttribute('data-selected', String(selected));
+        }
+
+        const avatar = getBuiltInAvatar(this.selectedAvatarId);
+        if (this.profileElements.previewGlyph) {
+            this.profileElements.previewGlyph.textContent = avatar.glyph;
+        }
+    }
+
+    selectAvatar(avatarId) {
+        const avatar = getBuiltInAvatar(avatarId);
+        this.selectedAvatarId = avatar.id;
+        this.renderAvatarSelection();
+    }
+
+    setProfileStatus(messageKey) {
+        if (!this.profileElements.status) return;
+        this.profileElements.status.textContent = messageKey ? t(messageKey) : '';
+    }
+
+    handleProfileSave() {
+        if (!this.identityStore) return;
+
+        const current = this.identityStore.load();
+        const saved = this.identityStore.save({
+            ...current,
+            displayName: this.profileElements.displayNameInput?.value,
+            avatarId: this.selectedAvatarId
+        });
+        this.renderIdentity(saved);
+        this.setProfileStatus('profile.saved');
+    }
+
+    handleProfileReset() {
+        if (!this.identityStore) return;
+        if (!this.confirmReset(t('profile.resetConfirm'))) return;
+
+        const reset = this.identityStore.reset();
+        this.renderIdentity(reset);
+        this.setProfileStatus('profile.resetDone');
+    }
+
+    renderAchievements(summary) {
+        const unlockedIds = new Set(summary.unlockedAchievementIds || []);
+        for (const [achievementId, elements] of Object.entries(
+            this.achievementElements
+        )) {
+            const unlocked = unlockedIds.has(achievementId);
+            elements.card?.setAttribute('data-unlocked', String(unlocked));
+            elements.state?.setAttribute('data-unlocked', String(unlocked));
+            if (elements.state) {
+                elements.state.textContent = t(
+                    unlocked
+                        ? 'achievements.unlocked'
+                        : 'achievements.locked'
+                );
+            }
+        }
+    }
+
     render() {
         const summary = this.statsStore.getSummary();
 
@@ -153,6 +265,24 @@ export class PlayerStatsModal {
         if (this.valueElements.timeoutLosses) {
             this.valueElements.timeoutLosses.textContent = String(summary.timeoutLosses);
         }
+        if (this.valueElements.averageMoves) {
+            this.valueElements.averageMoves.textContent =
+                summary.averageMoves.toFixed(1);
+        }
+        if (this.valueElements.bestWinStreak) {
+            this.valueElements.bestWinStreak.textContent = String(
+                summary.bestWinStreak
+            );
+        }
+        for (const [difficulty, element] of Object.entries(
+            this.valueElements.byDifficulty || {}
+        )) {
+            if (element) {
+                element.textContent = this.formatDifficultyRecord(
+                    summary.byDifficulty?.[difficulty]
+                );
+            }
+        }
 
         const hasMatches = summary.totalMatches > 0;
         if (this.emptyState) {
@@ -164,10 +294,14 @@ export class PlayerStatsModal {
             this.cardsContainer.hidden = !hasMatches;
             this.cardsContainer.setAttribute('aria-hidden', String(!hasMatches));
         }
+
+        this.renderIdentity();
+        this.renderAchievements(summary);
     }
 
     refreshForLanguage() {
         this.render();
+        this.setProfileStatus(null);
     }
 
     handleReset() {

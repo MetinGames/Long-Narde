@@ -70,8 +70,8 @@ The Phase 0 product exit gate is met. The current priorities are:
 1. keep ROADMAP, Issues, code and tests synchronized while cross-browser/mobile and offline PWA gates stay green;
 2. ship the honest mode-entry journey in [#10](https://github.com/MetinGames/Long-Narde/issues/10) as the player-facing doorway to local and future social modes;
 3. define and test the provider-neutral private-table, invite, presence and reconnect contract in [#16](https://github.com/MetinGames/Long-Narde/issues/16);
-4. evolve local profile work in [#15](https://github.com/MetinGames/Long-Narde/issues/15) so identity can later transition cleanly to an approved account model;
-5. run distribution, Project configuration and branch inventory as parallel supporting work rather than blockers on the social critical path.
+4. use the device-only identity and private-table foundations delivered in [#15](https://github.com/MetinGames/Long-Narde/issues/15) and [#16](https://github.com/MetinGames/Long-Narde/issues/16) to build the local Friend Match client slice in [#18](https://github.com/MetinGames/Long-Narde/issues/18);
+5. run provider/privacy research, distribution, Project configuration and branch inventory as parallel supporting work rather than blockers on the social critical path.
 
 The player-facing Nardora migration is complete. Champion mode, optional Quick Bear-Off,
 sampled audio review assets, and no-legal-move auto-pass have also reached `main`; their

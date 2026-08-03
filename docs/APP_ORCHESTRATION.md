@@ -17,6 +17,8 @@ Last reviewed: **2026-08-03**
 | Slot selection and move application | `app.js` + game/input modules | Rule-sensitive; leave until its boundary is fully characterized |
 | Modal, language, fullscreen, feedback, and control assembly | `app.js` + focused UI modules | Keep assembly in `app.js`; controllers own their listeners |
 | Provider-neutral room, invite, presence, reconnect, and authority contract | `privateTableProtocol.js` | Keep outside `app.js`; future Friend Match controllers consume the adapter surface |
+| Local identity, built-in avatar catalog, migration, and table projection | `playerIdentity.js` | Store only device-local identity; keep trusted outcomes out of the projection |
+| Local progression, achievements, and profile dialog listeners | `playerStats.js` + `playerStatsModal.js` | Controller owns modal/profile listeners; `app.js` only assembles elements and supplies the current bot difficulty at match end |
 | Resume synchronization on visibility, focus, and page restore | `appResumeController.js` | Extracted; controller owns bind, idempotence, and cleanup |
 | Compact mobile theme label | `mobileThemeLabelController.js` | Extracted; controller owns media/select listeners, cleanup, and translation refresh |
 | Initial DOM bootstrap | `app.js` | Keep as composition-root work while startup remains a single page |
@@ -45,3 +47,9 @@ Issue #16 adds no listener or gameplay ownership to `app.js`. Its in-memory
 adapter exposes `dispatch`, `getSnapshot`, and `subscribe`; a future Friend
 Match controller will own the corresponding UI lifecycle without enabling the
 currently disabled social mode until a real end-to-end flow exists.
+
+Issue #15 keeps identity and progression provider-neutral. `app.js` constructs
+the stores and profile modal, while `playerIdentity.js` owns the versioned local
+schema and exact private-table projection. `playerStatsModal.js` owns nickname,
+avatar, reset, achievement and dialog listeners. No account, upload or remote
+profile lifecycle is implied.

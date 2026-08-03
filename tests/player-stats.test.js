@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+    LEGACY_PLAYER_STATS_STORAGE_KEY,
     MatchStatsRecorder,
+    PLAYER_ACHIEVEMENTS,
+    PLAYER_STATS_SCHEMA_VERSION,
     PLAYER_STATS_STORAGE_KEY,
     PlayerStatsStore,
     createDefaultPlayerStats
@@ -47,7 +50,9 @@ function createStoreWith(initial) {
 }
 
 test('localStorage anahtari surumlu ve sabittir', () => {
-    assert.equal(PLAYER_STATS_STORAGE_KEY, 'longNarde.playerStats.v1');
+    assert.equal(PLAYER_STATS_STORAGE_KEY, 'longNarde.playerStats.v2');
+    assert.equal(PLAYER_STATS_SCHEMA_VERSION, 2);
+    assert.equal(PLAYER_ACHIEVEMENTS.length, 4);
 });
 
 test('ilk galibiyet dogru sekilde kaydedilir', () => {
@@ -171,6 +176,96 @@ test('galibiyet yuzdesi ve en iyi galibiyet hamlesi hesaplanir', () => {
     assert.equal(summary.losses, 1);
     assert.equal(summary.winRate, 66.7);
     assert.equal(summary.bestWinMoves, 40);
+    assert.equal(summary.averageMoves, 49.3);
+});
+
+test('bot zorluguna gore maclar, seriler ve basarimlar kaydedilir', () => {
+    const { store } = createStoreWith();
+
+    store.recordMatch({
+        winner: 1,
+        endReason: 'white_win',
+        totalMoves: 38,
+        humanPlayer: 1,
+        difficulty: 'champion'
+    });
+    const second = store.recordMatch({
+        winner: 1,
+        endReason: 'white_win',
+        totalMoves: 40,
+        humanPlayer: 1,
+        difficulty: 'hard'
+    });
+
+    assert.deepEqual(second.byDifficulty.champion, {
+        matches: 1,
+        wins: 1,
+        losses: 0
+    });
+    assert.deepEqual(second.byDifficulty.hard, {
+        matches: 1,
+        wins: 1,
+        losses: 0
+    });
+    assert.equal(second.currentWinStreak, 2);
+    assert.equal(second.bestWinStreak, 2);
+    assert.deepEqual(second.unlockedAchievementIds.sort(), [
+        'champion-win',
+        'first-match',
+        'first-win'
+    ]);
+
+    const loss = store.recordMatch({
+        winner: 2,
+        endReason: 'black_win',
+        totalMoves: 55,
+        humanPlayer: 1,
+        difficulty: 'easy'
+    });
+    assert.equal(loss.currentWinStreak, 0);
+    assert.equal(loss.bestWinStreak, 2);
+    assert.equal(loss.byDifficulty.easy.losses, 1);
+});
+
+test('bilinmeyen zorluk guvenli medium grubuna yazilir', () => {
+    const { store } = createStoreWith();
+    const summary = store.recordMatch({
+        winner: 2,
+        endReason: 'black_win',
+        totalMoves: 20,
+        difficulty: 'impossible'
+    });
+
+    assert.equal(summary.byDifficulty.medium.matches, 1);
+    assert.equal(summary.byDifficulty.medium.losses, 1);
+});
+
+test('v1 istatistikleri kayipsiz olarak v2 semasina tasinir', () => {
+    const storage = new FakeStorage({
+        [LEGACY_PLAYER_STATS_STORAGE_KEY]: JSON.stringify({
+            schemaVersion: 1,
+            totalMatches: 3,
+            wins: 2,
+            losses: 1,
+            totalMoves: 120,
+            bestWinMoves: 44,
+            normalLosses: 1,
+            timeoutLosses: 0
+        })
+    });
+    const store = new PlayerStatsStore({ storage });
+
+    const summary = store.getSummary();
+    assert.equal(summary.schemaVersion, 2);
+    assert.equal(summary.totalMatches, 3);
+    assert.equal(summary.wins, 2);
+    assert.equal(summary.averageMoves, 40);
+    assert.deepEqual(summary.unlockedAchievementIds.sort(), [
+        'first-match',
+        'first-win'
+    ]);
+    assert.ok(storage.store[PLAYER_STATS_STORAGE_KEY]);
+    assert.equal(storage.store[LEGACY_PLAYER_STATS_STORAGE_KEY], undefined);
 });
 
 test('bozuk localStorage verisinden guvenli sekilde varsayilana doner', () => {

@@ -1,7 +1,32 @@
 // engine/playerStats.js
 
-export const PLAYER_STATS_STORAGE_KEY = 'longNarde.playerStats.v1';
-export const PLAYER_STATS_SCHEMA_VERSION = 1;
+export const PLAYER_STATS_STORAGE_KEY = 'longNarde.playerStats.v2';
+export const LEGACY_PLAYER_STATS_STORAGE_KEY = 'longNarde.playerStats.v1';
+export const PLAYER_STATS_SCHEMA_VERSION = 2;
+
+export const BOT_DIFFICULTY_IDS = Object.freeze([
+    'easy',
+    'medium',
+    'hard',
+    'champion'
+]);
+
+export const PLAYER_ACHIEVEMENTS = Object.freeze([
+    { id: 'first-match', isUnlocked: stats => stats.totalMatches >= 1 },
+    { id: 'first-win', isUnlocked: stats => stats.wins >= 1 },
+    { id: 'ten-matches', isUnlocked: stats => stats.totalMatches >= 10 },
+    {
+        id: 'champion-win',
+        isUnlocked: stats => stats.byDifficulty.champion.wins >= 1
+    }
+]);
+
+function createDefaultDifficultyStats() {
+    return Object.fromEntries(BOT_DIFFICULTY_IDS.map(difficulty => [
+        difficulty,
+        { matches: 0, wins: 0, losses: 0 }
+    ]));
+}
 
 export function createDefaultPlayerStats() {
     return {
@@ -12,7 +37,11 @@ export function createDefaultPlayerStats() {
         totalMoves: 0,
         bestWinMoves: null,
         normalLosses: 0,
-        timeoutLosses: 0
+        timeoutLosses: 0,
+        currentWinStreak: 0,
+        bestWinStreak: 0,
+        byDifficulty: createDefaultDifficultyStats(),
+        unlockedAchievementIds: []
     };
 }
 
@@ -32,6 +61,18 @@ function sanitizePlayerStats(raw) {
         return defaults;
     }
 
+    const byDifficulty = createDefaultDifficultyStats();
+    for (const difficulty of BOT_DIFFICULTY_IDS) {
+        const source = raw.byDifficulty?.[difficulty];
+        const wins = toSafeInteger(source?.wins);
+        const losses = toSafeInteger(source?.losses);
+        byDifficulty[difficulty] = {
+            matches: wins + losses,
+            wins,
+            losses
+        };
+    }
+
     const stats = {
         schemaVersion: PLAYER_STATS_SCHEMA_VERSION,
         totalMatches: toSafeInteger(raw.totalMatches),
@@ -43,7 +84,11 @@ function sanitizePlayerStats(raw) {
                 ? null
                 : toSafeInteger(raw.bestWinMoves, null),
         normalLosses: toSafeInteger(raw.normalLosses),
-        timeoutLosses: toSafeInteger(raw.timeoutLosses)
+        timeoutLosses: toSafeInteger(raw.timeoutLosses),
+        currentWinStreak: toSafeInteger(raw.currentWinStreak),
+        bestWinStreak: toSafeInteger(raw.bestWinStreak),
+        byDifficulty,
+        unlockedAchievementIds: []
     };
 
     if (stats.bestWinMoves === 0 && stats.wins === 0) {
@@ -67,6 +112,24 @@ function sanitizePlayerStats(raw) {
         stats.normalLosses = Math.max(0, stats.losses - stats.timeoutLosses);
     }
 
+    if (stats.bestWinStreak < stats.currentWinStreak) {
+        stats.bestWinStreak = stats.currentWinStreak;
+    }
+
+    const knownAchievementIds = new Set(
+        PLAYER_ACHIEVEMENTS.map(achievement => achievement.id)
+    );
+    const persistedAchievementIds = Array.isArray(raw.unlockedAchievementIds)
+        ? raw.unlockedAchievementIds.filter(id => knownAchievementIds.has(id))
+        : [];
+    const earnedAchievementIds = PLAYER_ACHIEVEMENTS
+        .filter(achievement => achievement.isUnlocked(stats))
+        .map(achievement => achievement.id);
+    stats.unlockedAchievementIds = Array.from(new Set([
+        ...persistedAchievementIds,
+        ...earnedAchievementIds
+    ]));
+
     return stats;
 }
 
@@ -77,13 +140,21 @@ export function calculateWinRate(stats) {
     return Math.round(rate * 10) / 10;
 }
 
+export function calculateAverageMoves(stats) {
+    if (!stats || stats.totalMatches <= 0) return 0;
+    const average = stats.totalMoves / stats.totalMatches;
+    return Math.round(average * 10) / 10;
+}
+
 export class PlayerStatsStore {
     constructor({
         storage = typeof localStorage !== 'undefined' ? localStorage : null,
-        storageKey = PLAYER_STATS_STORAGE_KEY
+        storageKey = PLAYER_STATS_STORAGE_KEY,
+        legacyStorageKey = LEGACY_PLAYER_STATS_STORAGE_KEY
     } = {}) {
         this.storage = storage;
         this.storageKey = storageKey;
+        this.legacyStorageKey = legacyStorageKey;
     }
 
     load() {
@@ -92,13 +163,26 @@ export class PlayerStatsStore {
         }
 
         try {
-            const raw = this.storage.getItem(this.storageKey);
-            if (!raw) {
+            const current = this.storage.getItem(this.storageKey);
+            const legacy = current
+                ? null
+                : this.storage.getItem(this.legacyStorageKey);
+            const serialized = current || legacy;
+            if (!serialized) {
                 return createDefaultPlayerStats();
             }
 
-            const parsed = JSON.parse(raw);
-            return sanitizePlayerStats(parsed);
+            const parsed = JSON.parse(serialized);
+            const stats = sanitizePlayerStats(parsed);
+            if (legacy || parsed.schemaVersion !== PLAYER_STATS_SCHEMA_VERSION) {
+                this.save(stats);
+                try {
+                    this.storage.removeItem(this.legacyStorageKey);
+                } catch {
+                    // Migration cleanup failure must not break gameplay.
+                }
+            }
+            return stats;
         } catch {
             return createDefaultPlayerStats();
         }
@@ -126,6 +210,7 @@ export class PlayerStatsStore {
         if (this.storage) {
             try {
                 this.storage.removeItem(this.storageKey);
+                this.storage.removeItem(this.legacyStorageKey);
             } catch {
                 // Ignore storage remove failures.
             }
@@ -138,11 +223,18 @@ export class PlayerStatsStore {
         const stats = this.load();
         return {
             ...stats,
-            winRate: calculateWinRate(stats)
+            winRate: calculateWinRate(stats),
+            averageMoves: calculateAverageMoves(stats)
         };
     }
 
-    recordMatch({ winner, endReason, totalMoves, humanPlayer = 1 } = {}) {
+    recordMatch({
+        winner,
+        endReason,
+        totalMoves,
+        humanPlayer = 1,
+        difficulty = 'medium'
+    } = {}) {
         if (winner !== 1 && winner !== 2) {
             return this.getSummary();
         }
@@ -151,8 +243,20 @@ export class PlayerStatsStore {
         next.totalMatches += 1;
         next.totalMoves += toSafeInteger(totalMoves);
 
+        const normalizedDifficulty = BOT_DIFFICULTY_IDS.includes(difficulty)
+            ? difficulty
+            : 'medium';
+        const difficultyStats = next.byDifficulty[normalizedDifficulty];
+        difficultyStats.matches += 1;
+
         if (winner === humanPlayer) {
             next.wins += 1;
+            next.currentWinStreak += 1;
+            next.bestWinStreak = Math.max(
+                next.bestWinStreak,
+                next.currentWinStreak
+            );
+            difficultyStats.wins += 1;
             const safeMoves = toSafeInteger(totalMoves);
 
             if (
@@ -163,6 +267,8 @@ export class PlayerStatsStore {
             }
         } else {
             next.losses += 1;
+            next.currentWinStreak = 0;
+            difficultyStats.losses += 1;
             if (endReason === 'timeout') {
                 next.timeoutLosses += 1;
             } else {
@@ -173,7 +279,8 @@ export class PlayerStatsStore {
         const saved = this.save(next);
         return {
             ...saved,
-            winRate: calculateWinRate(saved)
+            winRate: calculateWinRate(saved),
+            averageMoves: calculateAverageMoves(saved)
         };
     }
 }
@@ -199,7 +306,13 @@ export class MatchStatsRecorder {
         this.hasRecordedResult = false;
     }
 
-    recordIfGameOver({ winner, endReason, totalMoves, gameStatus } = {}) {
+    recordIfGameOver({
+        winner,
+        endReason,
+        totalMoves,
+        gameStatus,
+        difficulty = 'medium'
+    } = {}) {
         if (
             this.activeMatchId === null ||
             this.hasRecordedResult ||
@@ -215,7 +328,8 @@ export class MatchStatsRecorder {
             winner,
             endReason,
             totalMoves,
-            humanPlayer: this.humanPlayer
+            humanPlayer: this.humanPlayer,
+            difficulty
         });
 
         this.hasRecordedResult = true;

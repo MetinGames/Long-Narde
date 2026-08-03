@@ -6,11 +6,11 @@ Live game: https://metingames.github.io/Long-Narde/
 
 ## Project overview
 
-Long Narde is a static, installable browser-based long narde game with a local human player, a bot opponent, offline play, turn timer handling, local player statistics, a how-to-play guide, and responsive UI support for desktop and mobile layouts. The codebase is organized around a small app bootstrap and a set of focused engine modules that handle game rules, rendering, input, UI state, feedback, timing, statistics, themes, internationalization, and a provider-neutral private-table contract.
+Long Narde is a static, installable browser-based long narde game with a local human player, a bot opponent, offline play, turn timer handling, a local profile and progression center, a how-to-play guide, and responsive UI support for desktop and mobile layouts. The codebase is organized around a small app bootstrap and a set of focused engine modules that handle game rules, rendering, input, UI state, feedback, timing, identity, statistics, themes, internationalization, and a provider-neutral private-table contract.
 
 ## Current status
 
-The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, exposes the bot difficulty before play, and shows Friend Match and Online as visibly unavailable future modes instead of launching placeholder flows. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes local player statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, multiple feedback helpers, and a tested in-memory private-table protocol foundation for future client work.
+The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, exposes the bot difficulty before play, and shows Friend Match and Online as visibly unavailable future modes instead of launching placeholder flows. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes a local profile with 15 built-in avatars, achievements, difficulty-based statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, multiple feedback helpers, and a tested in-memory private-table protocol foundation for future client work.
 
 This project is not documented here as having online multiplayer, user accounts, cloud sync, ranked matchmaking, or a backend service.
 
@@ -18,11 +18,12 @@ This project is not documented here as having online multiplayer, user accounts,
 
 - Local human-vs-bot long narde gameplay.
 - Honest mode-entry screen with working Quick Play/Bot Match choices, synchronized difficulty, and disabled Friend Match/Online previews.
-- Start-screen language, how-to-play, statistics, and feedback entry points.
+- Start-screen language, how-to-play, profile/progression, and feedback entry points.
 - Shared Turkish, English, and Russian interface support.
 - Turn timer and timeout handling.
-- Local player statistics stored in browser storage.
-- How-to-play modal and player stats modal.
+- Versioned local identity with a resettable nickname and 15 built-in avatars.
+- Local achievements, streaks, averages, and bot-difficulty statistics stored in browser storage.
+- How-to-play modal and accessible profile/progression modal.
 - Responsive layouts for desktop, portrait mobile, and landscape mobile.
 - Theme selection with an Anadolu visual theme and an alternate walnut theme.
 - Easy, Medium, Master, and Champion bot difficulty levels.
@@ -71,9 +72,13 @@ The code exposes four difficulty labels in the UI: Easy, Medium, Master, and Cha
 
 The timeout system is managed by the engine layer with absolute deadlines. The human turn timer is initialized per turn, first timeout warnings are possible in casual mode, and a later absolute forfeit window can end the game if time expires again. The start screen does not start the timer, deadline, or bot turn logic.
 
-## Local player statistics
+## Local profile and progression
 
-Player statistics are stored locally in browser storage under a versioned key. The current stats model includes total matches, wins, losses, total moves, best win moves, normal losses, and timeout losses. The stats modal reads from the local store and does not depend on a backend.
+The profile and progression center stores all data on the current device. The versioned identity model contains only a generated local ID, a bounded player nickname, and one of 15 approved built-in avatar IDs. It does not upload a name, photo, email, phone number, location, result, or rating.
+
+Statistics use a v2 schema that migrates existing v1 totals without data loss. The current model includes total matches, wins, losses, moves, best win, average moves, current/best win streak, normal/timeout losses, and win/match records for Easy, Medium, Master, and Champion. Four local achievements are derived and persisted from these records. Profile reset changes only identity; statistics have a separate confirmed reset.
+
+`engine/playerIdentity.js` exposes an exact `{ id, displayName, avatarId }` projection for the private-table contract. Achievements and local statistics never enter that projection and are not trusted as online outcomes. See [LOCAL_PLAYER_PROFILE.md](docs/LOCAL_PLAYER_PROFILE.md).
 
 ## Responsive/mobile support
 
@@ -154,6 +159,7 @@ Verified test files currently present:
 - `tests/layout.test.js`
 - `tests/language-selectors.test.js`
 - `tests/mobile-theme-label-controller.test.js`
+- `tests/player-identity.test.js`
 - `tests/player-stats-modal.test.js`
 - `tests/player-stats.test.js`
 - `tests/private-table-protocol.test.js`
@@ -196,18 +202,18 @@ To list or run the Playwright browser suite:
 
 ## Architecture overview
 
-`app.js` is the bootstrap and orchestration layer. It creates the game, renderer, bot, UI manager, and support helpers, then wires DOM events and start-screen flow. The `engine/` folder contains the core game model, board rules, bot logic, rendering logic, timeout controller, i18n, statistics, feedback helpers, and the provider-neutral private-table protocol. The `tests/` folder mirrors these responsibilities with focused behavioral and regression tests.
+`app.js` is the bootstrap and orchestration layer. It creates the game, renderer, bot, UI manager, and support helpers, then wires DOM events and start-screen flow. The `engine/` folder contains the core game model, board rules, bot logic, rendering logic, timeout controller, i18n, local identity/statistics, feedback helpers, and the provider-neutral private-table protocol. The `tests/` folder mirrors these responsibilities with focused behavioral and regression tests.
 
 The app uses the same i18n system for the start screen and the side panel. Language changes update the DOM immediately and are persisted through localStorage. `engine/startModeController.js` owns the available and unavailable mode listeners, prevents duplicate starts, and exposes explicit reset/cleanup lifecycle methods.
 
 ## Accessibility
 
-The current UI includes aria labels, aria-live status updates, modal dialog semantics, keyboard navigation inside the how-to-play and stats dialogs, and accessible start-screen controls. The mode menu is an explicitly labelled group; unavailable social modes use native disabled buttons and visible status badges. The start-screen language and difficulty controls use visible labels and native select elements so they remain keyboard-friendly.
+The current UI includes aria labels, aria-live status updates, modal dialog semantics, keyboard navigation inside the how-to-play and profile/progression dialogs, visible focus states, and touch-sized avatar controls. The mode menu is an explicitly labelled group; unavailable social modes use native disabled buttons and visible status badges. The start-screen language and difficulty controls use visible labels and native select elements so they remain keyboard-friendly.
 
 ## Known limitations
 
 - The playable game is local single-player against a bot. The private-table contract and in-memory adapter are development foundations, not online multiplayer or a backend.
-- There is no user account system, profile sync, or cloud storage.
+- There is no user account system, profile sync, custom photo upload, or cloud storage.
 - There is no built-in leaderboard or matchmaking service.
 - The current asset set is small; several asset folders are placeholders only.
 - The app currently relies on browser storage for local preferences and statistics.
@@ -217,6 +223,7 @@ The current UI includes aria labels, aria-live status updates, modal dialog sema
 - [PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md): product north star, player promise, quality bar, decision filters, risks, and working authority.
 - [APP_ORCHESTRATION.md](docs/APP_ORCHESTRATION.md): current `app.js` responsibility and listener-ownership map plus the next safe extraction order.
 - [PRIVATE_TABLE_PROTOCOL.md](docs/PRIVATE_TABLE_PROTOCOL.md): versioned room, invite, authority, reconnect, privacy, and safety contract for future Friend Match work.
+- [LOCAL_PLAYER_PROFILE.md](docs/LOCAL_PLAYER_PROFILE.md): local identity schema, built-in avatars, progression migration, reset behavior, and private-table projection.
 - [DECISION_LOG.md](docs/DECISION_LOG.md): durable product and architecture decisions with unresolved decisions kept visible.
 - [ROADMAP.md](ROADMAP.md): verified phases, dates, current gaps, and research-backed open items.
 - [TOOLING_STRATEGY.md](docs/TOOLING_STRATEGY.md): phased plugin, service, program and data-access decisions.

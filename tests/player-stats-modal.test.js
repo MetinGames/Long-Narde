@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { PlayerStatsModal } from '../engine/playerStatsModal.js';
+import { PlayerIdentityStore } from '../engine/playerIdentity.js';
 import { PlayerStatsStore } from '../engine/playerStats.js';
 
 class FakeStorage {
@@ -53,6 +54,8 @@ class FakeElement {
         this.hidden = false;
         this.disabled = false;
         this.textContent = '';
+        this.value = '';
+        this.dataset = {};
         this.attributes = new Map();
         this.listeners = new Map();
         this.focusables = [];
@@ -89,6 +92,29 @@ class FakeElement {
         }
         return [];
     }
+}
+
+function createProfileFixture(doc) {
+    const displayNameInput = new FakeElement(doc);
+    const previewGlyph = new FakeElement(doc);
+    const previewName = new FakeElement(doc);
+    const saveButton = new FakeElement(doc);
+    const resetButton = new FakeElement(doc);
+    const status = new FakeElement(doc);
+    const avatarAnatolia = new FakeElement(doc);
+    avatarAnatolia.dataset.avatarId = 'avatar-anatolia';
+    const avatarEagle = new FakeElement(doc);
+    avatarEagle.dataset.avatarId = 'avatar-eagle';
+
+    return {
+        displayNameInput,
+        previewGlyph,
+        previewName,
+        saveButton,
+        resetButton,
+        status,
+        avatarButtons: [avatarAnatolia, avatarEagle]
+    };
 }
 
 function createFixture() {
@@ -248,4 +274,87 @@ test('Escape kapatir ve Tab focus trap uygular', () => {
     });
 
     assert.equal(fixture.modal.getAttribute('aria-hidden'), 'true');
+});
+
+test('profil adi ve yerlesik avatar kaydedilir, sifirlama onay ister', () => {
+    const fixture = createFixture();
+    const profile = createProfileFixture(fixture.doc);
+    const storage = new FakeStorage();
+    const identityStore = new PlayerIdentityStore({
+        storage,
+        idFactory: () => 'local-modal-player'
+    });
+    let resetConfirmed = false;
+
+    new PlayerStatsModal({
+        modal: fixture.modal,
+        openButton: fixture.openButton,
+        closeButtons: [fixture.closeTop],
+        resetButton: fixture.resetButton,
+        statsStore: new PlayerStatsStore({ storage }),
+        valueElements: fixture.values,
+        emptyState: fixture.empty,
+        cardsContainer: fixture.cards,
+        identityStore,
+        profileElements: profile,
+        avatarButtons: profile.avatarButtons,
+        confirmReset: () => resetConfirmed
+    });
+
+    profile.displayNameInput.value = 'Metin Usta';
+    profile.avatarButtons[1].click();
+    assert.equal(profile.avatarButtons[1].getAttribute('aria-pressed'), 'true');
+    profile.saveButton.click();
+
+    assert.equal(identityStore.load().displayName, 'Metin Usta');
+    assert.equal(identityStore.load().avatarId, 'avatar-eagle');
+    assert.equal(profile.previewGlyph.textContent, '🦅');
+
+    profile.resetButton.click();
+    assert.equal(identityStore.load().displayName, 'Metin Usta');
+
+    resetConfirmed = true;
+    profile.resetButton.click();
+    assert.equal(identityStore.load().displayName, 'Nardora Player');
+    assert.equal(identityStore.load().avatarId, 'avatar-anatolia');
+});
+
+test('zorluk kayitlari ve basarim durumlari modalda guncellenir', () => {
+    const fixture = createFixture();
+    const storage = new FakeStorage();
+    const store = new PlayerStatsStore({ storage });
+    store.recordMatch({
+        winner: 1,
+        totalMoves: 35,
+        difficulty: 'champion'
+    });
+    const championRecord = new FakeElement(fixture.doc);
+    const achievementCard = new FakeElement(fixture.doc);
+    const achievementState = new FakeElement(fixture.doc);
+
+    const modal = new PlayerStatsModal({
+        modal: fixture.modal,
+        openButton: fixture.openButton,
+        closeButtons: [fixture.closeTop],
+        resetButton: fixture.resetButton,
+        statsStore: store,
+        valueElements: {
+            ...fixture.values,
+            byDifficulty: { champion: championRecord }
+        },
+        emptyState: fixture.empty,
+        cardsContainer: fixture.cards,
+        achievementElements: {
+            'champion-win': {
+                card: achievementCard,
+                state: achievementState
+            }
+        },
+        confirmReset: () => true
+    });
+
+    modal.render();
+    assert.match(championRecord.textContent, /1/);
+    assert.equal(achievementCard.getAttribute('data-unlocked'), 'true');
+    assert.equal(achievementState.getAttribute('data-unlocked'), 'true');
 });
