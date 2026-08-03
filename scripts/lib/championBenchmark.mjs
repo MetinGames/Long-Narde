@@ -50,7 +50,7 @@ function formatTrace(hash) {
     return hash.toString(16).padStart(8, '0');
 }
 
-function hashText(value) {
+export function hashBenchmarkStateKey(value) {
     let hash = TRACE_OFFSET;
     for (let index = 0; index < value.length; index++) {
         hash = mixTrace(hash, value.charCodeAt(index));
@@ -251,7 +251,7 @@ export function playBenchmarkTurn(
         decisionSamplesMs.push(elapsed);
         decisions.push({
             elapsedMs: elapsed,
-            stateHash: hashText(stateKey),
+            stateHash: hashBenchmarkStateKey(stateKey),
             stateKey,
             availableMoves,
             move: { ...move },
