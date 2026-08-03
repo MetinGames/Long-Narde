@@ -7,6 +7,7 @@
     "yaml": "^2.8.1"
   },
   "scripts": {
+    "bot:benchmark": "node scripts/champion-benchmark.mjs",
     "code-health:report": "node scripts/code-health-report.mjs",
     "sync:main": "node scripts/sync-main.mjs",
     "test": "node --test",
