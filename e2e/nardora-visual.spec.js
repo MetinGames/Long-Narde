@@ -38,6 +38,18 @@ test('start screen visual baseline', async ({ page }) => {
     );
 });
 
+test('theme gallery visual baseline', async ({ page }) => {
+    await page.locator('#start-theme-manager-button').click();
+    await expect(page.locator('#theme-manager-card')).toHaveScreenshot(
+        'theme-gallery.png',
+        {
+            animations: 'disabled',
+            caret: 'hide',
+            scale: 'css'
+        }
+    );
+});
+
 test('game shell visual baseline', async ({ page }) => {
     await page.locator('#start-button').click();
     await expect(page.locator('#start-screen')).toBeHidden();

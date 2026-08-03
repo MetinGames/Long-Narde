@@ -29,7 +29,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Runtime diagnostics export for player bug reports.
 - Responsive desktop/mobile layouts, iOS safe-area handling, orientation guidance, and fullscreen/focus mode.
 - Installable PWA shell with versioned updates and offline local bot play.
-- Anadolu and walnut themes.
+- Anadolu and walnut themes with a dedicated visual gallery, persistent selection, and reusable contrast-aware tokens.
 - Automated GitHub Actions test workflow.
 - Player-facing Nardora migration across the page title, welcome flow, TR/EN/RU copy, and splash experience.
 - Optional Quick Bear-Off that acts only when the legal continuation is unambiguous.
@@ -43,11 +43,11 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 
 ## Current gaps and risks
 
-- `app.js` is 1,400 lines after local Friend Match composition; `engine/renderer.js` remains about 1,181 lines and `style.css` 3,543 lines after the responsive preview layer. The focused preview behavior and listeners live in `friendMatchPreviewController.js`; further extraction remains evidence-driven.
+- `app.js` is 1,423 lines after theme-manager composition; `engine/renderer.js` remains about 1,178 lines and `style.css` 3,543 lines. The new theme behavior and 380-line responsive presentation layer live in focused `themeManagerController.js` and `theme-manager.css` files rather than growing the red-zone stylesheet; further extraction remains evidence-driven.
 - The repository has 50 non-main remote branches. The verified [branch inventory](docs/BRANCH_INVENTORY.md) classifies 45 cleanup candidates, one active branch, and four manual-review branches; no deletion is authorized.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
 - Community-sourced sample sounds are integrated and licensed, but Metin's final original dice/checker recordings, volume controls, and device-level listening review are not complete.
-- Friend Match and Online have honest entry points, local identity, a provider-neutral contract, and a player-facing same-device lifecycle preview, but no network adapter, approved account model, hosted backend, or playable online table; theme selection is not yet a dedicated visual management screen.
+- Friend Match and Online have honest entry points, local identity, a provider-neutral contract, and a player-facing same-device lifecycle preview, but no network adapter, approved account model, hosted backend, or playable online table.
 - Advertising-safe responsive zones and Yandex-specific layout behavior have not been designed or tested.
 - There is no store package, backend, account system, online room, chat, ranking, or moderation layer.
 
@@ -60,9 +60,10 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 5. **Completed — [#10](https://github.com/MetinGames/Long-Narde/issues/10):** replaced the single start action with an honest, responsive mode entry; Quick Play and Bot Match work, while Friend Match and Online remain visibly disabled until real flows exist.
 6. **Completed — [#9](https://github.com/MetinGames/Long-Narde/issues/9):** added engine-owned contextual explanations for common Long Narde restrictions and a dismissible, reopenable first-visit guide with keyboard, touch, responsive, offline and localization coverage.
 7. **Completed — [#25](https://github.com/MetinGames/Long-Narde/issues/25):** established evidence-driven file-health thresholds, an informational CI report, red-zone growth justification, and a staged `style.css` extraction plan without changing visuals.
-8. **In progress — [#11](https://github.com/MetinGames/Long-Narde/issues/11):** the deterministic baseline, profiling, request-scoped cache, opponent-aware fixtures, fixed 16-seed/32-match validation, and symmetric player-two pip correction are merged through [#35](https://github.com/MetinGames/Long-Narde/pull/35); the current sample records 31–1 versus a corrected 26–6 control, with additional real-match fixtures next.
-9. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and completed [#6](https://github.com/MetinGames/Long-Narde/issues/6):** project metadata remains queued; merged [#36](https://github.com/MetinGames/Long-Narde/pull/36) records the complete 50-branch inventory with 45 exact cleanup candidates, one active branch, and four preserved for manual review. No branch has been deleted.
-10. **Hosted approval gate:** [#20](https://github.com/MetinGames/Long-Narde/issues/20) remains blocked until Metin explicitly approves the candidate provider, EU region, minimal data map, retention, and any spend after reviewing [#19](https://github.com/MetinGames/Long-Narde/issues/19).
+8. **Completed — [#14](https://github.com/MetinGames/Long-Narde/issues/14):** added a responsive visual theme gallery on the start screen and in-game panel, synchronized it with the compact selector and local persistence, centralized board/checker/panel/focus tokens, and added contrast, keyboard, mobile, PWA, and visual-regression coverage.
+9. **In progress — [#11](https://github.com/MetinGames/Long-Narde/issues/11):** the deterministic baseline, profiling, request-scoped cache, opponent-aware fixtures, fixed 16-seed/32-match validation, and symmetric player-two pip correction are merged through [#35](https://github.com/MetinGames/Long-Narde/pull/35); the current sample records 31–1 versus a corrected 26–6 control, with additional real-match fixtures next.
+10. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and completed [#6](https://github.com/MetinGames/Long-Narde/issues/6):** project metadata remains queued; merged [#36](https://github.com/MetinGames/Long-Narde/pull/36) records the complete 50-branch inventory with 45 exact cleanup candidates, one active branch, and four preserved for manual review. No branch has been deleted.
+11. **Hosted approval gate:** [#20](https://github.com/MetinGames/Long-Narde/issues/20) remains blocked until Metin explicitly approves the candidate provider, EU region, minimal data map, retention, and any spend after reviewing [#19](https://github.com/MetinGames/Long-Narde/issues/19).
 
 Completed in this synchronization cycle:
 
@@ -76,6 +77,7 @@ Completed in this synchronization cycle:
 - [#18](https://github.com/MetinGames/Long-Narde/issues/18) local Friend Match preview delivered with controller-owned listeners/subscriptions, full local lifecycle, stale-callback protection, reconnect recovery, honest copy, and responsive TR/EN/RU UI.
 - [#19](https://github.com/MetinGames/Long-Narde/issues/19) provider research completed with a weighted comparison, cost model, minimal data map, exit paths, synthetic-trial plan, and measurable rejection criteria; provider commitment remains open.
 - [#9](https://github.com/MetinGames/Long-Narde/issues/9) contextual rule explanations and the first-match guide delivered with engine reason codes, TR/EN/RU copy, local-only seen state, reopen behavior, and cross-browser keyboard/touch coverage.
+- [#14](https://github.com/MetinGames/Long-Narde/issues/14) visual theme gallery delivered with reusable renderer/UI tokens, persistent synchronized selection, enhanced-contrast text/focus gates, responsive keyboard/touch behavior, PWA coverage, and a dedicated visual baseline.
 - No open pull request or new GitHub player-feedback submission requires triage; closed draft PR [#7](https://github.com/MetinGames/Long-Narde/pull/7) is superseded by the Nardora work already delivered to `main`.
 
 ## Phase 0 — Product exit gate met; maintenance continues
@@ -125,7 +127,7 @@ Target: **2026-09-30**
 - **In progress:** Benchmark and refine the shipped Champion bot against representative positions and Metin's real matches; move heavy calculation to a Web Worker only if measurements justify it ([#11](https://github.com/MetinGames/Long-Narde/issues/11)).
 - **Done:** Built a contextual **Rule Explanation System** that explains common blocked, mandatory, bearing-off, prime and automatic-pass states from engine-owned reasons ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Added a dismissible and reopenable **Interactive First-Match Tutorial** using the existing localized guide, with a local-only versioned seen flag and keyboard/touch/small-screen coverage ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
-- Build a visual theme-management screen and prepare approved Anatolian theme families without weakening board readability ([#14](https://github.com/MetinGames/Long-Narde/issues/14)).
+- **Done:** Built the visual theme-management screen in [#14](https://github.com/MetinGames/Long-Narde/issues/14), preserving the approved Anadolu and walnut families while adding persistent selection, reusable contrast-aware tokens, responsive access, and visual regression coverage.
 - Polish onboarding, victory flow, active-player cues, touch targets, and accessibility; validate the release gate on real devices ([#13](https://github.com/MetinGames/Long-Narde/issues/13)).
 - **Done:** Added maintainability guardrails and staged large-file plans without turning refactoring into an open-ended substitute for player value ([#25](https://github.com/MetinGames/Long-Narde/issues/25)).
 - Keep competitor/rival analysis as a research input for clarity, onboarding, retention, and monetization patterns; do not copy protected art or branding.

@@ -807,8 +807,8 @@ export class Renderer {
             if (isSelected && i === slotData.count - 1) {
                 this.ctx.beginPath(); 
                 this.ctx.arc(centerX, centerY, radius + 5, 0, Math.PI * 2);
-                this.ctx.fillStyle = '#f39c12'; 
-                this.ctx.shadowColor = '#f39c12';
+                this.ctx.fillStyle = this.theme.interaction.selected;
+                this.ctx.shadowColor = this.theme.interaction.selected;
                 this.ctx.shadowBlur = 12;
                 this.ctx.fill();
                 this.ctx.shadowBlur = 0; // Gölgeyi sıfırla
@@ -819,30 +819,27 @@ export class Renderer {
             this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
             
             const pieceGrad = this.ctx.createRadialGradient(centerX - 4, centerY - 4, 2, centerX, centerY, radius);
-            if (slotData.player === 1) {
-                pieceGrad.addColorStop(0, '#f8efd9');
-                pieceGrad.addColorStop(0.72, '#dfcfaa');
-                pieceGrad.addColorStop(1, '#a98d60');
-            } else {
-                pieceGrad.addColorStop(0, '#554940');
-                pieceGrad.addColorStop(0.72, '#27201c');
-                pieceGrad.addColorStop(1, '#0d0a08');
-            }
+            const checkerTokens = slotData.player === 1
+                ? this.theme.checkers.white
+                : this.theme.checkers.black;
+            pieceGrad.addColorStop(0, checkerTokens.gradient[0]);
+            pieceGrad.addColorStop(0.72, checkerTokens.gradient[1]);
+            pieceGrad.addColorStop(1, checkerTokens.gradient[2]);
             this.ctx.fillStyle = pieceGrad;
-            this.ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            this.ctx.shadowColor = this.theme.checkers.shadow;
             this.ctx.shadowBlur = 4;
             this.ctx.fill();
             this.ctx.shadowBlur = 0;
             
             // Kenar Çerçevesi
             this.ctx.lineWidth = 1.5; 
-            this.ctx.strokeStyle = slotData.player === 1 ? '#b99b61' : '#62554b'; 
+            this.ctx.strokeStyle = checkerTokens.stroke;
             this.ctx.stroke();
             
             // Pulun İçindeki El Oyması Halka Detayı
             this.ctx.beginPath(); 
             this.ctx.arc(centerX, centerY, radius * 0.55, 0, Math.PI * 2);
-            this.ctx.strokeStyle = slotData.player === 1 ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.12)'; 
+            this.ctx.strokeStyle = checkerTokens.insetStroke;
             this.ctx.lineWidth = 1;
             this.ctx.stroke();
         }
@@ -865,17 +862,17 @@ export class Renderer {
 
     drawCollectPrompt(x, y, width, height) {
         this.ctx.save();
-        this.ctx.shadowColor = '#f6c744';
+        this.ctx.shadowColor = this.theme.interaction.focusGlow;
         this.ctx.shadowBlur = 18;
-        this.ctx.strokeStyle = '#ffd75e';
+        this.ctx.strokeStyle = this.theme.interaction.focus;
         this.ctx.lineWidth = 3;
         this.ctx.strokeRect(x + 2, y + 2, width - 4, height - 4);
         this.ctx.shadowBlur = 0;
 
-        this.ctx.fillStyle = 'rgba(246, 199, 68, 0.24)';
+        this.ctx.fillStyle = this.theme.interaction.focusFill;
         this.ctx.fillRect(x + 3, y + 3, width - 6, height - 6);
 
-        this.ctx.fillStyle = '#fff3b0';
+        this.ctx.fillStyle = this.theme.interaction.focusText;
         this.ctx.textAlign = 'center';
         this.ctx.font = 'bold 10px sans-serif';
         this.ctx.fillText(t('collect'), x + width / 2, y + height / 2 - 4);
@@ -980,12 +977,12 @@ export class Renderer {
             );
 
             if (player === 1) {
-                grad.addColorStop(0, '#f9eed2');
-                grad.addColorStop(1, '#b79a65');
+                grad.addColorStop(0, this.theme.checkers.white.collectedGradient[0]);
+                grad.addColorStop(1, this.theme.checkers.white.collectedGradient[1]);
                 this.ctx.strokeStyle = 'rgba(90, 64, 32, 0.65)';
             } else {
-                grad.addColorStop(0, '#4f433a');
-                grad.addColorStop(1, '#16100d');
+                grad.addColorStop(0, this.theme.checkers.black.collectedGradient[0]);
+                grad.addColorStop(1, this.theme.checkers.black.collectedGradient[1]);
                 this.ctx.strokeStyle = 'rgba(218, 189, 137, 0.25)';
             }
 

@@ -14,6 +14,7 @@
     <link rel="icon" type="image/svg+xml" href="./assets/branding/icons/nardora-icon.svg">
     <link rel="apple-touch-icon" href="./assets/branding/icons/apple-touch-icon.png">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme-manager.css">
     <link rel="stylesheet" href="assets/branding/nardora-splash.css">
 </head>
 <body>
@@ -56,6 +57,16 @@
                     <option value="anatolian" data-i18n="theme.anatolian">Anadolu</option>
                     <option value="walnut" data-i18n="theme.walnut">Koyu Ceviz</option>
                 </select>
+                <button
+                    id="theme-manager-button"
+                    type="button"
+                    aria-haspopup="dialog"
+                    data-i18n-aria-label="theme.managerOpen"
+                    aria-label="Tema galerisini aç"
+                >
+                    <span class="theme-manager-button-icon" aria-hidden="true">◫</span>
+                    <span class="theme-manager-button-label" data-i18n="theme.managerShort">Galeri</span>
+                </button>
             </div>
 
             <div id="auto-bearoff-container" class="is-disabled">
@@ -268,6 +279,15 @@
                     type="button"
                     aria-label="Profil ve İlerleme"
                 >Profil ve İlerleme</button>
+                <button
+                    id="start-theme-manager-button"
+                    class="secondary-start-button"
+                    data-i18n="theme.managerOpen"
+                    data-i18n-aria-label="theme.managerOpen"
+                    type="button"
+                    aria-haspopup="dialog"
+                    aria-label="Tema galerisini aç"
+                >Tema Galerisini Aç</button>
             </div>
             <div id="friend-preview-entry">
                 <button
@@ -791,6 +811,93 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div
+        id="theme-manager-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+        aria-labelledby="theme-manager-title"
+        aria-describedby="theme-manager-description"
+        data-i18n-aria-label="theme.managerLabel"
+        aria-label="Tema galerisi"
+        style="display: none;"
+    >
+        <section id="theme-manager-card">
+            <header id="theme-manager-header">
+                <div>
+                    <span id="theme-manager-eyebrow" data-i18n="theme.managerEyebrow">TAHTA GÖRÜNÜMÜ</span>
+                    <h2 id="theme-manager-title" data-i18n="theme.managerTitle">Temanı Seç</h2>
+                </div>
+                <button
+                    id="theme-manager-close-button"
+                    class="theme-manager-close"
+                    type="button"
+                    data-i18n-aria-label="theme.managerClose"
+                    aria-label="Tema galerisini kapat"
+                >×</button>
+            </header>
+
+            <p id="theme-manager-description" data-i18n="theme.managerDescription">Tahta okunabilirliğini koruyan iki görünümden birini seçin. Seçiminiz bu cihazda saklanır.</p>
+
+            <div id="theme-manager-options" role="group" data-i18n-aria-label="theme.managerGroup" aria-label="Tema seçenekleri">
+                <button
+                    class="theme-option-card"
+                    type="button"
+                    data-theme-option="anatolian"
+                    aria-pressed="false"
+                    data-i18n-aria-label="theme.anatolianAction"
+                    aria-label="Anadolu temasını seç"
+                >
+                    <span class="theme-option-preview" aria-hidden="true">
+                        <span class="theme-option-board">
+                            <span class="theme-option-bar"></span>
+                            <span class="theme-preview-checker theme-preview-checker-white"></span>
+                            <span class="theme-preview-checker theme-preview-checker-black"></span>
+                        </span>
+                    </span>
+                    <span class="theme-option-copy">
+                        <strong data-i18n="theme.anatolian">Anadolu</strong>
+                        <span data-i18n="theme.anatolianDescription">Sıcak ahşap ve Anadolu ustası tahta işlemesi.</span>
+                    </span>
+                    <span class="theme-option-selected" data-i18n="theme.selected">Seçili</span>
+                </button>
+
+                <button
+                    class="theme-option-card"
+                    type="button"
+                    data-theme-option="walnut"
+                    aria-pressed="false"
+                    data-i18n-aria-label="theme.walnutAction"
+                    aria-label="Koyu Ceviz temasını seç"
+                >
+                    <span class="theme-option-preview" aria-hidden="true">
+                        <span class="theme-option-board">
+                            <span class="theme-option-bar"></span>
+                            <span class="theme-preview-checker theme-preview-checker-white"></span>
+                            <span class="theme-preview-checker theme-preview-checker-black"></span>
+                        </span>
+                    </span>
+                    <span class="theme-option-copy">
+                        <strong data-i18n="theme.walnut">Koyu Ceviz</strong>
+                        <span data-i18n="theme.walnutDescription">Derin ceviz tonları ve yüksek kontrastlı klasik yüzey.</span>
+                    </span>
+                    <span class="theme-option-selected" data-i18n="theme.selected">Seçili</span>
+                </button>
+            </div>
+
+            <p id="theme-manager-live-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
+
+            <footer id="theme-manager-footer">
+                <span data-i18n="theme.persistenceNote">Tema tercihi yalnızca bu cihazda saklanır.</span>
+                <button
+                    id="theme-manager-close-footer-button"
+                    type="button"
+                    data-i18n="theme.managerDone"
+                >Tamam</button>
+            </footer>
+        </section>
     </div>
 
     <!-- YENİ: Gelişmiş İstatistikli Game Over Paneli -->

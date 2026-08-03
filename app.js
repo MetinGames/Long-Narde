@@ -65,6 +65,7 @@ import { createAppResumeController } from './engine/appResumeController.js';
 import {
     createMobileThemeLabelController
 } from './engine/mobileThemeLabelController.js';
+import { ThemeManagerController } from './engine/themeManagerController.js';
 import { createStartModeController } from './engine/startModeController.js';
 import {
     FriendMatchPreviewController
@@ -97,6 +98,7 @@ let gameFeedbackToast = null;
 let languageSelectors = null;
 let fullscreenController = null;
 let mobileThemeLabelController = null;
+let themeManagerController = null;
 let startModeController = null;
 let friendMatchPreviewController = null;
 let autoBearOffEnabled = false;
@@ -1258,6 +1260,37 @@ function bindEvents() {
     });
     startModeController.start();
 
+    const themeManagerModal =
+        document.getElementById('theme-manager-modal');
+    themeManagerController = new ThemeManagerController({
+        modal: themeManagerModal,
+        openButtons: [
+            document.getElementById('theme-manager-button'),
+            document.getElementById('start-theme-manager-button')
+        ],
+        closeButtons: [
+            document.getElementById('theme-manager-close-button'),
+            document.getElementById('theme-manager-close-footer-button')
+        ],
+        select: themeSelect,
+        optionButtons: themeManagerModal
+            ? themeManagerModal.querySelectorAll('[data-theme-option]')
+            : [],
+        liveStatus: document.getElementById('theme-manager-live-status'),
+        getCurrentThemeId: () => renderer.theme.id,
+        onThemeChange: (themeId, themeName) => {
+            renderer.setTheme(themeId);
+            mobileThemeLabelController?.refresh();
+            updateScreen();
+            setStatus(
+                t('status.themeChanged', { theme: themeName }),
+                { force: true }
+            );
+        },
+        translate: (key, values) => t(key, values)
+    });
+    themeManagerController.start();
+
     languageSelectors = setupLanguageSelectors({
         selectors: [languageSelect, startLanguageSelect],
         onLanguageApplied: () => {
@@ -1266,23 +1299,13 @@ function bindEvents() {
             friendMatchPreviewController?.refreshForLanguage();
             fullscreenController?.refreshLabels();
             mobileThemeLabelController?.refresh();
+            themeManagerController?.refreshForLanguage();
             updateScreen();
             updateAutoBearOffControl();
         },
         onStatusChange: message => {
             setStatus(message, { force: true });
         }
-    });
-
-    themeSelect?.addEventListener('change', event => {
-        renderer.setTheme(event.target.value);
-        updateScreen();
-        setStatus(
-            t('status.themeChanged', {
-                theme: event.target.selectedOptions[0].text
-            }),
-            { force: true }
-        );
     });
 
     restartButton?.addEventListener('click', restartGame);
