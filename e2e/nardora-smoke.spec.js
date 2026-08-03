@@ -120,3 +120,84 @@ test('responsive shell stays inside the viewport', async ({ page }) => {
     expect(horizontalOverflow).toBeLessThanOrEqual(1);
     expect(runtimeErrors).toEqual([]);
 });
+
+test('fullscreen control falls back to focus mode and exits cleanly', async ({
+    page
+}) => {
+    await page.addInitScript(() => {
+        const disableApi = (prototype, property) => {
+            try {
+                Object.defineProperty(prototype, property, {
+                    configurable: true,
+                    value: undefined
+                });
+            } catch {
+                // The target browser already exposes no configurable API.
+            }
+        };
+
+        disableApi(Element.prototype, 'requestFullscreen');
+        disableApi(Element.prototype, 'webkitRequestFullscreen');
+        disableApi(Document.prototype, 'exitFullscreen');
+        disableApi(Document.prototype, 'webkitExitFullscreen');
+    });
+
+    const runtimeErrors = captureRuntimeErrors(page);
+    await openReadyStartScreen(page);
+    await page.locator('#start-button').click();
+    await expect(page.locator('#start-screen')).toBeHidden();
+
+    const root = page.locator('#game-container');
+    const toggle = page.locator('#fullscreen-toggle');
+
+    await expect(page.locator('#game-container > #start-screen')).toHaveCount(1);
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(root).toHaveClass(/is-focus-mode-root/);
+    await expect(page.locator('body')).toHaveClass(/is-game-focus-mode/);
+
+    await page.evaluate(() => {
+        document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Escape',
+            bubbles: true,
+            cancelable: true
+        }));
+    });
+
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(root).not.toHaveClass(/is-focus-mode-root/);
+    await expect(page.locator('body')).not.toHaveClass(/is-game-focus-mode/);
+    expect(runtimeErrors).toEqual([]);
+});
+
+test('portrait orientation notice responds to viewport rotation', async ({
+    page
+}, testInfo) => {
+    test.skip(
+        testInfo.project.name !== 'iphone-16e-portrait',
+        'Orientation transition is covered by the portrait touch project.'
+    );
+
+    const runtimeErrors = captureRuntimeErrors(page);
+    await openReadyStartScreen(page);
+
+    const portraitViewport = page.viewportSize();
+    expect(portraitViewport).not.toBeNull();
+    expect(portraitViewport.width).toBeLessThan(portraitViewport.height);
+    await expect(page.locator('#rotate-notice')).toBeVisible();
+
+    await page.setViewportSize({
+        width: portraitViewport.height,
+        height: portraitViewport.width
+    });
+    await expect(page.locator('#rotate-notice')).toBeHidden();
+
+    const landscapeOverflow = await page.evaluate(() =>
+        document.documentElement.scrollWidth - window.innerWidth
+    );
+    expect(landscapeOverflow).toBeLessThanOrEqual(1);
+
+    await page.setViewportSize(portraitViewport);
+    await expect(page.locator('#rotate-notice')).toBeVisible();
+    expect(runtimeErrors).toEqual([]);
+});
