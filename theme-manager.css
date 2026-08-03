@@ -20,14 +20,14 @@
 }
 
 #theme-manager-button {
-    flex: 0 0 auto;
-    min-width: 44px;
+    flex: 0 0 40px;
+    width: 40px;
+    min-width: 40px;
     min-height: 40px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    padding: 6px 9px;
+    padding: 4px;
     border: 1px solid rgba(255, 216, 126, 0.5);
     border-radius: 7px;
     background: rgba(29, 16, 8, 0.82);
@@ -55,6 +55,15 @@
 .theme-manager-button-icon {
     font-size: 1.05rem;
     line-height: 1;
+}
+
+.theme-manager-button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
 }
 
 #start-screen-actions {
@@ -291,19 +300,7 @@ body.is-theme-manager-open {
 
 @media (max-width: 900px) {
     #theme-manager-button {
-        width: 40px;
-        min-width: 40px;
         min-height: 40px;
-        padding: 4px;
-    }
-
-    .theme-manager-button-label {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
     }
 }
 
