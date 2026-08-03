@@ -99,14 +99,29 @@ export class Board {
         return false;
     }
 
-    canBearOff(player, fromSlot, diceValue) {
-        if (!this.areAllPiecesInHomeBoard(player)) return false;
+    getBearOffInvalidReason(player, fromSlot, diceValue) {
+        if (!this.areAllPiecesInHomeBoard(player)) {
+            return 'bearingOffHomeRequired';
+        }
 
         const required = this.getBearOffDistance(player, fromSlot);
-        if (diceValue === required) return true;
+        if (diceValue === required) return null;
 
-        return diceValue > required &&
-            !this.hasFartherCheckerInHome(player, fromSlot);
+        if (diceValue > required) {
+            return this.hasFartherCheckerInHome(player, fromSlot)
+                ? 'bearingOffFartherChecker'
+                : null;
+        }
+
+        return 'pieceBlocked';
+    }
+
+    canBearOff(player, fromSlot, diceValue) {
+        return this.getBearOffInvalidReason(
+            player,
+            fromSlot,
+            diceValue
+        ) === null;
     }
 
     movePiece(from, to) {
@@ -201,8 +216,8 @@ export class Board {
         return false;
     }
 
-    isValidMove(player, from, to) {
-        if (from < 1 || from > 24) return false;
+    getInvalidMoveReason(player, from, to) {
+        if (from < 1 || from > 24) return 'pieceBlocked';
 
         const source = this.slots[from];
         if (
@@ -210,21 +225,33 @@ export class Board {
             source.player !== player ||
             source.count <= 0
         ) {
-            return false;
+            return 'pieceBlocked';
         }
 
         if (this.isBearingOffMove(player, from, to)) {
-            return this.canBearOff(player, from, to - from);
+            return this.getBearOffInvalidReason(
+                player,
+                from,
+                to - from
+            );
         }
 
-        if (to < 1 || to > 24) return false;
+        if (to < 1 || to > 24) return 'pieceBlocked';
 
         const target = this.slots[to];
         if (target.player !== null && target.player !== player) {
-            return false;
+            return 'targetBlocked';
         }
 
-        return !this.wouldCreateIllegalPrime(player, from, to);
+        if (this.wouldCreateIllegalPrime(player, from, to)) {
+            return 'illegalPrime';
+        }
+
+        return null;
+    }
+
+    isValidMove(player, from, to) {
+        return this.getInvalidMoveReason(player, from, to) === null;
     }
 
     hasPlayerWon(player) {
