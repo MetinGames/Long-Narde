@@ -285,7 +285,10 @@ export function playDeterministicBotMatch({
     player1Difficulty = 'champion',
     player2Difficulty = 'hard',
     maxTurns = 240,
-    now = defaultNow
+    now = defaultNow,
+    createBot = ({ player, difficulty, random }) => (
+        new NardeBot(player, difficulty, random)
+    )
 }) {
     const normalizedSeed = normalizeSeed(seed);
     const turnLimit = normalizeMaxTurns(maxTurns);
@@ -294,17 +297,25 @@ export function playDeterministicBotMatch({
     game.initGame();
 
     const bots = {
-        1: new NardeBot(
-            1,
-            player1Difficulty,
-            createSeededRandom(normalizedSeed ^ 0x9e3779b9)
-        ),
-        2: new NardeBot(
-            2,
-            player2Difficulty,
-            createSeededRandom(normalizedSeed ^ 0x243f6a88)
-        )
+        1: createBot({
+            player: 1,
+            difficulty: player1Difficulty,
+            random: createSeededRandom(normalizedSeed ^ 0x9e3779b9)
+        }),
+        2: createBot({
+            player: 2,
+            difficulty: player2Difficulty,
+            random: createSeededRandom(normalizedSeed ^ 0x243f6a88)
+        })
     };
+
+    for (const player of [1, 2]) {
+        if (typeof bots[player]?.makeDecision !== 'function') {
+            throw new TypeError(
+                `Benchmark bot factory returned an invalid player ${player} bot`
+            );
+        }
+    }
     const playerMetrics = {
         1: createPlayerMetrics(player1Difficulty),
         2: createPlayerMetrics(player2Difficulty)
@@ -394,7 +405,8 @@ export function playDeterministicBotMatch({
 export function runChampionBenchmark({
     seeds = DEFAULT_CHAMPION_BENCHMARK_SEEDS,
     maxTurns = 240,
-    now = defaultNow
+    now = defaultNow,
+    createBot
 } = {}) {
     if (!Array.isArray(seeds) || seeds.length === 0) {
         throw new TypeError('Champion benchmark requires at least one seed');
@@ -421,7 +433,8 @@ export function runChampionBenchmark({
                     ? 'champion'
                     : 'hard',
                 maxTurns,
-                now
+                now,
+                createBot
             });
 
             const masterPlayer = championPlayer === 1 ? 2 : 1;
