@@ -15,6 +15,9 @@ import { DiceRollAnimation } from './engine/animations.js';
 import { bindCanvasInput } from './engine/input.js';
 import { TurnTimeoutController } from './engine/timeoutController.js';
 import { HowToPlayGuide } from './engine/howToPlayGuide.js';
+import {
+    createFirstMatchTutorialController
+} from './engine/firstMatchTutorial.js';
 import { FeedbackModal } from './engine/feedbackModal.js';
 import {
     MatchStatsRecorder,
@@ -54,6 +57,10 @@ import {
     applyNoLegalMoveAutoPass,
     hasAnyRuleCompliantTurnStart
 } from './engine/noLegalMoveAutoPass.js';
+import {
+    getNoLegalMoveRuleExplanation,
+    getUnplayableRuleExplanation
+} from './engine/ruleExplanations.js';
 import { createAppResumeController } from './engine/appResumeController.js';
 import {
     createMobileThemeLabelController
@@ -82,6 +89,7 @@ const runtimeDiagnostics = createRuntimeDiagnostics({
 });
 let victoryMomentHook = null;
 let howToPlayGuide = null;
+let firstMatchTutorialController = null;
 let playerStatsModal = null;
 let feedbackModal = null;
 let restartButtonLock = null;
@@ -512,7 +520,8 @@ function passCurrentTurnWhenNoLegalMove() {
         return false;
     }
 
-    const statusOverrideKey = 'status.noLegalMovesTurnPassed';
+    const statusOverrideKey =
+        getNoLegalMoveRuleExplanation().messageKey;
 
     if (autoPass.toPlayer === 1) {
         ui.setHumanTurnLayout();
@@ -846,20 +855,9 @@ function restartGame() {
 
 function explainUnplayableSlot(slotId) {
     const reason = game.getUnplayableReason(slotId);
+    const explanation = getUnplayableRuleExplanation(reason);
 
-    if (reason === 'headBlocked') {
-        setStatus(
-            t('status.headBlocked')
-        );
-    } else if (reason === 'maxMoveConstraint') {
-        setStatus(
-            t('status.maxMoveConstraint')
-        );
-    } else {
-        setStatus(
-            t('status.pieceBlocked')
-        );
-    }
+    setStatus(t(explanation.messageKey));
 }
 
 function selectPlayableSlot(slotId) {
@@ -1067,6 +1065,9 @@ function bindEvents() {
         pageCounter: guidePageCounter,
         pageElements: guidePages,
         onStart: startGame
+    });
+    firstMatchTutorialController = createFirstMatchTutorialController({
+        guide: howToPlayGuide
     });
 
     playerStatsModal = new PlayerStatsModal({
@@ -1393,4 +1394,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     runtimeDiagnostics.start();
     mobileThemeLabelController.start();
     initializeBeforeStart();
+    firstMatchTutorialController?.openIfNeeded(
+        document.getElementById('how-to-play-button')
+    );
 });

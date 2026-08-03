@@ -25,6 +25,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Turn confirmation, move-by-move undo, double-dice rights indicators, active-turn feedback, collected-checker tray, and victory feedback.
 - Per-turn timeout reset and two-stage timeout flow.
 - Local player statistics, how-to-play guide, feedback modal, and GitHub issue forms.
+- Engine-owned contextual rule explanations plus a dismissible, locally remembered and reopenable first-match guide.
 - Runtime diagnostics export for player bug reports.
 - Responsive desktop/mobile layouts, iOS safe-area handling, orientation guidance, and fullscreen/focus mode.
 - Installable PWA shell with versioned updates and offline local bot play.
@@ -38,7 +39,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **294 automated tests passing as of 2026-08-03.**
+- **309 Node tests and 28 executed Playwright checks passing as of 2026-08-03** (50-case browser/device matrix with 22 intentional project skips).
 
 ## Current gaps and risks
 
@@ -46,7 +47,6 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - The repository has 35 non-main remote branches that need a verified merged/stale inventory before deletion.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
 - Community-sourced sample sounds are integrated and licensed, but Metin's final original dice/checker recordings, volume controls, and device-level listening review are not complete.
-- The how-to-play guide is static; there is no contextual rule explanation system or interactive first-match tutorial yet.
 - Friend Match and Online have honest entry points, local identity, a provider-neutral contract, and a player-facing same-device lifecycle preview, but no network adapter, approved account model, hosted backend, or playable online table; theme selection is not yet a dedicated visual management screen.
 - Advertising-safe responsive zones and Yandex-specific layout behavior have not been designed or tested.
 - There is no store package, backend, account system, online room, chat, ranking, or moderation layer.
@@ -58,8 +58,9 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 3. **Completed — [#16](https://github.com/MetinGames/Long-Narde/issues/16):** delivered the provider-neutral private-table v1 contract, deterministic in-memory adapter, reconnect snapshots, authoritative outcome boundary, and safety seams.
 4. **Completed — [#18](https://github.com/MetinGames/Long-Narde/issues/18):** connected local identity and the v1 in-memory adapter to an honest, localized, lifecycle-safe same-device Friend Match preview while preserving the disabled hosted entry.
 5. **Completed — [#10](https://github.com/MetinGames/Long-Narde/issues/10):** replaced the single start action with an honest, responsive mode entry; Quick Play and Bot Match work, while Friend Match and Online remain visibly disabled until real flows exist.
-6. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and [#6](https://github.com/MetinGames/Long-Narde/issues/6):** configure project metadata and inventory branches without blocking the social critical path or deleting unverified work.
-7. **Hosted approval gate:** [#20](https://github.com/MetinGames/Long-Narde/issues/20) remains blocked until Metin explicitly approves the candidate provider, EU region, minimal data map, retention, and any spend after reviewing [#19](https://github.com/MetinGames/Long-Narde/issues/19).
+6. **Completed — [#9](https://github.com/MetinGames/Long-Narde/issues/9):** added engine-owned contextual explanations for common Long Narde restrictions and a dismissible, reopenable first-visit guide with keyboard, touch, responsive, offline and localization coverage.
+7. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and [#6](https://github.com/MetinGames/Long-Narde/issues/6):** configure project metadata and inventory branches without blocking the social critical path or deleting unverified work.
+8. **Hosted approval gate:** [#20](https://github.com/MetinGames/Long-Narde/issues/20) remains blocked until Metin explicitly approves the candidate provider, EU region, minimal data map, retention, and any spend after reviewing [#19](https://github.com/MetinGames/Long-Narde/issues/19).
 
 Completed in this synchronization cycle:
 
@@ -72,6 +73,7 @@ Completed in this synchronization cycle:
 - [#15](https://github.com/MetinGames/Long-Narde/issues/15) device-only identity, built-in avatars, progression v2 migration, achievements, reset controls, and private-table projection delivered.
 - [#18](https://github.com/MetinGames/Long-Narde/issues/18) local Friend Match preview delivered with controller-owned listeners/subscriptions, full local lifecycle, stale-callback protection, reconnect recovery, honest copy, and responsive TR/EN/RU UI.
 - [#19](https://github.com/MetinGames/Long-Narde/issues/19) provider research completed with a weighted comparison, cost model, minimal data map, exit paths, synthetic-trial plan, and measurable rejection criteria; provider commitment remains open.
+- [#9](https://github.com/MetinGames/Long-Narde/issues/9) contextual rule explanations and the first-match guide delivered with engine reason codes, TR/EN/RU copy, local-only seen state, reopen behavior, and cross-browser keyboard/touch coverage.
 - No open pull request or new GitHub player-feedback submission requires triage; closed draft PR [#7](https://github.com/MetinGames/Long-Narde/pull/7) is superseded by the Nardora work already delivered to `main`.
 
 ## Phase 0 — Product exit gate met; maintenance continues
@@ -119,8 +121,8 @@ Target: **2026-09-30**
 - **Approval gated:** Keep the hosted adapter [#20](https://github.com/MetinGames/Long-Narde/issues/20) blocked until Metin explicitly approves the provider, EU region, minimal data map, retention, and any spend.
 - Integrate the user's original high-quality dice and checker recordings, with volume controls and safe preload behavior ([#12](https://github.com/MetinGames/Long-Narde/issues/12)).
 - Benchmark and refine the shipped Champion bot against representative positions and Metin's real matches; move heavy calculation to a Web Worker only if measurements justify it ([#11](https://github.com/MetinGames/Long-Narde/issues/11)).
-- Build a contextual **Rule Explanation System** that explains why a move is legal, blocked, mandatory, or automatically passed ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
-- Add an **Interactive First-Match Tutorial** for the distinctive Long Narde rules, using the existing guide as its reference source (combined with [#9](https://github.com/MetinGames/Long-Narde/issues/9)).
+- **Done:** Built a contextual **Rule Explanation System** that explains common blocked, mandatory, bearing-off, prime and automatic-pass states from engine-owned reasons ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
+- **Done:** Added a dismissible and reopenable **Interactive First-Match Tutorial** using the existing localized guide, with a local-only versioned seen flag and keyboard/touch/small-screen coverage ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - Build a visual theme-management screen and prepare approved Anatolian theme families without weakening board readability ([#14](https://github.com/MetinGames/Long-Narde/issues/14)).
 - Polish onboarding, victory flow, active-player cues, touch targets, and accessibility; validate the release gate on real devices ([#13](https://github.com/MetinGames/Long-Narde/issues/13)).
 - Keep competitor/rival analysis as a research input for clarity, onboarding, retention, and monetization patterns; do not copy protected art or branding.

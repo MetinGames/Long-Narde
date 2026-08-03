@@ -58,7 +58,13 @@ test('otomatik pas akisi aninda durum mesaji verir ve aksiyon dugmelerini gizler
         'function beginCurrentTurn(options = {}) {'
     );
 
-    assert.equal(section.includes("const statusOverrideKey = 'status.noLegalMovesTurnPassed';"), true);
+    assert.equal(
+        section.includes(
+            'const statusOverrideKey =\n' +
+            '        getNoLegalMoveRuleExplanation().messageKey;'
+        ),
+        true
+    );
     assert.equal(section.includes('ui.setHumanTurnLayout();'), true);
     assert.equal(section.includes('ui.setBotTurnLayout();'), true);
     assert.equal(section.includes('setStatus(t(statusOverrideKey), { force: true });'), true);
