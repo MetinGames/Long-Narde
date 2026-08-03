@@ -108,6 +108,15 @@ test('start-screen dialogs open and close without starting a match', async ({
     await page.locator('#stats-close-button').click();
     await expect(page.locator('#player-stats-modal')).toBeHidden();
 
+    await page.locator('#feedback-button').click();
+    await expect(page.locator('#feedback-modal')).toBeVisible();
+    await expect(page.locator('#feedback-bug-link')).toHaveAttribute(
+        'href',
+        /bug_report\.yml/
+    );
+    await page.locator('#feedback-close-button').click();
+    await expect(page.locator('#feedback-modal')).toBeHidden();
+
     await page.reload();
     await expect(page.locator('#start-screen')).toBeVisible();
     await expect(page.locator('#nardora-splash')).toHaveCount(0, {
@@ -123,15 +132,6 @@ test('start-screen dialogs open and close without starting a match', async ({
     await page.locator('#profile-reset-button').click();
     await expect(page.locator('#profile-display-name')).toHaveValue('Nardora Player');
     await page.locator('#stats-close-button').click();
-
-    await page.locator('#feedback-button').click();
-    await expect(page.locator('#feedback-modal')).toBeVisible();
-    await expect(page.locator('#feedback-bug-link')).toHaveAttribute(
-        'href',
-        /bug_report\.yml/
-    );
-    await page.locator('#feedback-close-button').click();
-    await expect(page.locator('#feedback-modal')).toBeHidden();
 
     await expect(startScreen).toBeVisible();
     expect(runtimeErrors).toEqual([]);
