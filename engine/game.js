@@ -574,7 +574,27 @@ export class NardeGame {
             .some(move => move.from === fromSlot);
 
         if (!hasRawSingleMove) {
-            return 'pieceBlocked';
+            const invalidReasons = [...new Set(this.availableMoves)]
+                .map(diceValue => {
+                    const target = this.board.calculateTargetSlot(
+                        this.currentPlayer,
+                        fromSlot,
+                        diceValue
+                    );
+
+                    return this.board.getInvalidMoveReason(
+                        this.currentPlayer,
+                        fromSlot,
+                        target
+                    );
+                });
+            const specificReason = [
+                'illegalPrime',
+                'bearingOffHomeRequired',
+                'bearingOffFartherChecker'
+            ].find(reason => invalidReasons.includes(reason));
+
+            return specificReason || 'pieceBlocked';
         }
 
         const legalTargets = this.getLegalTargets(fromSlot);
