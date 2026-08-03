@@ -39,7 +39,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **335 Node tests and 28 executed Playwright checks passing as of 2026-08-04** (50-case browser/device matrix with 22 intentional project skips).
+- **343 Node tests and 34 executed Playwright checks passing as of 2026-08-04** (60-case browser/device matrix with 26 intentional project skips).
 
 ## Current gaps and risks
 
