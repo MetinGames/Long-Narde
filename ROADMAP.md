@@ -56,6 +56,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 3. **Completed — [#10](https://github.com/MetinGames/Long-Narde/issues/10):** replaced the single start action with an honest, responsive mode entry; Quick Play and Bot Match work, while Friend Match and Online remain visibly disabled until real flows exist.
 4. **Completed — [#4](https://github.com/MetinGames/Long-Narde/issues/4):** extracted resume and compact mobile-theme listener ownership with focused lifecycle tests; defer additional cleanup until product work or evidence requires it.
 5. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and [#6](https://github.com/MetinGames/Long-Narde/issues/6):** configure project metadata and inventory branches without blocking the social critical path or deleting unverified work.
+6. **Queued social follow-ups:** [#18](https://github.com/MetinGames/Long-Narde/issues/18) local Friend Match controller after identity; [#19](https://github.com/MetinGames/Long-Narde/issues/19) provider/privacy/cost research; [#20](https://github.com/MetinGames/Long-Narde/issues/20) hosted authoritative adapter remains blocked until explicit approval.
 
 Completed in this synchronization cycle:
 
@@ -94,8 +95,9 @@ All four product exit criteria are met. Project/milestone configuration and bran
 1. **Entry — Done:** [#10](https://github.com/MetinGames/Long-Narde/issues/10) gives every current and future mode an honest place in the product journey.
 2. **Identity seam:** [#15](https://github.com/MetinGames/Long-Narde/issues/15) establishes local, resettable identity and built-in avatars without collecting remote personal data.
 3. **Private-table contract — Done:** [#16](https://github.com/MetinGames/Long-Narde/issues/16) defines room lifecycle, invites, presence, authoritative commands/events and reconnect snapshots with an in-memory test adapter.
-4. **Hosted vertical slice:** after provider/privacy approval, connect the proven contract to managed auth/realtime infrastructure and ship invite-only tables before public matchmaking.
-5. **Safe communication and community:** add text/emoji with leave, mute, block, report and rate limits; voice/video, rankings and groups follow only after the safety and operations layer is proven.
+4. **Client vertical slice:** [#18](https://github.com/MetinGames/Long-Narde/issues/18) connects the proven contract to an honest local Friend Match controller after [#15](https://github.com/MetinGames/Long-Narde/issues/15).
+5. **Hosted vertical slice:** [#19](https://github.com/MetinGames/Long-Narde/issues/19) gathers provider/privacy/cost evidence; only after explicit approval may [#20](https://github.com/MetinGames/Long-Narde/issues/20) connect the contract to managed auth/realtime infrastructure.
+6. **Safe communication and community:** add text/emoji with leave, mute, block, report and rate limits; voice/video, rankings and groups follow only after the safety and operations layer is proven.
 
 Distribution and local-game quality proceed in parallel. No social milestone may weaken rule authority, mobile reliability, privacy defaults or honest availability states.
 
@@ -106,6 +108,7 @@ Target: **2026-09-30**
 - **Done:** Replaced the single start action with the honest mode entry in [#10](https://github.com/MetinGames/Long-Narde/issues/10); Quick Play/Bot Match work now, while Friend Match/Online expose accurate future availability.
 - **Done:** Defined and tested the provider-neutral private-table foundation in [#16](https://github.com/MetinGames/Long-Narde/issues/16), including lifecycle, invites, idempotency, ordering, reconnect snapshots, actor-scoped safety seams, and authoritative command/event boundaries.
 - **Active:** Build local identity/profile seams in [#15](https://github.com/MetinGames/Long-Narde/issues/15) without remote personal-data collection, using the v1 table identity projection.
+- **Queued:** Build the local Friend Match client vertical slice in [#18](https://github.com/MetinGames/Long-Narde/issues/18); evaluate providers and privacy/cost gates in [#19](https://github.com/MetinGames/Long-Narde/issues/19); keep the hosted adapter [#20](https://github.com/MetinGames/Long-Narde/issues/20) blocked until Metin explicitly approves the provider and data model.
 - Integrate the user's original high-quality dice and checker recordings, with volume controls and safe preload behavior ([#12](https://github.com/MetinGames/Long-Narde/issues/12)).
 - Benchmark and refine the shipped Champion bot against representative positions and Metin's real matches; move heavy calculation to a Web Worker only if measurements justify it ([#11](https://github.com/MetinGames/Long-Narde/issues/11)).
 - Build a contextual **Rule Explanation System** that explains why a move is legal, blocked, mandatory, or automatically passed ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
