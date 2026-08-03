@@ -58,17 +58,6 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium firefox webkit
 
-      - name: Generate missing visual baselines
-        run: npx playwright test e2e/nardora-visual.spec.js --project=desktop-chromium --update-snapshots=missing
-
-      - name: Upload visual baselines
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-visual-baselines
-          path: e2e/**/*-snapshots/*.png
-          if-no-files-found: error
-          retention-days: 7
-
       - name: Run browser smoke tests
         run: npm run test:e2e
 
