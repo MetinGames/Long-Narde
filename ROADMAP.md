@@ -38,7 +38,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **294 automated tests passing as of 2026-08-03.**
+- **304 automated tests passing as of 2026-08-03.**
 
 ## Current gaps and risks
 
@@ -47,19 +47,19 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
 - Community-sourced sample sounds are integrated and licensed, but Metin's final original dice/checker recordings, volume controls, and device-level listening review are not complete.
 - The how-to-play guide is static; there is no contextual rule explanation system or interactive first-match tutorial yet.
-- Friend Match and Online have honest entry points, local identity, a provider-neutral contract, and a player-facing same-device lifecycle preview, but no network adapter, approved account model, hosted backend, or playable online table; theme selection is not yet a dedicated visual management screen.
+- Friend Match and Online have honest entry points, local identity, a provider-neutral contract, a player-facing same-device lifecycle preview, and an isolated Supabase synthetic-trial foundation in progress. There is still no approved real-player account model or playable online table; theme selection is not yet a dedicated visual management screen.
 - Advertising-safe responsive zones and Yandex-specific layout behavior have not been designed or tested.
 - There is no store package, backend, account system, online room, chat, ranking, or moderation layer.
 
 ## Active 14-day worklist — 2026-08-03 to 2026-08-16
 
-1. **Research completed — [#19](https://github.com/MetinGames/Long-Narde/issues/19):** compared Supabase, Firebase, and Cloudflare Durable Objects across authority, privacy, cost, regional latency, limits, export, and lock-in. Supabase is the preferred synthetic-trial candidate; no project, spend, personal data, or provider commitment is authorized.
+1. **Hosted synthetic trial in progress — [#20](https://github.com/MetinGames/Long-Narde/issues/20):** Metin approved an isolated Supabase Free project in Frankfurt using generated data only. Remote lifecycle, RLS isolation, idempotency, reconnect and deletion drills passed, and the JWT-required Edge Function is active. Provider-side Realtime provisioning failed, so private Realtime remains blocked; real-player data, billing, playable online mode and provider production commitment remain unauthorized.
 2. **Completed — [#15](https://github.com/MetinGames/Long-Narde/issues/15):** delivered the versioned local profile, 15 built-in avatars, achievements, richer difficulty statistics, migration/reset behavior, and exact private-table identity projection.
 3. **Completed — [#16](https://github.com/MetinGames/Long-Narde/issues/16):** delivered the provider-neutral private-table v1 contract, deterministic in-memory adapter, reconnect snapshots, authoritative outcome boundary, and safety seams.
 4. **Completed — [#18](https://github.com/MetinGames/Long-Narde/issues/18):** connected local identity and the v1 in-memory adapter to an honest, localized, lifecycle-safe same-device Friend Match preview while preserving the disabled hosted entry.
 5. **Completed — [#10](https://github.com/MetinGames/Long-Narde/issues/10):** replaced the single start action with an honest, responsive mode entry; Quick Play and Bot Match work, while Friend Match and Online remain visibly disabled until real flows exist.
 6. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and [#6](https://github.com/MetinGames/Long-Narde/issues/6):** configure project metadata and inventory branches without blocking the social critical path or deleting unverified work.
-7. **Hosted approval gate:** [#20](https://github.com/MetinGames/Long-Narde/issues/20) remains blocked until Metin explicitly approves the candidate provider, EU region, minimal data map, retention, and any spend after reviewing [#19](https://github.com/MetinGames/Long-Narde/issues/19).
+7. **Hosted implementation gate:** [#20](https://github.com/MetinGames/Long-Narde/issues/20) is unblocked only for the approved synthetic Supabase Free/Frankfurt slice. Keep hosted gameplay fail-closed and the player entry disabled until authority, abuse, load, deletion/export, privacy and separate launch gates pass.
 
 Completed in this synchronization cycle:
 
@@ -102,7 +102,7 @@ All four product exit criteria are met. Project/milestone configuration and bran
 2. **Identity seam — Done:** [#15](https://github.com/MetinGames/Long-Narde/issues/15) establishes local, resettable identity and built-in avatars without collecting remote personal data.
 3. **Private-table contract — Done:** [#16](https://github.com/MetinGames/Long-Narde/issues/16) defines room lifecycle, invites, presence, authoritative commands/events and reconnect snapshots with an in-memory test adapter.
 4. **Client vertical slice — Done:** [#18](https://github.com/MetinGames/Long-Narde/issues/18) connects the proven contract and device identity to an honest local Friend Match controller without presenting it as online play.
-5. **Hosted evidence — Done; approval gated:** [#19](https://github.com/MetinGames/Long-Narde/issues/19) records provider/privacy/cost evidence and recommends Supabase only as the first synthetic-trial candidate. Only after explicit provider/data/region/spend approval may [#20](https://github.com/MetinGames/Long-Narde/issues/20) connect the contract to managed auth/realtime infrastructure.
+5. **Hosted evidence — Trial in progress:** [#19](https://github.com/MetinGames/Long-Narde/issues/19) records the provider/privacy/cost evidence. Metin approved [#20](https://github.com/MetinGames/Long-Narde/issues/20) only for an isolated Supabase Free/Frankfurt synthetic trial; real-player data, spend, playable hosted gameplay and production commitment remain gated.
 6. **Safe communication and community:** add text/emoji with leave, mute, block, report and rate limits; voice/video, rankings and groups follow only after the safety and operations layer is proven.
 
 Distribution and local-game quality proceed in parallel. No social milestone may weaken rule authority, mobile reliability, privacy defaults or honest availability states.
@@ -116,7 +116,7 @@ Target: **2026-09-30**
 - **Done:** Built local identity/profile seams in [#15](https://github.com/MetinGames/Long-Narde/issues/15) without remote personal-data collection, using the v1 table identity projection and a separately resettable progression v2 store.
 - **Done:** Built the local Friend Match client vertical slice in [#18](https://github.com/MetinGames/Long-Narde/issues/18), including the full same-device lifecycle, disconnect/resume recovery, honest availability boundary, and accessible responsive copy in all three languages.
 - **Done:** Evaluated provider, privacy, cost, regional latency, limits, export, and lock-in evidence in [#19](https://github.com/MetinGames/Long-Narde/issues/19). Supabase leads only the synthetic trial; Cloudflare Durable Objects is the fallback and no provider is committed.
-- **Approval gated:** Keep the hosted adapter [#20](https://github.com/MetinGames/Long-Narde/issues/20) blocked until Metin explicitly approves the provider, EU region, minimal data map, retention, and any spend.
+- **In progress, synthetic only:** The hosted lifecycle adapter foundation in [#20](https://github.com/MetinGames/Long-Narde/issues/20) passed remote transaction, RLS, idempotency, reconnect and cascade-deletion drills in the approved Supabase Free/Frankfurt trial. Its JWT-required Edge Function is active, but provider-side Realtime provisioning failed. Server-authoritative dice/moves, authenticated multi-client Edge/Realtime, anonymous-auth abuse controls, export/restore, load/latency and a separate launch/privacy gate remain required before the mode can be enabled.
 - Integrate the user's original high-quality dice and checker recordings, with volume controls and safe preload behavior ([#12](https://github.com/MetinGames/Long-Narde/issues/12)).
 - Benchmark and refine the shipped Champion bot against representative positions and Metin's real matches; move heavy calculation to a Web Worker only if measurements justify it ([#11](https://github.com/MetinGames/Long-Narde/issues/11)).
 - Build a contextual **Rule Explanation System** that explains why a move is legal, blocked, mandatory, or automatically passed ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
