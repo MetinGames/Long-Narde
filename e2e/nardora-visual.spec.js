@@ -1,9 +1,15 @@
 import { expect, test } from '@playwright/test';
 
+const FIRST_MATCH_TUTORIAL_STORAGE_KEY =
+    'nardora-first-match-tutorial-v1';
+
 async function openStableStartScreen(page) {
     await page.addInitScript(() => {
         Math.random = () => 0.42;
     });
+    await page.addInitScript(storageKey => {
+        localStorage.setItem(storageKey, 'seen');
+    }, FIRST_MATCH_TUTORIAL_STORAGE_KEY);
 
     await page.goto('/');
     await expect(page.locator('#start-screen')).toBeVisible();
