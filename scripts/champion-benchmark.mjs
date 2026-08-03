@@ -1,6 +1,7 @@
 import { NardeBot } from '../engine/bot.js';
 import {
     DEFAULT_CHAMPION_BENCHMARK_SEEDS,
+    EXTENDED_CHAMPION_BENCHMARK_SEEDS,
     formatChampionBenchmarkMarkdown,
     runChampionBenchmark
 } from './lib/championBenchmark.mjs';
@@ -19,6 +20,7 @@ function parseSeeds(value) {
 }
 
 function parseArguments(argumentsList) {
+    let seedSelection = 'default';
     const options = {
         seeds: [...DEFAULT_CHAMPION_BENCHMARK_SEEDS],
         maxTurns: 240,
@@ -45,10 +47,23 @@ function parseArguments(argumentsList) {
             continue;
         }
 
+        if (argument === '--extended') {
+            if (seedSelection === 'custom') {
+                throw new Error('--extended cannot be combined with --seeds');
+            }
+            options.seeds = [...EXTENDED_CHAMPION_BENCHMARK_SEEDS];
+            seedSelection = 'extended';
+            continue;
+        }
+
         if (argument === '--seeds') {
+            if (seedSelection === 'extended') {
+                throw new Error('--seeds cannot be combined with --extended');
+            }
             const value = argumentsList[index + 1];
             if (!value) throw new Error('--seeds requires a value');
             options.seeds = parseSeeds(value);
+            seedSelection = 'custom';
             index++;
             continue;
         }
@@ -73,6 +88,7 @@ function printHelp() {
         '',
         'Options:',
         '  --seeds 1103,2207    Deterministic paired-match seeds',
+        '  --extended           Fixed 16-seed, 32-match evidence sample',
         '  --max-turns 240       Maximum turns per match',
         '  --legacy-strategy     Disable opponent-aware Champion scoring',
         '  --json                Print machine-readable JSON',
