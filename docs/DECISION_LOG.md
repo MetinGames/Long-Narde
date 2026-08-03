@@ -142,6 +142,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Consequences:** A future approved trial must keep all provider code behind the #16 adapter, submit gameplay commands to trusted transactional code, keep client Broadcast outcome-neutral, use synthetic identities, exercise deletion/export, and retain the local preview as the no-provider fallback. Issue #20 remains blocked until Metin explicitly approves the provider, EU region, minimal data map, retention, and any spend.
 **Review trigger:** The synthetic trial misses an authority/privacy test, command-to-event p95 exceeds 350 ms on agreed routes, reconnect p95 exceeds two seconds, the beta model exceeds the evaluation ceiling, export/restore fails, or current provider pricing/limits materially change.
 
+### D-022 — Authorize an isolated Supabase synthetic trial without launch authority
+
+**Date:** 2026-08-03
+**Status:** Accepted
+**Decision:** Create one disposable Supabase Free project in Frankfurt and implement the #20 hosted lifecycle foundation using only generated identities/data. No billing, card, real name, email, phone, social login, real-player collection, playable hosted mode, or production commitment is authorized. The player-facing Friend Match and Online entries remain disabled.
+**Reason:** D-021 identified Supabase as the best evidence candidate, and a controlled remote transaction/RLS test is now required to validate authority, reconnect, deletion, metering and exit assumptions that a local harness cannot prove.
+**Consequences:** The repository gains a service-only lifecycle transaction, authenticated Edge front door and provider-neutral hosted adapter behind the existing contract. Client Broadcast remains outcome-neutral; hosted dice and moves fail closed until the Long Narde engine is server-authoritative. The first remote lifecycle, isolation, idempotency, resume and deletion drills passed with synthetic data, and the JWT-required Edge Function is active. The provider-owned Realtime tenant failed to provision, so private Realtime remains an explicit failed gate and the hosted adapter is not wired into the app. The isolated project may be deleted after the remaining exit drill. Issue #20 is in progress but stays open until its complete acceptance suite and a separate launch/privacy gate pass.
+**Review trigger:** Any cross-room access, client-authoritative outcome, plaintext credential, unexplained provider charge, failed deletion/export, unacceptable latency, or requirement for unapproved personal data/paid service pauses the trial and returns the project to the local/provider-neutral fallback.
+
 ## Open decisions
 
 1. **Monetization:** premium purchase, ads, cosmetic purchases, subscription or hybrid.
