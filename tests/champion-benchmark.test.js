@@ -8,7 +8,7 @@ import {
     playDeterministicBotMatch,
     runChampionBenchmark,
     stageBenchmarkRoll
-} from '../engine/championBenchmark.js';
+} from '../scripts/lib/championBenchmark.mjs';
 
 function createStepClock() {
     let tick = 0;
