@@ -15,6 +15,9 @@ import { DiceRollAnimation } from './engine/animations.js';
 import { bindCanvasInput } from './engine/input.js';
 import { TurnTimeoutController } from './engine/timeoutController.js';
 import { HowToPlayGuide } from './engine/howToPlayGuide.js';
+import {
+    createFirstMatchTutorialController
+} from './engine/firstMatchTutorial.js';
 import { FeedbackModal } from './engine/feedbackModal.js';
 import {
     MatchStatsRecorder,
@@ -86,6 +89,7 @@ const runtimeDiagnostics = createRuntimeDiagnostics({
 });
 let victoryMomentHook = null;
 let howToPlayGuide = null;
+let firstMatchTutorialController = null;
 let playerStatsModal = null;
 let feedbackModal = null;
 let restartButtonLock = null;
@@ -1062,6 +1066,9 @@ function bindEvents() {
         pageElements: guidePages,
         onStart: startGame
     });
+    firstMatchTutorialController = createFirstMatchTutorialController({
+        guide: howToPlayGuide
+    });
 
     playerStatsModal = new PlayerStatsModal({
         modal: statsModal,
@@ -1387,4 +1394,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     runtimeDiagnostics.start();
     mobileThemeLabelController.start();
     initializeBeforeStart();
+    firstMatchTutorialController?.openIfNeeded(
+        document.getElementById('how-to-play-button')
+    );
 });
