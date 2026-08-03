@@ -1,0 +1,69 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "benchmark-bot-required",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/benchmark-bot-levels.js",
+				"--runs",
+				"1",
+				"--matches",
+				"8",
+				"--maxTurns",
+				"160"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "npm-test-full",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--test"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "champion-tests-focused",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--test",
+				"tests/champion-bot.test.js",
+				"tests/master-v2-fallback.test.js"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "npm-test-full-rerun",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--test"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "git-diff-check",
+			"type": "shell",
+			"command": "\"C:\\Program Files\\Git\\cmd\\git.exe\"",
+			"args": [
+				"diff",
+				"--check"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "git-diff-check-2",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"diff",
+				"--check"
+			],
+			"isBackground": false
+		}
+	]
+}
