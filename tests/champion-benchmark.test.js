@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 
 import { NardeGame } from '../engine/game.js';
 import {
+    DEFAULT_CHAMPION_BENCHMARK_SEEDS,
+    EXTENDED_CHAMPION_BENCHMARK_SEEDS,
     createSeededRandom,
     formatChampionBenchmarkMarkdown,
     playDeterministicBotMatch,
@@ -29,6 +31,24 @@ function stableMatchEvidence(match) {
         player2Moves: match.players[2].moves
     };
 }
+
+test('extended benchmark sample is a fixed unique superset of the baseline', () => {
+    assert.equal(EXTENDED_CHAMPION_BENCHMARK_SEEDS.length, 16);
+    assert.deepEqual(
+        EXTENDED_CHAMPION_BENCHMARK_SEEDS.slice(
+            0,
+            DEFAULT_CHAMPION_BENCHMARK_SEEDS.length
+        ),
+        DEFAULT_CHAMPION_BENCHMARK_SEEDS
+    );
+    assert.equal(
+        new Set(EXTENDED_CHAMPION_BENCHMARK_SEEDS).size,
+        EXTENDED_CHAMPION_BENCHMARK_SEEDS.length
+    );
+    assert.ok(
+        EXTENDED_CHAMPION_BENCHMARK_SEEDS.every(Number.isSafeInteger)
+    );
+});
 
 test('seeded benchmark random is repeatable and seed-sensitive', () => {
     const first = createSeededRandom(1103);

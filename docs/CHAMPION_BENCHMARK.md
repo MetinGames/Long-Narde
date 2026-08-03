@@ -34,6 +34,17 @@ Run the default four-seed, eight-match paired sample:
 npm run bot:benchmark
 ```
 
+Run the fixed extended 16-seed, 32-match evidence sample:
+
+```bash
+npm run bot:benchmark -- --extended
+```
+
+The extended v1 list keeps the original four seeds and adds twelve seeds that
+were fixed before observing their outcomes. Do not add, remove, or replace a
+seed in response to a win/loss result; version the sample and explain the
+selection rule instead.
+
 Run a smaller smoke sample:
 
 ```bash
@@ -253,6 +264,56 @@ identical full-match dice hashes. Eight wins are encouraging evidence, not a
 claim that Champion is unbeatable. The PWA cache advances from `v9` to `v10`
 with the engine change.
 
+## Fixed extended validation v1
+
+The first expanded sample was fixed before observing its outcomes. It retains
+the original four seeds and adds twelve monotonically listed seed IDs:
+`5501`, `6607`, `7703`, `8807`, `9901`, `11003`, `12101`, `13217`, `14303`,
+`15401`, `16519`, and `17609`. Each seed still runs with Champion on both
+sides, producing 32 paired matches. The same list is available through
+`npm run bot:benchmark -- --extended`; `--extended` and a custom `--seeds`
+list are mutually exclusive so a recorded run cannot silently mix samples.
+
+Observed local comparison on 2026-08-03:
+
+| Strategy | Champion | Master | Draws | Decisive win rate | Champion avg | P95 | Maximum |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Pre-opponent-aware control | 20 | 12 | 0 | 62.50% | 6.23 ms | 19.13 ms | 992.78 ms |
+| Opponent-aware beta | 27 | 5 | 0 | 84.38% | 8.39 ms | 22.78 ms | 1,032.97 ms |
+
+The opponent-aware boundary gains seven net wins and 21.88 percentage points
+in decisive win rate. Eight individual side/seed matches change from a Master
+win to a Champion win; one changes from Champion to Master. This is a stronger
+signal than the original eight-match sample without claiming statistical
+certainty or unbeatable play.
+
+Opponent-aware extended traces:
+
+| Seed | Champion as P1 | Champion as P2 |
+|---:|---|---|
+| 1103 | Champion, `f1fa394c` | Champion, `0cf64c86` |
+| 2207 | Champion, `ecd5e920` | Champion, `4a755d8d` |
+| 3301 | Champion, `780a711d` | Champion, `d2433106` |
+| 4409 | Champion, `0e955a96` | Champion, `88789e23` |
+| 5501 | Champion, `5b66d39d` | Champion, `f56eb4e4` |
+| 6607 | Champion, `ab3cfee4` | Champion, `19f91c3a` |
+| 7703 | Champion, `16c5c0d9` | Champion, `e0199c7d` |
+| 8807 | Champion, `7e5756c6` | Champion, `8f70dc95` |
+| 9901 | Champion, `18b2ee40` | Champion, `4631912e` |
+| 11003 | Champion, `379b2584` | Champion, `b672ce98` |
+| 12101 | Champion, `05bceb82` | Master, `a42d4b0a` |
+| 13217 | Champion, `6f7fc7d4` | Champion, `26bf9a12` |
+| 14303 | Master, `65ff75d9` | Champion, `d722ae37` |
+| 15401 | Champion, `d6a56d7d` | Master, `df887f03` |
+| 16519 | Champion, `05a24a47` | Master, `d213a418` |
+| 17609 | Champion, `b6c56980` | Master, `f44ae9ba` |
+
+All 32 matches finish without a turn-limit draw and retain exactly 15 checkers
+per player. The 22.78 ms p95 remains inside the current responsive budget. The
+slowest Champion decision is 1,032.97 ms at state `db3406da`; that isolated
+double-two state is explicit follow-up evidence, not by itself justification
+for moving all search into a Web Worker.
+
 ## Next evidence-driven slices
 
 1. **Completed:** profiled state `addb3dba`; repeated rule-sequence analysis,
@@ -266,6 +327,10 @@ with the engine change.
    opponent-reply fixtures with explicit, state-restoring trade-offs.
 5. **Completed:** changed the opponent-aware evaluation boundary and compared
    the same four seeds; Champion moved from 5–3 to 8–0 in the paired sample.
-6. Expand to a larger agreed sample only after the harness is stable.
-7. Consider a Web Worker only if optimized profiling still shows
+6. **Completed:** fixed the extended v1 sample before observing outcomes and
+   ran both strategies over 16 seeds/32 matches; opponent-aware Champion moved
+   from 20–12 to 27–5 while retaining exact legality and checker conservation.
+7. Convert additional real Metin match weaknesses into explicit strategy
+   fixtures, including any repeatable failure represented by the five losses.
+8. Consider a Web Worker only if optimized profiling still shows
    player-visible blocking.

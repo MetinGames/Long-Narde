@@ -8,6 +8,22 @@ export const DEFAULT_CHAMPION_BENCHMARK_SEEDS = Object.freeze([
     4409
 ]);
 
+export const EXTENDED_CHAMPION_BENCHMARK_SEEDS = Object.freeze([
+    ...DEFAULT_CHAMPION_BENCHMARK_SEEDS,
+    5501,
+    6607,
+    7703,
+    8807,
+    9901,
+    11003,
+    12101,
+    13217,
+    14303,
+    15401,
+    16519,
+    17609
+]);
+
 const UINT32_RANGE = 0x1_0000_0000;
 const TRACE_OFFSET = 0x811c9dc5;
 const TRACE_PRIME = 0x01000193;
