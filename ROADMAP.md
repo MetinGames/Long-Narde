@@ -44,7 +44,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 ## Current gaps and risks
 
 - `app.js` is 1,400 lines after local Friend Match composition; `engine/renderer.js` remains about 1,181 lines and `style.css` 3,543 lines after the responsive preview layer. The focused preview behavior and listeners live in `friendMatchPreviewController.js`; further extraction remains evidence-driven.
-- The repository has 35 non-main remote branches that need a verified merged/stale inventory before deletion.
+- The repository has 49 non-main remote branches. The verified [branch inventory](docs/BRANCH_INVENTORY.md) classifies 44 cleanup candidates, one active branch, and four manual-review branches; no deletion is authorized.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
 - Community-sourced sample sounds are integrated and licensed, but Metin's final original dice/checker recordings, volume controls, and device-level listening review are not complete.
 - Friend Match and Online have honest entry points, local identity, a provider-neutral contract, and a player-facing same-device lifecycle preview, but no network adapter, approved account model, hosted backend, or playable online table; theme selection is not yet a dedicated visual management screen.
@@ -61,7 +61,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 6. **Completed — [#9](https://github.com/MetinGames/Long-Narde/issues/9):** added engine-owned contextual explanations for common Long Narde restrictions and a dismissible, reopenable first-visit guide with keyboard, touch, responsive, offline and localization coverage.
 7. **Completed — [#25](https://github.com/MetinGames/Long-Narde/issues/25):** established evidence-driven file-health thresholds, an informational CI report, red-zone growth justification, and a staged `style.css` extraction plan without changing visuals.
 8. **In progress — [#11](https://github.com/MetinGames/Long-Narde/issues/11):** the deterministic baseline, profiling, request-scoped cache, opponent-aware fixtures, fixed 16-seed/32-match validation, and symmetric player-two pip correction are merged through [#35](https://github.com/MetinGames/Long-Narde/pull/35); the current sample records 31–1 versus a corrected 26–6 control, with additional real-match fixtures next.
-9. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and [#6](https://github.com/MetinGames/Long-Narde/issues/6):** configure project metadata and inventory branches without blocking the social critical path or deleting unverified work.
+9. **Parallel support — [#8](https://github.com/MetinGames/Long-Narde/issues/8) and [#6](https://github.com/MetinGames/Long-Narde/issues/6):** project metadata remains queued; the 49-branch inventory is complete with 44 exact cleanup candidates, one active branch, and four preserved for manual review. No branch has been deleted.
 10. **Hosted approval gate:** [#20](https://github.com/MetinGames/Long-Narde/issues/20) remains blocked until Metin explicitly approves the candidate provider, EU region, minimal data map, retention, and any spend after reviewing [#19](https://github.com/MetinGames/Long-Narde/issues/19).
 
 Completed in this synchronization cycle:
@@ -85,7 +85,7 @@ Target: **2026-08-14**
 - **Done:** Complete the player-facing Nardora migration without changing the repository or GitHub Pages URL.
 - **Done:** Establish and run the Issue/ROADMAP synchronization workflow; recurring weekly review continues under the documented operating loop.
 - **Queued:** Configure the unified GitHub Project view, milestones, and workflow metadata in [#8](https://github.com/MetinGames/Long-Narde/issues/8); the approved priority Phase 1 backlog now exists as Issues.
-- **Queued:** Inventory all 35 non-main branches in [#6](https://github.com/MetinGames/Long-Narde/issues/6) and remove only branches proven merged or obsolete after Metin approves the exact cleanup list.
+- **Done:** Inventory all 49 non-main branches in [#6](https://github.com/MetinGames/Long-Narde/issues/6); preserve one active and four manual-review branches, and remove none of the 44 exact cleanup candidates without Metin's explicit deletion approval.
 - **Done:** Complete the focused [#4](https://github.com/MetinGames/Long-Narde/issues/4) checkpoint: resume and mobile-theme event ownership are idempotent, removable and test-backed.
 - **Done:** Playwright CI covers Chromium, Firefox, WebKit, iPhone 16e portrait, iPhone 17 Pro Max landscape, fullscreen/focus fallback, orientation transitions, and stable high-value visual baselines.
 - **Done:** Added a small PWA foundation with app manifest, original Nardora icons, conservative versioned updates, installability metadata, and offline local bot play.
