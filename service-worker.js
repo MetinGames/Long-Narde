@@ -34,6 +34,7 @@ const PRECACHE_PATHS = [
     './engine/fullscreenController.js',
     './engine/game.js',
     './engine/gameFeedbackToast.js',
+    './engine/firstMatchTutorial.js',
     './engine/howToPlayGuide.js',
     './engine/i18n.js',
     './engine/input.js',
