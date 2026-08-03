@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v7-2026-08-03';
+const CACHE_VERSION = 'v8-2026-08-03';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -42,6 +42,7 @@ const PRECACHE_PATHS = [
     './engine/mobileThemeLabelController.js',
     './engine/nardoraSplash.js',
     './engine/noLegalMoveAutoPass.js',
+    './engine/ruleExplanations.js',
     './engine/playerIdentity.js',
     './engine/playerStats.js',
     './engine/playerStatsModal.js',
