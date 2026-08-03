@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test';
 
+const FIRST_MATCH_TUTORIAL_STORAGE_KEY =
+    'nardora-first-match-tutorial-v1';
+
 test('installed app shell reloads offline and starts a local bot match', async ({
     context,
     page
@@ -9,6 +12,9 @@ test('installed app shell reloads offline and starts a local bot match', async (
         'One Chromium project verifies browser-level PWA and offline behavior.'
     );
 
+    await page.addInitScript(storageKey => {
+        localStorage.setItem(storageKey, 'seen');
+    }, FIRST_MATCH_TUTORIAL_STORAGE_KEY);
     await page.goto('/');
     await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
         'href',
