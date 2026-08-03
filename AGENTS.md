@@ -25,6 +25,7 @@ If code, tests, documentation, Issues, or conversation context disagree, surface
 
 - Preserve the web-first JavaScript module and Canvas architecture unless measured evidence and explicit approval justify a migration.
 - Prefer small, coherent, test-backed extractions over broad rewrites.
+- Apply the evidence-driven code-health policy in `docs/CODE_HEALTH.md`: 1,000+ lines is a split candidate, 2,000+ requires a refactor plan, and 3,000+ is a red zone. File length is never the sole reason to split cohesive code.
 - Keep event-listener and lifecycle ownership explicit; avoid duplicate/stale listeners.
 - Treat mobile touch, portrait, landscape, safe areas, fullscreen/focus and overflow as core behavior.
 - Keep player-facing i18n keys synchronized across English, Turkish and Russian.
