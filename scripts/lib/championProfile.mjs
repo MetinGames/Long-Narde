@@ -306,10 +306,17 @@ function runProfileDecision({
     profileCase,
     now,
     instrument,
-    prepareRun
+    prepareRun,
+    createBot
 }) {
     const game = createChampionProfileGame(profileCase);
-    const bot = new NardeBot(profileCase.player, 'champion', () => 0.5);
+    const bot = createBot
+        ? createBot({
+            player: profileCase.player,
+            difficulty: 'champion',
+            random: () => 0.5
+        })
+        : new NardeBot(profileCase.player, 'champion', () => 0.5);
     const preparedRun = prepareRun?.({ game, bot }) || null;
     const profiler = instrument
         ? installMethodProfiler({ game, bot, now })
@@ -326,7 +333,9 @@ function runProfileDecision({
         elapsedMs = Math.max(0, Number(now()) - startedAt);
     } finally {
         methods = profiler?.finish() || null;
-        experiment = preparedRun?.finish?.() || null;
+        experiment = preparedRun?.finish?.() ||
+            bot.lastRuleAnalysisCacheMetrics ||
+            null;
     }
 
     if (!Number.isFinite(elapsedMs)) {
@@ -351,7 +360,8 @@ export function profileChampionDecision({
     profileCase = CHAMPION_DOUBLE_FOUR_PROFILE_CASE,
     samples = DEFAULT_PROFILE_SAMPLES,
     now = defaultNow,
-    prepareRun
+    prepareRun,
+    createBot
 } = {}) {
     const sampleCount = normalizePositiveInteger(samples, 'Profile samples');
     const baselineRuns = [];
@@ -361,7 +371,8 @@ export function profileChampionDecision({
             profileCase,
             now,
             instrument: false,
-            prepareRun
+            prepareRun,
+            createBot
         }));
     }
 
@@ -369,7 +380,8 @@ export function profileChampionDecision({
         profileCase,
         now,
         instrument: true,
-        prepareRun
+        prepareRun,
+        createBot
     });
     const analysis = instrumented.analysis;
     const memoLookups = analysis.memoHits + analysis.memoMisses;
