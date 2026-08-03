@@ -53,6 +53,14 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="rotate-notice"'), 'Rotate notice element missing');
     assert.ok(html.includes('id="start-screen"'), 'Start screen overlay missing');
     assert.ok(html.includes('id="start-button"'), 'Start button missing');
+    assert.ok(html.includes('id="bot-match-button"'), 'Bot match button missing');
+    assert.ok(html.includes('id="friend-match-button"'), 'Friend match button missing');
+    assert.ok(html.includes('id="online-match-button"'), 'Online match button missing');
+    assert.ok(html.includes('id="start-mode-grid"'), 'Start mode grid missing');
+    assert.ok(html.includes('id="start-bot-difficulty"'), 'Start difficulty select missing');
+    assert.ok(/id="start-mode-menu"[^>]*role="group"[^>]*aria-labelledby="start-mode-menu-title"/i.test(html), 'Mode menu accessible group missing');
+    assert.ok(/id="friend-match-button"[\s\S]*?disabled[\s\S]*?aria-disabled="true"/i.test(html), 'Friend match honest disabled state missing');
+    assert.ok(/id="online-match-button"[\s\S]*?disabled[\s\S]*?aria-disabled="true"/i.test(html), 'Online honest disabled state missing');
     assert.ok(html.includes('id="how-to-play-button"'), 'How-to-play button missing');
     assert.ok(html.includes('id="player-stats-button"'), 'Player stats button missing');
     assert.ok(html.includes('id="start-language-container"'), 'Start screen language row missing');
@@ -81,9 +89,9 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="auto-bearoff-container"'), 'Auto bear-off container missing');
     assert.ok(html.includes('id="auto-bearoff-toggle"'), 'Auto bear-off toggle missing');
     assert.ok(html.includes('id="auto-bearoff-hint"'), 'Auto bear-off accessibility hint missing');
-    assert.equal((html.match(/value="champion"/g) || []).length, 1, 'Champion difficulty option should exist exactly once');
+    assert.equal((html.match(/value="champion"/g) || []).length, 2, 'Champion difficulty should exist in both synchronized selectors');
     assert.ok(/<option value="champion" data-i18n="difficulty\.champion">Şampiyon<\/option>/i.test(html), 'Champion difficulty option missing expected value/i18n pairing');
-    assert.ok(/<option value="medium" data-i18n="difficulty\.medium" selected>Orta<\/option>/i.test(html), 'Medium difficulty should remain the default selection');
+    assert.equal((html.match(/<option value="medium" data-i18n="difficulty\.medium" selected>Orta<\/option>/gi) || []).length, 2, 'Medium difficulty should remain the default in both selectors');
     assert.ok(/id="turn-indicator"[^>]*aria-live="polite"/i.test(html), 'Turn indicator aria-live polite missing');
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
     assert.ok(html.includes('id="board-wrapper"'), 'Board wrapper missing for toast attachment');

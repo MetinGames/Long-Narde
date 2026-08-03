@@ -48,14 +48,27 @@ test('start flow, language synchronization, and canvas readiness', async ({
     const startTitle = page.locator('#start-screen h2');
     const startLanguage = page.locator('#start-language-select');
     const sideLanguage = page.locator('#language-select');
+    const startDifficulty = page.locator('#start-bot-difficulty');
+    const sideDifficulty = page.locator('#bot-difficulty');
+    const friendMatch = page.locator('#friend-match-button');
+    const onlineMatch = page.locator('#online-match-button');
 
     await expect(startTitle).toHaveText('Welcome to Nardora');
+    await expect(page.locator('#start-button')).toContainText('Quick Play');
+    await expect(page.locator('#bot-match-button')).toContainText('Bot Match');
+    await expect(friendMatch).toBeDisabled();
+    await expect(friendMatch).toHaveAttribute('aria-disabled', 'true');
+    await expect(onlineMatch).toBeDisabled();
+    await expect(onlineMatch).toHaveAttribute('aria-disabled', 'true');
+
     await startLanguage.selectOption('ru');
     await expect(startTitle).toHaveText('Добро пожаловать в Nardora');
     await expect(sideLanguage).toHaveValue('ru');
 
     await startLanguage.selectOption('en');
-    await page.locator('#start-button').click();
+    await startDifficulty.selectOption('champion');
+    await expect(sideDifficulty).toHaveValue('champion');
+    await page.locator('#bot-match-button').click();
 
     await expect(page.locator('#start-screen')).toBeHidden();
     await expect(page.locator('#game-canvas')).toBeVisible();

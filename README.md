@@ -10,14 +10,15 @@ Long Narde is a static, installable browser-based long narde game with a local h
 
 ## Current status
 
-The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user begins a match. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes local player statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, and multiple feedback helpers for game state changes.
+The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, exposes the bot difficulty before play, and shows Friend Match and Online as visibly unavailable future modes instead of launching placeholder flows. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes local player statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, and multiple feedback helpers for game state changes.
 
 This project is not documented here as having online multiplayer, user accounts, cloud sync, ranked matchmaking, or a backend service.
 
 ## Main features
 
 - Local human-vs-bot long narde gameplay.
-- Start screen with language, how-to-play, and statistics entry points.
+- Honest mode-entry screen with working Quick Play/Bot Match choices, synchronized difficulty, and disabled Friend Match/Online previews.
+- Start-screen language, how-to-play, statistics, and feedback entry points.
 - Shared Turkish, English, and Russian interface support.
 - Turn timer and timeout handling.
 - Local player statistics stored in browser storage.
@@ -53,7 +54,8 @@ Long Narde in this repository follows the long narde rules implemented in the co
 
 ## Controls and turn flow
 
-- Start Game begins the first match from the start screen.
+- Quick Play begins immediately with the current bot settings; Bot Match exposes the synchronized difficulty selector before starting.
+- Friend Match and Online are disabled and labelled as upcoming until their real flows exist.
 - The language selects on the start screen and side panel update the same i18n state.
 - The bot-difficulty select changes the bot level before or during play.
 - Undo reverts the current turn where allowed.
@@ -129,6 +131,7 @@ Verified engine modules currently present:
 - `engine/pwa.js`
 - `engine/renderer.js`
 - `engine/restartButtonLock.js`
+- `engine/startModeController.js`
 - `engine/themes.js`
 - `engine/timeoutController.js`
 - `engine/uiManager.js`
@@ -153,6 +156,7 @@ Verified test files currently present:
 - `tests/pwa.test.js`
 - `tests/renderer-theme-storage.test.js`
 - `tests/responsive.test.js`
+- `tests/start-mode-controller.test.js`
 - `tests/timeout-deadlines.test.js`
 - `tests/undo-action-buttons.test.js`
 - `tests/victory-moment.test.js`
@@ -183,11 +187,11 @@ To list or run the Playwright browser suite:
 
 `app.js` is the bootstrap and orchestration layer. It creates the game, renderer, bot, UI manager, and support helpers, then wires DOM events and start-screen flow. The `engine/` folder contains the core game model, board rules, bot logic, rendering logic, timeout controller, i18n, statistics, and feedback helpers. The `tests/` folder mirrors these responsibilities with focused behavioral and regression tests.
 
-The app uses the same i18n system for the start screen and the side panel. Language changes update the DOM immediately and are persisted through localStorage.
+The app uses the same i18n system for the start screen and the side panel. Language changes update the DOM immediately and are persisted through localStorage. `engine/startModeController.js` owns the available and unavailable mode listeners, prevents duplicate starts, and exposes explicit reset/cleanup lifecycle methods.
 
 ## Accessibility
 
-The current UI includes aria labels, aria-live status updates, modal dialog semantics, keyboard navigation inside the how-to-play and stats dialogs, and accessible start-screen controls. The start-screen language selector has a visible label, an aria label, and is a native select element so it remains keyboard-friendly.
+The current UI includes aria labels, aria-live status updates, modal dialog semantics, keyboard navigation inside the how-to-play and stats dialogs, and accessible start-screen controls. The mode menu is an explicitly labelled group; unavailable social modes use native disabled buttons and visible status badges. The start-screen language and difficulty controls use visible labels and native select elements so they remain keyboard-friendly.
 
 ## Known limitations
 

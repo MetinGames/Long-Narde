@@ -57,6 +57,7 @@ import { createAppResumeController } from './engine/appResumeController.js';
 import {
     createMobileThemeLabelController
 } from './engine/mobileThemeLabelController.js';
+import { createStartModeController } from './engine/startModeController.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -84,6 +85,7 @@ let gameFeedbackToast = null;
 let languageSelectors = null;
 let fullscreenController = null;
 let mobileThemeLabelController = null;
+let startModeController = null;
 let autoBearOffEnabled = false;
 let autoBearOffContainer = null;
 let autoBearOffToggle = null;
@@ -291,6 +293,7 @@ function startGame() {
 }
 
 function initializeBeforeStart() {
+    startModeController?.reset();
     runtimeState.resetForSession({ initialStartPending: true });
     matchStatsRecorder.resetPendingMatch();
     game.initGame();
@@ -973,6 +976,12 @@ function bindEvents() {
         document.getElementById('restart-button');
     const startButton =
         document.getElementById('start-button');
+    const botMatchButton =
+        document.getElementById('bot-match-button');
+    const friendMatchButton =
+        document.getElementById('friend-match-button');
+    const onlineMatchButton =
+        document.getElementById('online-match-button');
     const feedbackButton =
         document.getElementById('feedback-button');
     const feedbackModalElement =
@@ -993,6 +1002,8 @@ function bindEvents() {
         document.getElementById('language-select');
     const startLanguageSelect =
         document.getElementById('start-language-select');
+    const startDifficultySelect =
+        document.getElementById('start-bot-difficulty');
     const themeSelect =
         document.getElementById('theme-select');
     const howToPlayButton =
@@ -1081,8 +1092,12 @@ function bindEvents() {
     document.addEventListener('pointerdown', primeAudioContext, { once: true });
     document.addEventListener('keydown', primeAudioContext, { once: true });
 
-    if (difficultySelect) {
-        difficultySelect.value = bot.difficulty;
+    const difficultySelectors = [
+        difficultySelect,
+        startDifficultySelect
+    ].filter(Boolean);
+    for (const selector of difficultySelectors) {
+        selector.value = bot.difficulty;
     }
 
     function setDiagnosticsMessage(messageKey) {
@@ -1109,7 +1124,7 @@ function bindEvents() {
         }
     });
 
-    difficultySelect?.addEventListener('change', event => {
+    const handleDifficultyChange = event => {
         const selection = applyBotDifficultySelection({
             bot,
             game,
@@ -1118,12 +1133,30 @@ function bindEvents() {
             resetBotCallbackGuards,
             scheduleBotMoveCallback
         });
-        event.target.value = selection.difficulty;
+        for (const selector of difficultySelectors) {
+            selector.value = selection.difficulty;
+        }
         setStatus(
             t('status.difficulty', { level: event.target.selectedOptions[0].text }),
             { force: true }
         );
+    };
+    for (const selector of difficultySelectors) {
+        selector.addEventListener('change', handleDifficultyChange);
+    }
+
+    startModeController = createStartModeController({
+        availableModes: [
+            { mode: 'quick-play', button: startButton },
+            { mode: 'bot-match', button: botMatchButton }
+        ],
+        unavailableModes: [
+            { mode: 'friend-match', button: friendMatchButton },
+            { mode: 'online', button: onlineMatchButton }
+        ],
+        onStart: () => startGame()
     });
+    startModeController.start();
 
     languageSelectors = setupLanguageSelectors({
         selectors: [languageSelect, startLanguageSelect],
@@ -1152,7 +1185,6 @@ function bindEvents() {
     });
 
     restartButton?.addEventListener('click', restartGame);
-    startButton?.addEventListener('click', startGame);
     autoBearOffToggle?.addEventListener('change', event => {
         setAutoBearOffEnabled(event.target.checked);
     });
