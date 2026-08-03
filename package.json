@@ -8,6 +8,7 @@
   },
   "scripts": {
     "bot:benchmark": "node scripts/champion-benchmark.mjs",
+    "bot:cache-experiment": "node scripts/champion-rule-cache-experiment.mjs",
     "bot:profile": "node scripts/champion-profile.mjs",
     "code-health:report": "node scripts/code-health-report.mjs",
     "sync:main": "node scripts/sync-main.mjs",
