@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test';
 
+const FIRST_MATCH_TUTORIAL_STORAGE_KEY =
+    'nardora-first-match-tutorial-v1';
+
 function captureRuntimeErrors(page) {
     const errors = [];
     const localOrigin = 'http://127.0.0.1:4173';
@@ -30,7 +33,13 @@ function captureRuntimeErrors(page) {
     return errors;
 }
 
-async function openReadyStartScreen(page) {
+async function openReadyStartScreen(page, { tutorialSeen = true } = {}) {
+    if (tutorialSeen) {
+        await page.addInitScript(storageKey => {
+            localStorage.setItem(storageKey, 'seen');
+        }, FIRST_MATCH_TUTORIAL_STORAGE_KEY);
+    }
+
     await page.goto('/');
     await expect(page).toHaveTitle(/Nardora/);
     await expect(page.locator('#start-screen')).toBeVisible();
@@ -38,6 +47,74 @@ async function openReadyStartScreen(page) {
         timeout: 7_000
     });
 }
+
+test('first-match guide can be dismissed and reopened on keyboard and touch layouts', async ({
+    page
+}, testInfo) => {
+    test.skip(
+        !['desktop-chromium', 'iphone-16e-portrait'].includes(
+            testInfo.project.name
+        ),
+        'Tutorial keyboard and touch behavior is covered on representative layouts.'
+    );
+
+    const runtimeErrors = captureRuntimeErrors(page);
+    await openReadyStartScreen(page, { tutorialSeen: false });
+
+    const modal = page.locator('#how-to-play-modal');
+    const card = page.locator('#how-to-play-card');
+    const howToPlayButton = page.locator('#how-to-play-button');
+    const closeButton = page.locator('#guide-close-button');
+    const isTouchProject =
+        testInfo.project.name === 'iphone-16e-portrait';
+
+    await expect(modal).toBeVisible();
+    await expect(page.locator('#guide-page-counter')).toHaveText('1 / 6');
+
+    const cardBox = await card.boundingBox();
+    const viewport = page.viewportSize();
+    expect(cardBox).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect(cardBox.x).toBeGreaterThanOrEqual(0);
+    expect(cardBox.y).toBeGreaterThanOrEqual(0);
+    expect(cardBox.x + cardBox.width).toBeLessThanOrEqual(viewport.width + 1);
+    expect(cardBox.y + cardBox.height).toBeLessThanOrEqual(viewport.height + 1);
+
+    if (isTouchProject) {
+        await closeButton.tap();
+    } else {
+        await expect(closeButton).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(howToPlayButton).toBeFocused();
+    }
+    await expect(modal).toBeHidden();
+
+    await page.reload();
+    await expect(page.locator('#start-screen')).toBeVisible();
+    await expect(page.locator('#nardora-splash')).toHaveCount(0, {
+        timeout: 7_000
+    });
+    await expect(modal).toBeHidden();
+
+    if (isTouchProject) {
+        await howToPlayButton.tap();
+        await page.locator('#guide-next-button').tap();
+    } else {
+        await howToPlayButton.click();
+        await page.locator('#guide-next-button').click();
+    }
+
+    await expect(modal).toBeVisible();
+    await expect(page.locator('#guide-page-counter')).toHaveText('2 / 6');
+    await page.locator('#guide-close-footer-button').click();
+    await expect(modal).toBeHidden();
+
+    const horizontalOverflow = await page.evaluate(() =>
+        document.documentElement.scrollWidth - window.innerWidth
+    );
+    expect(horizontalOverflow).toBeLessThanOrEqual(1);
+    expect(runtimeErrors).toEqual([]);
+});
 
 test('start flow, language synchronization, and canvas readiness', async ({
     page
