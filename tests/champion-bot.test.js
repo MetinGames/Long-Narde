@@ -335,7 +335,8 @@ test('şampiyon güçlü blok kuran planı zayıf alternatife tercih eder', () =
             { slot: 14, count: 1, owner: 2 },
             { slot: 15, count: 1, owner: 2 },
             { slot: 18, count: 1, owner: 2 }
-        ]
+        ],
+        enemyPieces: [{ slot: 1, count: 1, owner: 1 }]
     });
 
     const bot = new NardeBot(2, 'champion');

@@ -1,3 +1,4 @@
+import { NardeBot } from '../engine/bot.js';
 import {
     DEFAULT_CHAMPION_BENCHMARK_SEEDS,
     formatChampionBenchmarkMarkdown,
@@ -21,6 +22,7 @@ function parseArguments(argumentsList) {
     const options = {
         seeds: [...DEFAULT_CHAMPION_BENCHMARK_SEEDS],
         maxTurns: 240,
+        legacyStrategy: false,
         json: false,
         help: false
     };
@@ -30,6 +32,11 @@ function parseArguments(argumentsList) {
 
         if (argument === '--json') {
             options.json = true;
+            continue;
+        }
+
+        if (argument === '--legacy-strategy') {
+            options.legacyStrategy = true;
             continue;
         }
 
@@ -67,6 +74,7 @@ function printHelp() {
         'Options:',
         '  --seeds 1103,2207    Deterministic paired-match seeds',
         '  --max-turns 240       Maximum turns per match',
+        '  --legacy-strategy     Disable opponent-aware Champion scoring',
         '  --json                Print machine-readable JSON',
         '  --help                Show this help'
     ].join('\n'));
@@ -78,7 +86,26 @@ try {
     if (options.help) {
         printHelp();
     } else {
-        const report = runChampionBenchmark(options);
+        const {
+            legacyStrategy,
+            ...benchmarkOptions
+        } = options;
+        const report = runChampionBenchmark({
+            ...benchmarkOptions,
+            createBot: legacyStrategy
+                ? ({ player, difficulty, random }) => new NardeBot(
+                    player,
+                    difficulty,
+                    random,
+                    difficulty === 'champion'
+                        ? { useOpponentAwareStrategy: false }
+                        : {}
+                )
+                : undefined
+        });
+        report.configuration.championStrategy = legacyStrategy
+            ? 'pre-opponent-aware control'
+            : 'opponent-aware beta';
         console.log(
             options.json
                 ? JSON.stringify(report, null, 2)

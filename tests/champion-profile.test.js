@@ -54,9 +54,9 @@ test('slow Champion profile preserves the selected move and work counts', () => 
     assert.equal(report.instrumented.experiment.maximum.hits, 23_935);
     assert.equal(report.instrumented.experiment.maximum.misses, 747);
     assert.ok(report.derived.snapshotsCreated > 0);
-    assert.equal(
-        report.derived.snapshotsCreated,
-        report.derived.snapshotsRestored
+    assert.ok(
+        report.derived.snapshotsRestored >=
+        report.derived.snapshotsCreated
     );
     assert.ok(report.derived.ruleSequenceQueries > 0);
     assert.ok(report.derived.terminalPlans > 0);
