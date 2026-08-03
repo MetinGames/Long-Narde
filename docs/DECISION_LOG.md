@@ -133,6 +133,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Consequences:** The local controller can validate UI lifecycle, localization, accessibility, stale-callback handling, revision ordering, and resume-token rotation now. It cannot start a playable online table, fabricate dice/moves/results, or be relabelled as online availability. Hosted work stays behind [#19](https://github.com/MetinGames/Long-Narde/issues/19) evidence and Metin's explicit approval gate for [#20](https://github.com/MetinGames/Long-Narde/issues/20).
 **Review trigger:** A hosted adapter, approved account/privacy model, authoritative rule service, and end-to-end invite/reconnect flow are ready for controlled testing.
 
+### D-021 — Supabase leads the private-table trial; commitment remains open
+
+**Date:** 2026-08-03
+**Status:** Direction
+**Decision:** Use Supabase as the preferred candidate for a synthetic-data, free-tier private-table trial. Keep Cloudflare Durable Objects as the technical fallback if the Supabase authority, latency, metering, or reconnect gates fail; do not use Firebase for the first trial. This direction does not authorize a provider project, billing, real-player data, or a hosted availability claim.
+**Reason:** Supabase currently offers the best delivery/exit balance through integrated guest Auth, private Realtime authorization, Presence, Postgres transactions, reports, backups, and a standard database export path. Durable Objects provide the cleanest per-room authority and WebSocket coordination but require more identity, cross-room, observability, and export tooling. Firestore is mature but its listener/read billing and provider-specific data model make cost and exit less predictable for this slice. The evidence and gates are recorded in [PRIVATE_TABLE_PROVIDER_RESEARCH.md](PRIVATE_TABLE_PROVIDER_RESEARCH.md).
+**Consequences:** A future approved trial must keep all provider code behind the #16 adapter, submit gameplay commands to trusted transactional code, keep client Broadcast outcome-neutral, use synthetic identities, exercise deletion/export, and retain the local preview as the no-provider fallback. Issue #20 remains blocked until Metin explicitly approves the provider, EU region, minimal data map, retention, and any spend.
+**Review trigger:** The synthetic trial misses an authority/privacy test, command-to-event p95 exceeds 350 ms on agreed routes, reconnect p95 exceeds two seconds, the beta model exceeds the evaluation ceiling, export/restore fails, or current provider pricing/limits materially change.
+
 ## Open decisions
 
 1. **Monetization:** premium purchase, ads, cosmetic purchases, subscription or hybrid.

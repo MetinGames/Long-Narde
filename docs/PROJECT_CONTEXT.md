@@ -71,7 +71,7 @@ The Phase 0 product exit gate is met. The current priorities are:
 2. preserve the honest mode-entry journey from [#10](https://github.com/MetinGames/Long-Narde/issues/10), including native-disabled hosted Friend Match and Online entries;
 3. preserve the provider-neutral private-table contract from [#16](https://github.com/MetinGames/Long-Narde/issues/16) and the device-only identity boundary from [#15](https://github.com/MetinGames/Long-Narde/issues/15);
 4. use the same-device Friend Match vertical slice delivered in [#18](https://github.com/MetinGames/Long-Narde/issues/18) as the client contract proof, never as a claim that online play exists;
-5. make [#19](https://github.com/MetinGames/Long-Narde/issues/19) the next social-path research step while the hosted adapter in [#20](https://github.com/MetinGames/Long-Narde/issues/20), paid services, personal-data collection, and provider commitment remain explicitly gated;
+5. preserve the completed [#19](https://github.com/MetinGames/Long-Narde/issues/19) provider evidence and D-021 trial direction while the hosted adapter in [#20](https://github.com/MetinGames/Long-Narde/issues/20), provider project, paid services, personal-data collection, and production commitment remain explicitly gated;
 6. run distribution, Project configuration and branch inventory as parallel supporting work rather than blockers on the social critical path.
 
 The player-facing Nardora migration is complete. Champion mode, optional Quick Bear-Off,
@@ -80,6 +80,10 @@ remaining work is refinement and real-device validation rather than initial deli
 The local Friend Match controller now proves room, invite, join, ready, active,
 disconnect, resume, leave, and close states against the in-memory adapter. It
 does not add networking, accounts, cloud data, or authoritative outcomes.
+Provider research now recommends Supabase only for a future synthetic-data
+trial, with Cloudflare Durable Objects as the technical fallback. No hosted
+project, account flow, personal-data collection, spend, or provider commitment
+has been approved.
 
 New ideas are captured, classified and scheduled; they do not silently displace these priorities. Further internal extraction is evidence-driven and must not become an open-ended substitute for player-facing progress.
 
