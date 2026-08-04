@@ -39,7 +39,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **366 Node tests passing as of 2026-08-04**. The 70-case Playwright browser/device matrix includes a new save-refresh-resume journey; local execution currently awaits a browser binary while CI remains the release gate.
+- **369 Node tests passing as of 2026-08-04**. The 70-case Playwright browser/device matrix includes a new save-refresh-resume journey; local execution currently awaits a browser binary while CI remains the release gate.
 
 ## Current gaps and risks
 
@@ -69,6 +69,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 14. **In progress — [#45](https://github.com/MetinGames/Long-Narde/issues/45):** classify a bearing-off victory as two-point Mars only when the loser has borne off zero checkers; timeout remains separate.
 15. **In progress — [#46](https://github.com/MetinGames/Long-Narde/issues/46):** animate human, bot, Quick Bear-Off, bearing-off, and reverse Undo transitions on Canvas without changing board authority or legal choices.
 16. **In progress — [#47](https://github.com/MetinGames/Long-Narde/issues/47):** preserve move-by-move Undo while aligning multi-die move counts, reverse-transition metadata, action buttons, and the persisted post-Undo state.
+17. **In progress — [#49](https://github.com/MetinGames/Long-Narde/issues/49):** keep the inset 6–7/18–19 triangle shapes clear of the centre hinge while restoring full-size checkers, original slot centres, and matching animation anchors.
 
 Completed in this synchronization cycle:
 
@@ -131,6 +132,7 @@ Target: **2026-09-30**
 - Integrate the user's original high-quality dice and checker recordings, with volume controls and safe preload behavior ([#12](https://github.com/MetinGames/Long-Narde/issues/12)).
 - **In progress:** Benchmark and refine the shipped Champion bot against representative positions and Metin's real matches; move heavy calculation to a Web Worker only if measurements justify it ([#11](https://github.com/MetinGames/Long-Narde/issues/11)).
 - **In progress:** deliver the local game-feel and continuity slice: responsive checker transitions [#46](https://github.com/MetinGames/Long-Narde/issues/46), consistent move-by-move Undo [#47](https://github.com/MetinGames/Long-Narde/issues/47), Mars results [#45](https://github.com/MetinGames/Long-Narde/issues/45), and safe unfinished-match resume [#44](https://github.com/MetinGames/Long-Narde/issues/44).
+- **In progress:** keep the four centre-hinge points visually inset without shrinking or shifting their checker stacks ([#49](https://github.com/MetinGames/Long-Narde/issues/49)).
 - **Done:** Built a contextual **Rule Explanation System** that explains common blocked, mandatory, bearing-off, prime and automatic-pass states from engine-owned reasons ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Added a dismissible and reopenable **Interactive First-Match Tutorial** using the existing localized guide, with a local-only versioned seen flag and keyboard/touch/small-screen coverage ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Built the visual theme-management screen in [#14](https://github.com/MetinGames/Long-Narde/issues/14), preserving the approved Anadolu and walnut families while adding persistent selection, reusable contrast-aware tokens, responsive access, and visual regression coverage.
