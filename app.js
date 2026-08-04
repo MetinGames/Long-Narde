@@ -79,6 +79,10 @@ import { OngoingMatchStore } from './engine/ongoingMatch.js';
 import {
     CheckerColorPreferenceController
 } from './engine/checkerColorPreference.js';
+import {
+    DEFAULT_TURN_TIMER_SECONDS,
+    TurnTimerPreferenceController
+} from './engine/turnTimerPreference.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -112,6 +116,7 @@ let themeManagerController = null;
 let pointNumberController = null;
 let startModeController = null;
 let checkerColorPreferenceController = null;
+let turnTimerPreferenceController = null;
 let friendMatchPreviewController = null;
 let autoBearOffEnabled = false;
 let autoBearOffContainer = null;
@@ -287,7 +292,8 @@ function persistOngoingMatch() {
         totalMoves: runtimeState.getTotalMoveCounter(),
         difficulty: bot.difficulty,
         autoBearOffEnabled,
-        humanCheckerColor: renderer.getHumanCheckerColor()
+        humanCheckerColor: renderer.getHumanCheckerColor(),
+        turnTimerSeconds: getHumanTurnDuration()
     });
 }
 
@@ -358,6 +364,9 @@ function resumeSavedMatch() {
     } else {
         renderer.setHumanCheckerColor(snapshot.humanCheckerColor);
     }
+    turnTimerPreferenceController?.setDurationSeconds(
+        snapshot.turnTimerSeconds
+    );
     renderer.clearVictoryMoment();
     renderer.clearCheckerMoveAnimation();
     resetBotMoveFeedback(renderer);
@@ -370,7 +379,7 @@ function resumeSavedMatch() {
     }
 
     updateScreen();
-    ui.updateTimerText(getHumanTurnDuration());
+    refreshTurnTimerDisplay();
     persistOngoingMatch();
 
     if (game.gameStatus === 'WAITING_FOR_DICE') {
@@ -461,7 +470,7 @@ function startGame() {
 
     updateScreen();
     ui.setHumanTurnLayout();
-    ui.updateTimerText(getHumanTurnDuration());
+    refreshTurnTimerDisplay();
     setStatus(t('status.starting'), { force: true });
     persistOngoingMatch();
     schedule(startAutomaticDiceRoll, 650);
@@ -480,7 +489,7 @@ function initializeBeforeStart() {
 
     updateScreen();
     ui.setHumanTurnLayout();
-    ui.updateTimerText(getHumanTurnDuration());
+    refreshTurnTimerDisplay();
     setStatus(t('status.readyToStart'), { force: true });
     refreshContinueMatchEntry();
     showStartScreen();
@@ -505,7 +514,26 @@ function syncActionButtonStates() {
 }
 
 function getHumanTurnDuration() {
-    return 30;
+    return turnTimerPreferenceController?.getDurationSeconds() ??
+        DEFAULT_TURN_TIMER_SECONDS;
+}
+
+function refreshTurnTimerDisplay() {
+    const select = document.getElementById('start-turn-timer');
+    for (const option of select?.options ?? []) {
+        const duration = Number(option.value);
+        option.textContent = duration === 0
+            ? t('ui.timerOff')
+            : `${duration} ${t('ui.secondsShort')}`;
+    }
+
+    const duration = getHumanTurnDuration();
+    if (duration <= 0) {
+        ui.updateTimerDisabled();
+        return;
+    }
+
+    ui.updateTimerText(duration);
 }
 
 function isAutoBearOffCurrentlyEligible() {
@@ -582,6 +610,11 @@ function applyFinalTimeoutLoss() {
 function synchronizeTimeoutState() {
     if (runtimeState.isTimeoutResolutionInProgress()) return;
 
+    if (getHumanTurnDuration() <= 0) {
+        timeoutController.resetAll();
+        return;
+    }
+
     if (runtimeState.isInitialStartPending() || game.gameStatus === 'GAME_OVER') {
         return;
     }
@@ -636,6 +669,13 @@ function startHumanTimer() {
     }
 
     const duration = getHumanTurnDuration();
+    if (duration <= 0) {
+        timeoutController.resetAll();
+        game.resetTimeoutStrikes();
+        ui.updateTimerDisabled();
+        return;
+    }
+
     timeoutController.startHumanTurn(duration, game.timeoutStrikes);
     ui.updateTimerText(timeoutController.getRemainingSeconds());
 
@@ -1019,7 +1059,7 @@ function restartGame() {
 
     updateScreen();
     ui.setHumanTurnLayout();
-    ui.updateTimerText(getHumanTurnDuration());
+    refreshTurnTimerDisplay();
     setStatus(t('status.starting'), { force: true });
 
     persistOngoingMatch();
@@ -1198,6 +1238,8 @@ function bindEvents() {
         document.getElementById('start-language-select');
     const startDifficultySelect =
         document.getElementById('start-bot-difficulty');
+    const startTurnTimerSelect =
+        document.getElementById('start-turn-timer');
     const checkerColorInputs =
         document.querySelectorAll('input[name="checker-color"]');
     const themeSelect =
@@ -1444,6 +1486,15 @@ function bindEvents() {
         });
     checkerColorPreferenceController.start();
 
+    turnTimerPreferenceController =
+        new TurnTimerPreferenceController({
+            select: startTurnTimerSelect,
+            onChange: () => {
+                refreshTurnTimerDisplay();
+            }
+        });
+    turnTimerPreferenceController.start();
+
     startModeController = createStartModeController({
         availableModes: [
             { mode: 'continue-match', button: continueMatchButton },
@@ -1501,6 +1552,7 @@ function bindEvents() {
             pointNumberController?.refreshForLanguage();
             mobileThemeLabelController?.refresh();
             themeManagerController?.refreshForLanguage();
+            refreshTurnTimerDisplay();
             updateScreen();
             updateAutoBearOffControl();
         },

@@ -7,6 +7,7 @@ export class UIManager {
         this.actionButtons = document.getElementById('action-buttons');
         this.undoButton = document.getElementById('undo-button');
         this.confirmButton = document.getElementById('confirm-button');
+        this.timerContainer = document.getElementById('timer-container');
         this.timerDisplay = document.getElementById('timer-countdown');
     }
 
@@ -72,8 +73,16 @@ export class UIManager {
 
     // Sayaç numarasını ekranda günceller
     updateTimerText(seconds) {
+        this.timerContainer?.classList.remove('is-disabled');
         if (this.timerDisplay) {
             this.timerDisplay.textContent = `${seconds} ${t('ui.secondsShort')}`;
+        }
+    }
+
+    updateTimerDisabled() {
+        this.timerContainer?.classList.add('is-disabled');
+        if (this.timerDisplay) {
+            this.timerDisplay.textContent = t('ui.timerOff');
         }
     }
 }

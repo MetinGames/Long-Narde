@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v20-2026-08-04';
+const CACHE_VERSION = 'v21-2026-08-04';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -64,6 +64,7 @@ const PRECACHE_PATHS = [
     './engine/themeManagerController.js',
     './engine/themes.js',
     './engine/timeoutController.js',
+    './engine/turnTimerPreference.js',
     './engine/uiManager.js',
     './engine/undoActionButtons.js',
     './engine/victoryMoment.js'

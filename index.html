@@ -131,7 +131,7 @@
 
             <div id="timer-container">
                 <div class="timer-title" data-i18n="ui.time">Kalan Süre</div>
-                <div id="timer-countdown">60</div>
+                <div id="timer-countdown">30 sn</div>
             </div>
             
             <div id="dice-container">
@@ -274,17 +274,20 @@
                             </span>
                         </button>
                         <div class="start-mode-config">
-                            <label for="start-bot-difficulty" data-i18n="mode.difficulty">Seviye</label>
-                            <select
-                                id="start-bot-difficulty"
-                                data-i18n-aria-label="mode.difficulty"
-                                aria-label="Seviye"
-                            >
-                                <option value="easy" data-i18n="difficulty.easy">Kolay</option>
-                                <option value="medium" data-i18n="difficulty.medium" selected>Orta</option>
-                                <option value="hard" data-i18n="difficulty.hard">Usta</option>
-                                <option value="champion" data-i18n="difficulty.champion">Şampiyon</option>
-                            </select>
+                            <div class="start-mode-config-field"><label for="start-bot-difficulty" data-i18n="mode.difficulty">Seviye</label>
+                                <select id="start-bot-difficulty" data-i18n-aria-label="mode.difficulty" aria-label="Seviye">
+                                    <option value="easy" data-i18n="difficulty.easy">Kolay</option>
+                                    <option value="medium" data-i18n="difficulty.medium" selected>Orta</option>
+                                    <option value="hard" data-i18n="difficulty.hard">Usta</option>
+                                    <option value="champion" data-i18n="difficulty.champion">Şampiyon</option>
+                                </select></div>
+                            <div class="start-mode-config-field"><label for="start-turn-timer" data-i18n="mode.turnTimer">Süre</label>
+                                <select id="start-turn-timer" data-i18n-aria-label="mode.turnTimer" aria-label="Süre">
+                                    <option value="0">Kapalı</option>
+                                    <option value="30" selected>30 sn</option>
+                                    <option value="60">60 sn</option>
+                                    <option value="90">90 sn</option>
+                                </select></div>
                         </div>
                     </div>
 

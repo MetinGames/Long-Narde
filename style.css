@@ -258,7 +258,8 @@ body.i18n-ready {
 /* Keep native dropdown list readable on light OS popup surfaces. */
 #language-select option,
 #start-language-select option,
-#start-bot-difficulty option {
+#start-bot-difficulty option,
+#start-turn-timer option {
     background-color: #fff8ec;
     color: #2b1a0e;
 }
@@ -382,11 +383,17 @@ button.start-mode-card {
 }
 
 .start-mode-config {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 7px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    gap: 6px;
     padding: 0 10px 9px;
+}
+
+.start-mode-config-field {
+    min-width: 0;
+    display: grid;
+    gap: 3px;
 }
 
 .start-mode-config label {
@@ -395,8 +402,10 @@ button.start-mode-card {
     font-weight: 800;
 }
 
-#start-bot-difficulty {
-    min-width: 104px;
+#start-bot-difficulty,
+#start-turn-timer {
+    width: 100%;
+    min-width: 0;
     min-height: 34px;
     padding: 5px 8px;
     border: 1px solid rgba(229, 190, 111, 0.46);
@@ -436,9 +445,14 @@ button.start-mode-card:not(:disabled):focus-visible,
     transform: translateY(-1px);
 }
 
-#start-bot-difficulty:focus-visible {
+#start-bot-difficulty:focus-visible,
+#start-turn-timer:focus-visible {
     outline: 2px solid rgba(245, 206, 129, 0.75);
     outline-offset: 2px;
+}
+
+#timer-container.is-disabled {
+    opacity: 0.72;
 }
 
 #start-screen-actions {
@@ -474,6 +488,34 @@ button.start-mode-card:not(:disabled):focus-visible,
     border-color: rgba(242, 206, 121, 0.7);
     outline: none;
     transform: translateY(-1px);
+}
+
+/* Keep every start action visible on common 720p desktop viewports. */
+@media (min-width: 601px) and (min-height: 601px) and (max-height: 760px) {
+    #start-screen-box {
+        padding: 18px 24px 12px;
+    }
+
+    #start-screen-box h2 {
+        margin-bottom: 8px;
+    }
+
+    #start-screen-description {
+        margin-bottom: 12px;
+    }
+
+    #start-language-container {
+        margin-bottom: 10px;
+    }
+
+    #start-mode-menu {
+        margin-bottom: 10px;
+    }
+
+    #friend-preview-entry,
+    #feedback-button-row {
+        margin-top: 7px;
+    }
 }
 
 #feedback-modal {
@@ -2593,7 +2635,8 @@ select {
         padding: 0 7px 7px;
     }
 
-    #start-bot-difficulty {
+    #start-bot-difficulty,
+    #start-turn-timer {
         min-width: 0;
         width: 100%;
         font-size: 0.72rem;
@@ -2762,7 +2805,8 @@ select {
         font-size: 0.64rem;
     }
 
-    #start-bot-difficulty {
+    #start-bot-difficulty,
+    #start-turn-timer {
         min-height: 28px;
         padding: 3px 6px;
         font-size: 0.68rem;

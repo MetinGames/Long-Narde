@@ -69,6 +69,7 @@ Long Narde in this repository follows the long narde rules implemented in the co
 - Undo reverts one consumed die-right at a time during the current human turn and keeps the board, dice rights, move count, animation, and saved state aligned.
 - End Turn finalizes the human turn when no playable dice remain.
 - The turn timer counts down only after the game has started and the human turn is active.
+- Bot matches offer an on-device **Off / 30 / 60 / 90 second** turn-timer choice before play. The current choice is restored with an unfinished match.
 
 ## Bot difficulty levels
 
@@ -76,7 +77,7 @@ The code exposes four difficulty labels in the UI: Easy, Medium, Master, and Cha
 
 ## Timer and timeout behaviour
 
-The timeout system is managed by the engine layer with absolute deadlines. The human turn timer is initialized per turn, first timeout warnings are possible in casual mode, and a later absolute forfeit window can end the game if time expires again. The start screen does not start the timer, deadline, or bot turn logic.
+The timeout system is managed by the engine layer with absolute deadlines. The human turn timer is initialized per turn, first timeout warnings are possible in casual mode, and a later absolute forfeit window can end the game if time expires again. Local bot matches default to 30 seconds and let the player choose Off, 30, 60, or 90 seconds before play. Off starts no deadline, interval, warning, or timeout loss. The preference stays on-device, and unfinished matches restore their own timer choice. The start screen does not start the timer, deadline, or bot turn logic.
 
 ## Local profile and progression
 
@@ -158,6 +159,7 @@ Verified engine modules currently present:
 - `engine/startModeController.js`
 - `engine/themes.js`
 - `engine/timeoutController.js`
+- `engine/turnTimerPreference.js`
 - `engine/uiManager.js`
 - `engine/undoActionButtons.js`
 - `engine/victoryMoment.js`
@@ -185,6 +187,7 @@ Verified test files currently present:
 - `tests/start-mode-controller.test.js`
 - `tests/sync-main.test.js`
 - `tests/timeout-deadlines.test.js`
+- `tests/turn-timer-preference.test.js`
 - `tests/undo-action-buttons.test.js`
 - `tests/victory-moment.test.js`
 - `tests/visual-feedback.test.js`

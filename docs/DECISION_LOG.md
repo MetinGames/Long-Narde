@@ -164,7 +164,7 @@ This log records durable decisions and their reasoning. New entries are appended
 
 **Date:** 2026-08-04
 **Status:** Accepted
-**Decision:** Save an unfinished local bot match after durable transitions in a versioned `localStorage` envelope. Restore only active, checker-conserving, schema-compatible snapshots no older than 30 days. Restore the board, dice rights, turn/opening state, Undo history, move count, difficulty, timeout strikes, and Quick Bear-Off preference; give a restored human turn a fresh local deadline.
+**Decision:** Save an unfinished local bot match after durable transitions in a versioned `localStorage` envelope. Restore only active, checker-conserving, schema-compatible snapshots no older than 30 days. Restore the board, dice rights, turn/opening state, Undo history, move count, difficulty, timeout strikes, turn-timer choice, and Quick Bear-Off preference; give a restored timed human turn a fresh local deadline.
 **Reason:** A refresh, browser close, PWA restart, or mobile lifecycle interruption should not discard a meaningful local match, but browser storage must not become an unvalidated game-authority boundary.
 **Consequences:** Continue Match appears only for a valid unfinished snapshot. Completed, corrupt, incompatible, expired, or structurally impossible states fail closed and are removed. The snapshot stays on the device, is not cloud sync, and is never trusted for future online results, scores, dice, or ratings.
 **Review trigger:** Cloud accounts, cross-device sync, authoritative online matches, storage quotas, or a schema migration require a different persistence and trust boundary.
@@ -186,6 +186,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Reason:** Color preference improves player ownership and comfort, but coupling appearance to engine identity would create unnecessary rule, direction, persistence, and statistics risk.
 **Consequences:** The renderer maps stable engine players to theme checker tokens, the turn indicator and collected-checker trays use the mapped color, the preference stays on-device, and unfinished-match snapshots restore the match's color. Every theme must continue to provide distinct white/black checker tokens.
 **Review trigger:** A two-human match, seat selection, alternate color palette, accessibility mode, or regional ruleset makes color and engine-side assignment a meaningful gameplay choice.
+
+### D-027 — Local bot turn time is player-configurable
+
+**Date:** 2026-08-04
+**Status:** Accepted
+**Decision:** Local bot matches default to 30 seconds per human turn and offer Off, 30, 60, or 90 seconds before play. Off creates no deadline, interval, timeout warning, or timeout loss. The device remembers the preference, while an unfinished-match snapshot restores the duration used by that match.
+**Reason:** A fixed deadline makes relaxed local play unnecessarily punitive, while preserving bounded choices keeps the two-stage timeout behavior understandable and testable.
+**Consequences:** Timer selection stays local and does not change dice, legal moves, bot strength, results, or future competitive-online timing policy. The timer card explicitly says Off when disabled instead of displaying a misleading zero.
+**Review trigger:** Ranked play, online authority, per-player clocks, increment/delay rules, accessibility research, or match-series formats require a separate timing policy.
 
 ## Open decisions
 

@@ -65,6 +65,8 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('scrollbar-gutter: stable both-edges'), 'Scrollbar gutter stabilization missing');
     assert.ok(css.includes('min-height: 100dvh'), 'Dynamic viewport height guard missing');
     assert.ok(css.includes('@media (min-width: 901px) and (max-height: 900px)'), 'Short desktop compaction media query missing');
+    assert.ok(css.includes('@media (min-width: 601px) and (min-height: 601px) and (max-height: 760px)'), '720p start-screen compaction media query missing');
+    assert.match(css, /@media \(min-width: 601px\) and \(min-height: 601px\) and \(max-height: 760px\)[\s\S]*#feedback-button-row\s*\{[^}]*margin-top:\s*7px;/, '720p start screen should keep the feedback action inside the visible panel');
     assert.ok(css.includes('#info-panel > #turn-indicator.is-white-turn'), 'White turn indicator class style missing');
     assert.ok(css.includes('#info-panel > #turn-indicator.is-dark-turn'), 'Dark turn indicator class style missing');
     assert.ok(css.includes('#auto-bearoff-container'), 'Auto bear-off container layout guard missing');
@@ -104,6 +106,8 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="online-match-button"'), 'Online match button missing');
     assert.ok(html.includes('id="start-mode-grid"'), 'Start mode grid missing');
     assert.ok(html.includes('id="start-bot-difficulty"'), 'Start difficulty select missing');
+    assert.ok(html.includes('id="start-turn-timer"'), 'Start turn-timer select missing');
+    assert.equal((html.match(/<option value="(?:0|30|60|90)"(?: selected)?>/g) || []).length, 4, 'Exactly four turn-timer choices should be available');
     assert.ok(/id="start-mode-menu"[^>]*role="group"[^>]*aria-labelledby="start-mode-menu-title"/i.test(html), 'Mode menu accessible group missing');
     assert.ok(/id="friend-match-button"[\s\S]*?disabled[\s\S]*?aria-disabled="true"/i.test(html), 'Friend match honest disabled state missing');
     assert.ok(/id="online-match-button"[\s\S]*?disabled[\s\S]*?aria-disabled="true"/i.test(html), 'Online honest disabled state missing');
