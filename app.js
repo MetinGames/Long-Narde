@@ -58,6 +58,10 @@ import {
     isAutoBearOffEligible
 } from './engine/autoBearOff.js';
 import {
+    AutoTurnConfirmPreferenceController,
+    createAutoTurnConfirmFlow
+} from './engine/autoTurnConfirm.js';
+import {
     applyNoLegalMoveAutoPass,
     hasAnyRuleCompliantTurnStart
 } from './engine/noLegalMoveAutoPass.js';
@@ -117,11 +121,14 @@ let pointNumberController = null;
 let startModeController = null;
 let checkerColorPreferenceController = null;
 let turnTimerPreferenceController = null;
+let autoTurnConfirmPreferenceController = null;
 let friendMatchPreviewController = null;
 let autoBearOffEnabled = false;
 let autoBearOffContainer = null;
 let autoBearOffToggle = null;
 let autoBearOffHint = null;
+let autoTurnConfirmToggle = null;
+let autoTurnConfirmStatus = null;
 let continueMatchButton = null;
 let isCheckerMoveAnimating = false;
 
@@ -214,10 +221,40 @@ const autoBearOffFlow = createAutoBearOffFlow({
     }
 });
 
+const autoTurnConfirmFlow = createAutoTurnConfirmFlow({
+    game,
+    getContext: () => ({
+        isEnabled:
+            autoTurnConfirmPreferenceController?.isEnabled() ?? false,
+        isStartScreen: runtimeState.isInitialStartPending(),
+        isTimeoutResolutionInProgress:
+            runtimeState.isTimeoutResolutionInProgress(),
+        isCheckerMoveAnimating,
+        isAutoBearOffRunning: autoBearOffFlow.isRunning()
+    }),
+    scheduleConfirm: (callback, delayMs) => schedule(
+        callback,
+        delayMs,
+        { kind: 'auto-turn-confirm' }
+    ),
+    cancelConfirm: timeoutId => {
+        clearTimeout(timeoutId);
+        runtimeState.removeScheduledTimeout(timeoutId);
+    },
+    onPendingChange: () => {
+        updateAutoTurnConfirmControl();
+    },
+    onConfirm: () => {
+        finishCurrentTurn();
+    }
+});
+
 const appResumeController = createAppResumeController({
     onResume: () => {
+        autoTurnConfirmFlow.stop('app-resumed');
         synchronizeTimeoutState();
         synchronizeAutoBearOffFlow();
+        synchronizeAutoTurnConfirmFlow();
     }
 });
 
@@ -292,6 +329,8 @@ function persistOngoingMatch() {
         totalMoves: runtimeState.getTotalMoveCounter(),
         difficulty: bot.difficulty,
         autoBearOffEnabled,
+        autoTurnConfirmEnabled:
+            autoTurnConfirmPreferenceController?.isEnabled() ?? false,
         humanCheckerColor: renderer.getHumanCheckerColor(),
         turnTimerSeconds: getHumanTurnDuration()
     });
@@ -359,6 +398,10 @@ function resumeSavedMatch() {
     bot.difficulty = snapshot.difficulty;
     bot.resetPlannedTurn?.();
     autoBearOffEnabled = snapshot.autoBearOffEnabled;
+    autoTurnConfirmPreferenceController?.setEnabled(
+        snapshot.autoTurnConfirmEnabled,
+        { notify: false }
+    );
     if (checkerColorPreferenceController) {
         checkerColorPreferenceController.setColor(snapshot.humanCheckerColor);
     } else {
@@ -392,6 +435,7 @@ function resumeSavedMatch() {
         setStatus(t('status.matchResumedYourTurn'), { force: true });
         startHumanTimer();
         synchronizeAutoBearOffFlow();
+        synchronizeAutoTurnConfirmFlow();
     } else {
         ui.setBotTurnLayout();
         setStatus(t('status.matchResumedBotTurn'), { force: true });
@@ -405,6 +449,7 @@ function clearRuntimeTasks() {
     runtimeState.invalidateSessionToken();
     bot.resetPlannedTurn?.();
     autoBearOffFlow.stop('runtime-cleared');
+    autoTurnConfirmFlow.stop('runtime-cleared');
     resetBotCallbackGuards();
     runtimeState.cancelPendingRoll();
 
@@ -426,6 +471,7 @@ function setStatus(message) {
 
 function terminateGame() {
     autoBearOffFlow.stop('game-terminated');
+    autoTurnConfirmFlow.stop('game-terminated');
     clearRuntimeTasks();
     timeoutController.stopTurnDeadline();
 }
@@ -478,6 +524,7 @@ function startGame() {
 }
 
 function initializeBeforeStart() {
+    autoTurnConfirmFlow.stop('start-screen');
     startModeController?.reset();
     runtimeState.resetForSession({ initialStartPending: true });
     matchStatsRecorder.resetPendingMatch();
@@ -499,6 +546,7 @@ function updateScreen() {
     syncActionButtonStates();
     renderer.render(game, runtimeState.getSelectedSlotId());
     updateAutoBearOffControl();
+    updateAutoTurnConfirmControl();
 }
 
 function syncActionButtonStates() {
@@ -597,6 +645,51 @@ function synchronizeAutoBearOffFlow() {
     updateAutoBearOffControl();
 }
 
+function updateAutoTurnConfirmControl() {
+    const isEnabled =
+        autoTurnConfirmPreferenceController?.isEnabled() ?? false;
+    const isPending = autoTurnConfirmFlow.isPending();
+
+    if (autoTurnConfirmToggle) {
+        autoTurnConfirmToggle.checked = isEnabled;
+    }
+
+    if (ui.confirmButton) {
+        const labelKey = isPending
+            ? 'ui.autoTurnConfirmPending'
+            : 'ui.confirm';
+        const label = t(labelKey);
+        ui.confirmButton.classList.toggle(
+            'is-auto-confirm-pending',
+            isPending
+        );
+        ui.confirmButton.setAttribute(
+            'data-auto-confirm-pending',
+            String(isPending)
+        );
+        ui.confirmButton.setAttribute('aria-label', label);
+        ui.confirmButton.title = label;
+    }
+
+    if (autoTurnConfirmStatus) {
+        autoTurnConfirmStatus.textContent = isPending
+            ? t('ui.autoTurnConfirmPending')
+            : '';
+    }
+}
+
+function synchronizeAutoTurnConfirmFlow() {
+    if (!autoTurnConfirmPreferenceController?.isEnabled()) {
+        autoTurnConfirmFlow.stop('disabled');
+        updateAutoTurnConfirmControl();
+        return false;
+    }
+
+    const didSchedule = autoTurnConfirmFlow.evaluate();
+    updateAutoTurnConfirmControl();
+    return didSchedule;
+}
+
 function applyFinalTimeoutLoss() {
     if (game.gameStatus === 'GAME_OVER') return;
 
@@ -639,6 +732,7 @@ function synchronizeTimeoutState() {
     }
 
     autoBearOffFlow.stop('timeout-resolution');
+    autoTurnConfirmFlow.stop('timeout-resolution');
 
     runtimeState.setTimeoutResolutionInProgress(true);
     try {
@@ -688,6 +782,7 @@ function finishCurrentTurn() {
     runtimeState.invalidateSessionToken();
     bot.resetPlannedTurn?.();
     autoBearOffFlow.stop('turn-finished');
+    autoTurnConfirmFlow.stop('turn-finished');
     resetBotCallbackGuards();
 
     clearInterval(runtimeState.getTurnTimerInterval());
@@ -707,6 +802,7 @@ function stopHumanTurnTimer() {
 }
 
 function passCurrentTurnWhenNoLegalMove() {
+    autoTurnConfirmFlow.stop('no-legal-move-auto-pass');
     const autoPass = applyNoLegalMoveAutoPass({
         game,
         runtimeState,
@@ -756,6 +852,7 @@ function beginCurrentTurn(options = {}) {
     runtimeState.invalidateSessionToken();
     bot.resetPlannedTurn?.();
     autoBearOffFlow.stop('turn-changed');
+    autoTurnConfirmFlow.stop('turn-changed');
     resetBotCallbackGuards();
 
     if (game.currentPlayer === 1) {
@@ -1185,6 +1282,7 @@ async function handleSlotClick(slotId) {
             synchronizeAutoBearOffFlow();
         }
 
+        synchronizeAutoTurnConfirmFlow();
         updateAutoBearOffControl();
         return;
     }
@@ -1232,6 +1330,10 @@ function bindEvents() {
         document.getElementById('auto-bearoff-toggle');
     autoBearOffHint =
         document.getElementById('auto-bearoff-hint');
+    autoTurnConfirmToggle =
+        document.getElementById('auto-turn-confirm-toggle');
+    autoTurnConfirmStatus =
+        document.getElementById('auto-turn-confirm-status');
     const languageSelect =
         document.getElementById('language-select');
     const startLanguageSelect =
@@ -1495,6 +1597,21 @@ function bindEvents() {
         });
     turnTimerPreferenceController.start();
 
+    autoTurnConfirmPreferenceController =
+        new AutoTurnConfirmPreferenceController({
+            toggle: autoTurnConfirmToggle,
+            onChange: enabled => {
+                if (enabled) {
+                    synchronizeAutoTurnConfirmFlow();
+                } else {
+                    autoTurnConfirmFlow.stop('disabled-by-user');
+                    updateAutoTurnConfirmControl();
+                }
+                persistOngoingMatch();
+            }
+        });
+    autoTurnConfirmPreferenceController.start();
+
     startModeController = createStartModeController({
         availableModes: [
             { mode: 'continue-match', button: continueMatchButton },
@@ -1555,6 +1672,7 @@ function bindEvents() {
             refreshTurnTimerDisplay();
             updateScreen();
             updateAutoBearOffControl();
+            updateAutoTurnConfirmControl();
         },
         onStatusChange: message => {
             setStatus(message, { force: true });
@@ -1592,6 +1710,7 @@ function bindEvents() {
     pointNumberController.start();
 
     ui.undoButton?.addEventListener('click', async () => {
+        autoTurnConfirmFlow.stop('undo');
         const move = game.moveHistory.at(-1)?.move || null;
         const reverseTransition = move
             ? captureCheckerTransition(game, {
@@ -1624,6 +1743,8 @@ function bindEvents() {
             return;
         }
 
+        autoTurnConfirmFlow.stop('manual-confirm');
+
         if (
             game.availableMoves.length > 0 &&
             game.hasValidMoves()
@@ -1650,6 +1771,7 @@ function bindEvents() {
     appResumeController.start();
 
     updateAutoBearOffControl();
+    updateAutoTurnConfirmControl();
 }
 
 window.addEventListener('DOMContentLoaded', async () => {

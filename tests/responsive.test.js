@@ -23,6 +23,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
         path.join(root, 'checker-color-picker.css'),
         'utf8'
     );
+    const gameHelpersCss = fs.readFileSync(
+        path.join(root, 'game-helpers.css'),
+        'utf8'
+    );
     assert.ok(css.includes('@media (max-width: 900px) and (orientation: landscape)'), 'Missing landscape mobile media query');
     assert.ok(css.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Missing portrait mobile media query');
     assert.ok(css.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Missing low landscape mobile media query');
@@ -56,8 +60,11 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#friend-preview-timeline'), 'Local friend preview timeline style missing');
     assert.ok(css.includes('#friend-preview-button:focus-visible'), 'Local friend preview keyboard focus style missing');
     assert.ok(css.includes('#fullscreen-toggle'), 'Fullscreen toggle style missing');
-    assert.ok(css.includes('#auto-bearoff-container'), 'Auto bear-off container style missing');
-    assert.ok(css.includes('#auto-bearoff-toggle'), 'Auto bear-off toggle style missing');
+    assert.ok(gameHelpersCss.includes('#auto-bearoff-container'), 'Auto bear-off container style missing');
+    assert.ok(gameHelpersCss.includes('#auto-bearoff-toggle'), 'Auto bear-off toggle style missing');
+    assert.ok(gameHelpersCss.includes('#auto-turn-confirm-toggle'), 'Auto-confirm toggle style missing');
+    assert.ok(gameHelpersCss.includes('#confirm-button.is-auto-confirm-pending'), 'Auto-confirm grace feedback style missing');
+    assert.ok(gameHelpersCss.includes('#auto-bearoff-help[open]'), 'Closed helper card should reveal Auto Confirm through its help disclosure');
     assert.ok(css.includes('body.is-game-fullscreen'), 'Fullscreen body lock style missing');
     assert.ok(css.includes('#game-container.is-focus-mode-root'), 'CSS focus mode root style missing');
     assert.ok(css.includes(':fullscreen') || css.includes('-webkit-full-screen'), 'Native fullscreen selector rules missing');
@@ -157,6 +164,10 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="auto-bearoff-toggle"'), 'Auto bear-off toggle missing');
     assert.ok(html.includes('id="auto-bearoff-hint"'), 'Auto bear-off accessibility hint missing');
     assert.ok(html.includes('id="auto-bearoff-help"'), 'Auto bear-off help disclosure missing');
+    assert.ok(html.includes('id="game-helper-options"'), 'Combined game-helper surface missing');
+    assert.ok(html.includes('id="auto-turn-confirm-toggle"'), 'Auto-confirm toggle missing');
+    assert.ok(html.includes('id="auto-turn-confirm-description"'), 'Auto-confirm accessible description missing');
+    assert.ok(html.includes('id="auto-turn-confirm-status"'), 'Auto-confirm live status missing');
     assert.ok(html.includes('id="theme-manager-button"'), 'In-game theme manager entry missing');
     assert.ok(html.includes('id="start-theme-manager-button"'), 'Start-screen theme manager entry missing');
     assert.ok(html.includes('id="theme-manager-modal"'), 'Theme manager modal missing');
@@ -164,6 +175,7 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.equal((html.match(/data-theme-option=/g) || []).length, 2, 'Exactly two supported theme previews should be rendered');
     assert.ok(html.includes('theme-manager.css'), 'Theme manager stylesheet link missing');
     assert.ok(html.includes('checker-color-picker.css'), 'Checker color picker stylesheet link missing');
+    assert.ok(html.includes('game-helpers.css'), 'Game-helper stylesheet link missing');
     assert.ok(html.includes('real-device-polish.css'), 'Real-device polish stylesheet link missing');
     assert.equal((html.match(/value="champion"/g) || []).length, 2, 'Champion difficulty should exist in both synchronized selectors');
     assert.ok(/<option value="champion" data-i18n="difficulty\.champion">Şampiyon<\/option>/i.test(html), 'Champion difficulty option missing expected value/i18n pairing');

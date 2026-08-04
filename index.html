@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="theme-manager.css">
     <link rel="stylesheet" href="ongoing-match.css">
     <link rel="stylesheet" href="checker-color-picker.css">
+    <link rel="stylesheet" href="game-helpers.css">
     <link rel="stylesheet" href="real-device-polish.css">
     <link rel="stylesheet" href="assets/branding/nardora-splash.css">
 </head>
@@ -76,19 +77,39 @@
 
             <div id="auto-bearoff-container" class="is-disabled">
                 <div id="auto-bearoff-heading">
-                    <label for="auto-bearoff-toggle" id="auto-bearoff-label">
-                        <input
-                            id="auto-bearoff-toggle"
-                            type="checkbox"
+                    <div id="game-helper-options">
+                        <label for="auto-bearoff-toggle" id="auto-bearoff-label">
+                            <input
+                                id="auto-bearoff-toggle"
+                                type="checkbox"
+                            >
+                            <span data-i18n="ui.autoBearOff">Otomatik Topla</span>
+                        </label>
+                        <label
+                            for="auto-turn-confirm-toggle"
+                            id="auto-turn-confirm-label"
+                            data-i18n-title="ui.autoTurnConfirmHint"
+                            title="Açıldığında tamamlanan hamle 2 saniye sonra biter; bu sürede Geri Al kullanılabilir."
                         >
-                        <span data-i18n="ui.autoBearOff">Otomatik Topla</span>
-                    </label>
+                            <input
+                                id="auto-turn-confirm-toggle"
+                                type="checkbox"
+                                aria-describedby="auto-turn-confirm-description"
+                            >
+                            <span data-i18n="ui.autoTurnConfirm">Otomatik Onay · 2 sn</span>
+                        </label>
+                        <span
+                            id="auto-turn-confirm-description"
+                            class="visually-hidden"
+                            data-i18n="ui.autoTurnConfirmHint"
+                        >Açıldığında tamamlanan hamle 2 saniye sonra biter; bu sürede Geri Al kullanılabilir.</span>
+                    </div>
                     <details id="auto-bearoff-help">
                         <summary
-                            data-i18n-aria-label="ui.autoBearOffHelp"
-                            data-i18n-title="ui.autoBearOffHelp"
-                            aria-label="Otomatik toplama açıklamasını göster"
-                            title="Otomatik toplama açıklamasını göster"
+                            data-i18n-aria-label="ui.gameHelpersHelp"
+                            data-i18n-title="ui.gameHelpersHelp"
+                            aria-label="Oyun yardımcılarını göster"
+                            title="Oyun yardımcılarını göster"
                         >?</summary>
                         <p
                             id="auto-bearoff-hint"
@@ -165,6 +186,13 @@
             <div id="action-buttons" aria-hidden="true">
                 <button id="undo-button" type="button" data-i18n-title="ui.undo" data-i18n-aria-label="ui.undo" title="Geri Al" aria-label="Geri Al" tabindex="-1">↺</button>
                 <button id="confirm-button" type="button" data-i18n-title="ui.confirm" data-i18n-aria-label="ui.confirm" title="Hamleyi Bitir" aria-label="Hamleyi Bitir" tabindex="-1">✓</button>
+                <span
+                    id="auto-turn-confirm-status"
+                    class="visually-hidden"
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                ></span>
             </div>
         </div>
     </div>

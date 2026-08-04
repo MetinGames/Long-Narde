@@ -318,6 +318,28 @@ test('auto bear-off label is localized in Turkish, English, and Russian', async 
     restoreGlobalProperty('navigator', originalNavigator);
 });
 
+test('auto turn confirmation and Undo grace copy are localized', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    for (const language of ['tr', 'en', 'ru']) {
+        i18n.setLanguage(language);
+        assert.notEqual(i18n.t('ui.autoTurnConfirm'), 'ui.autoTurnConfirm');
+        assert.match(i18n.t('ui.autoTurnConfirmHint'), /2/);
+        assert.match(i18n.t('ui.autoTurnConfirmPending'), /2/);
+    }
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
 test('point-number controls are localized in all languages', async () => {
     const savedStorage = new FakeStorage({ 'narde-language': 'en' });
     const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);

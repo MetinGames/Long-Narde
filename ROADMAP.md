@@ -35,17 +35,18 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Automated GitHub Actions test workflow.
 - Player-facing Nardora migration across the page title, welcome flow, TR/EN/RU copy, and splash experience.
 - Optional Quick Bear-Off that acts only when the legal continuation is unambiguous.
+- Optional device-persistent automatic turn confirmation with a visible two-second move-by-move Undo window and final legality revalidation.
 - Champion bot mode with deterministic multi-move planning and callback safety.
 - Automatic pass when no legal move exists, without starting a stale human timer.
 - Licensed sampled dice and checker sounds integrated as a review baseline; final original recordings remain planned.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **393 Node tests passing as of 2026-08-04**. The 70-case Playwright browser/device matrix includes save-refresh-resume and high-value visual journeys; local execution currently awaits a browser binary while CI remains the release gate.
+- **406 Node tests passing as of 2026-08-04**. The 75-case Playwright browser/device matrix includes save-refresh-resume, automatic-confirm Undo/manual-confirm races, and high-value visual journeys; local execution currently awaits a browser binary while CI remains the release gate.
 
 ## Current gaps and risks
 
-- `app.js` is 1,679 lines; `engine/renderer.js` is 1,405 lines and `style.css` remains 3,528 lines. New checker-color and turn-timer preference logic lives in focused files; further extraction remains evidence-driven.
+- `app.js` is 1,801 lines; `engine/renderer.js` is 1,405 lines and `style.css` is 3,504 lines. `index.html` and `engine/i18n.js` have also crossed the 1,000-line split-candidate threshold. Automatic-confirm state and helper presentation live in focused JS/CSS files; further extraction remains evidence-driven.
 - The repository has 50 non-main remote branches. The verified [branch inventory](docs/BRANCH_INVENTORY.md) classifies 45 cleanup candidates, one active branch, and four manual-review branches; no deletion is authorized.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
 - Community-sourced sample sounds are integrated and licensed, but Metin's final original dice/checker recordings, volume controls, and device-level listening review are not complete.
@@ -75,6 +76,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 18. **Completed — [#51](https://github.com/MetinGames/Long-Narde/issues/51):** delivered a persistent White (Ivory)/Black start-screen choice, opposite bot color, renderer-wide checker mapping, and unfinished-match continuity without changing rule authority or movement direction.
 19. **Completed — [#41](https://github.com/MetinGames/Long-Narde/issues/41):** replaced the fixed local bot turn deadline with a persistent Off / 30 / 60 / 90 second pre-match choice; disabled mode creates no timeout penalty and unfinished matches restore their saved duration.
 20. **Completed — [#55](https://github.com/MetinGames/Long-Narde/issues/55):** locked the existing six-point-prime restriction across both player directions, first/last windows, the physical 24 → 1 wrap, opponent boundary positions, source-stack simulation, invalid reasons, and legal-move enumeration without changing rule behavior.
+21. **Completed — [#57](https://github.com/MetinGames/Long-Narde/issues/57):** added an off-by-default automatic turn-confirm preference with a visible two-second Undo grace period, immediate manual Confirm, stale-callback cancellation, final legality revalidation, unfinished-match continuity, and a compact shared helper surface.
 
 Completed in this synchronization cycle:
 
@@ -93,6 +95,7 @@ Completed in this synchronization cycle:
 - [#51](https://github.com/MetinGames/Long-Narde/issues/51) adds the persistent pre-match checker-color choice, opposite bot appearance, resume continuity, and cross-browser visual coverage through [#52](https://github.com/MetinGames/Long-Narde/pull/52).
 - [#41](https://github.com/MetinGames/Long-Narde/issues/41) now includes the persistent local bot turn-timer choice, explicit disabled state, and unfinished-match timer continuity.
 - [#55](https://github.com/MetinGames/Long-Narde/issues/55) adds deterministic six-point-prime edge fixtures for both directions, route boundaries, source-stack simulation, and rule-reason/move-list consistency without changing Long Narde legality.
+- [#57](https://github.com/MetinGames/Long-Narde/issues/57) adds optional automatic turn confirmation without weakening mandatory dice use or move-by-move Undo, and keeps the default helper card visually compact.
 
 ## Phase 0 — Product exit gate met; maintenance continues
 
@@ -143,6 +146,7 @@ Target: **2026-09-30**
 - **Done:** kept the four centre-hinge points visually inset without shrinking or shifting their checker stacks ([#49](https://github.com/MetinGames/Long-Narde/issues/49)).
 - **Done:** added an accessible, persistent start-screen White (Ivory)/Black checker choice with opposite bot color and unfinished-match continuity ([#51](https://github.com/MetinGames/Long-Narde/issues/51)).
 - **Done:** expanded the six-point-prime release contract with mirrored route-boundary, wraparound, source-stack, invalid-reason, and legal-move regressions ([#55](https://github.com/MetinGames/Long-Narde/issues/55)).
+- **Done:** added optional, device-persistent automatic turn confirmation with a two-second Undo grace period, immediate manual confirmation, lifecycle cancellation, and final legality revalidation ([#57](https://github.com/MetinGames/Long-Narde/issues/57)).
 - **Done:** Built a contextual **Rule Explanation System** that explains common blocked, mandatory, bearing-off, prime and automatic-pass states from engine-owned reasons ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Added a dismissible and reopenable **Interactive First-Match Tutorial** using the existing localized guide, with a local-only versioned seen flag and keyboard/touch/small-screen coverage ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Built the visual theme-management screen in [#14](https://github.com/MetinGames/Long-Narde/issues/14), preserving the approved Anadolu and walnut families while adding persistent selection, reusable contrast-aware tokens, responsive access, and visual regression coverage.

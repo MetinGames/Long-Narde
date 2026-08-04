@@ -196,6 +196,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Consequences:** Timer selection stays local and does not change dice, legal moves, bot strength, results, or future competitive-online timing policy. The timer card explicitly says Off when disabled instead of displaying a misleading zero.
 **Review trigger:** Ranked play, online authority, per-player clocks, increment/delay rules, accessibility research, or match-series formats require a separate timing policy.
 
+### D-028 — Automatic turn confirmation preserves an Undo window
+
+**Date:** 2026-08-04
+**Status:** Accepted
+**Decision:** Local bot matches may use an optional device-only automatic turn confirmation preference that is off by default. After at least one human move, and only when no required legal dice right remains, the turn waits two seconds before confirmation. Manual Confirm and move-by-move Undo remain available; Undo, lifecycle transitions, timeout resolution, restart, game over, Quick Bear-Off activity, or a failed final legality check cancel the pending confirmation.
+**Reason:** Ending a completed turn is a repetitive tap rather than a strategic choice, but immediate automation would make accidental moves harder to recover and stale callbacks could cross turn boundaries.
+**Consequences:** The confirm control visibly marks the grace period, the condition is revalidated at callback time, and unfinished-match snapshots restore the match's setting. No-legal-move auto-pass keeps its separate rule-safe path. Future server-authoritative online play does not inherit this local preference automatically.
+**Review trigger:** Player testing shows two seconds is too short or slow, timed-turn data shows a fairness problem, Undo discoverability falls, or online/multi-human play requires a different confirmation authority.
+
 ## Open decisions
 
 1. **Monetization:** premium purchase, ads, cosmetic purchases, subscription or hybrid.

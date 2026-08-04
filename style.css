@@ -2418,45 +2418,6 @@ select {
     }
 }
 
-#auto-bearoff-container {
-    display: grid;
-    gap: 4px;
-    min-height: 44px;
-    padding: 8px 10px;
-    border-radius: 10px;
-    border: 1px solid rgba(236, 189, 97, 0.3);
-    background: rgba(34, 18, 11, 0.66);
-}
-
-#auto-bearoff-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #f5ddb0;
-    font-weight: 700;
-    font-size: 0.86rem;
-}
-
-#auto-bearoff-toggle {
-    width: 16px;
-    height: 16px;
-    accent-color: #d9ae52;
-}
-
-#auto-bearoff-hint {
-    color: rgba(244, 220, 164, 0.88);
-    font-size: 0.72rem;
-    line-height: 1.3;
-}
-
-#auto-bearoff-container.is-disabled {
-    opacity: 0.56;
-}
-
-#auto-bearoff-container.is-disabled #auto-bearoff-toggle {
-    cursor: not-allowed;
-}
-
 @media (width: 430px) and (height: 932px) and (orientation: portrait) {
     #rotate-notice {
         display: flex;
@@ -3096,16 +3057,6 @@ body.is-game-fullscreen #rotate-notice {
         min-height: 52px;
     }
 
-    #auto-bearoff-container {
-        min-height: 64px;
-        align-content: start;
-        gap: 4px;
-    }
-
-    #auto-bearoff-hint {
-        min-height: 2.6em;
-        line-height: 1.3;
-    }
 }
 
 /* Short desktop screens: compact panel rhythm without clipping content. */
@@ -3131,9 +3082,6 @@ body.is-game-fullscreen #rotate-notice {
         padding: 7px 9px;
     }
 
-    #auto-bearoff-container {
-        min-height: 60px;
-    }
 }
 
 /* Local Friend Match flow preview: same-device state simulation only. */
