@@ -48,6 +48,72 @@ async function openReadyStartScreen(page, { tutorialSeen = true } = {}) {
     });
 }
 
+async function readGameLayoutGeometry(page) {
+    return page.evaluate(() => {
+        const toRect = element => {
+            const rect = element.getBoundingClientRect();
+            return {
+                id: element.id,
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                height: rect.height,
+                right: rect.right,
+                bottom: rect.bottom
+            };
+        };
+        const panel = document.getElementById('panel-controls');
+        const cards = Array.from(panel.children)
+            .filter(element => getComputedStyle(element).display !== 'none')
+            .map(toRect);
+        const overlaps = [];
+
+        for (let firstIndex = 0; firstIndex < cards.length; firstIndex += 1) {
+            for (let secondIndex = firstIndex + 1; secondIndex < cards.length; secondIndex += 1) {
+                const first = cards[firstIndex];
+                const second = cards[secondIndex];
+                const overlapWidth = Math.max(
+                    0,
+                    Math.min(first.right, second.right) - Math.max(first.x, second.x)
+                );
+                const overlapHeight = Math.max(
+                    0,
+                    Math.min(first.bottom, second.bottom) - Math.max(first.y, second.y)
+                );
+
+                if (overlapWidth * overlapHeight > 1) {
+                    overlaps.push(`${first.id}:${second.id}`);
+                }
+            }
+        }
+
+        return {
+            viewport: {
+                width: window.innerWidth,
+                height: window.innerHeight
+            },
+            documentWidth: document.documentElement.scrollWidth,
+            game: toRect(document.getElementById('game-container')),
+            board: toRect(document.getElementById('board-wrapper')),
+            info: toRect(document.getElementById('info-panel')),
+            turn: toRect(document.getElementById('turn-indicator')),
+            panel: toRect(panel),
+            autoBearOff: toRect(document.getElementById('auto-bearoff-container')),
+            autoBearOffHelp: toRect(document.querySelector('#auto-bearoff-help summary')),
+            displayControls: toRect(document.getElementById('fullscreen-container')),
+            cards,
+            overlaps
+        };
+    });
+}
+
+function expectContained(inner, outer, tolerance = 1) {
+    expect(inner.x).toBeGreaterThanOrEqual(outer.x - tolerance);
+    expect(inner.y).toBeGreaterThanOrEqual(outer.y - tolerance);
+    expect(inner.right).toBeLessThanOrEqual(outer.right + tolerance);
+    expect(inner.bottom).toBeLessThanOrEqual(outer.bottom + tolerance);
+}
+
 test('first-match guide can be dismissed and reopened on keyboard and touch layouts', async ({
     page
 }, testInfo) => {
@@ -480,5 +546,56 @@ test('portrait orientation notice responds to viewport rotation', async ({
 
     await page.setViewportSize(portraitViewport);
     await expect(page.locator('#rotate-notice')).toBeVisible();
+    expect(runtimeErrors).toEqual([]);
+});
+
+test('compact iPhone Safari layouts keep game controls separated', async ({
+    page
+}, testInfo) => {
+    test.skip(
+        testInfo.project.name !== 'iphone-16e-portrait',
+        'Compact physical-iPhone geometry is covered by the touch WebKit project.'
+    );
+
+    const runtimeErrors = captureRuntimeErrors(page);
+    await page.setViewportSize({ width: 355, height: 710 });
+    await openReadyStartScreen(page);
+    await page.locator('#start-button').click();
+    await expect(page.locator('#start-screen')).toBeHidden();
+
+    const portrait = await readGameLayoutGeometry(page);
+    expect(portrait.documentWidth).toBeLessThanOrEqual(
+        portrait.viewport.width + 1
+    );
+    expect(portrait.overlaps).toEqual([]);
+    expect(portrait.turn.bottom).toBeLessThanOrEqual(portrait.panel.y + 1);
+    expectContained(portrait.autoBearOffHelp, portrait.autoBearOff);
+    expect(portrait.autoBearOff.bottom).toBeLessThanOrEqual(
+        portrait.displayControls.y + 1
+    );
+    for (const card of portrait.cards) {
+        expectContained(card, portrait.panel);
+    }
+
+    await page.setViewportSize({ width: 710, height: 355 });
+    await expect(page.locator('#rotate-notice')).toBeHidden();
+
+    const landscape = await readGameLayoutGeometry(page);
+    expect(landscape.documentWidth).toBeLessThanOrEqual(
+        landscape.viewport.width + 1
+    );
+    expect(landscape.game.width).toBeGreaterThanOrEqual(
+        landscape.viewport.width * 0.94
+    );
+    expect(landscape.game.height).toBeLessThanOrEqual(
+        landscape.viewport.height + 1
+    );
+    expect(landscape.board.right).toBeLessThanOrEqual(landscape.info.x + 1);
+    expect(landscape.overlaps).toEqual([]);
+    expect(landscape.turn.bottom).toBeLessThanOrEqual(landscape.panel.y + 1);
+    expectContained(landscape.autoBearOffHelp, landscape.autoBearOff);
+    for (const card of landscape.cards) {
+        expectContained(card, landscape.panel);
+    }
     expect(runtimeErrors).toEqual([]);
 });
