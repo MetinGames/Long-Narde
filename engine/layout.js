@@ -71,15 +71,12 @@ export function getPointRenderRect(
     columnIndex,
     layout = BOARD_LAYOUT
 ) {
-    const slotWidth = getSlotWidthForColumn(
+    const checkerRect = getCheckerRenderRect(
         columnIndex,
         layout
     );
-    const slotX = getSlotX(
-        columnIndex,
-        slotWidth,
-        layout
-    );
+    const slotWidth = checkerRect.width;
+    const slotX = checkerRect.x;
     const configuredInset = Number(
         layout.centerPointInset
     );
@@ -103,6 +100,21 @@ export function getPointRenderRect(
 
     return {
         x: slotX,
+        width: slotWidth
+    };
+}
+
+export function getCheckerRenderRect(
+    columnIndex,
+    layout = BOARD_LAYOUT
+) {
+    const slotWidth = getSlotWidthForColumn(
+        columnIndex,
+        layout
+    );
+
+    return {
+        x: getSlotX(columnIndex, slotWidth, layout),
         width: slotWidth
     };
 }

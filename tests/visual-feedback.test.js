@@ -412,6 +412,121 @@ test('toplama animasyonu son hazne dilimini gecici olarak gizler', () => {
     assert.equal(renderer.getAnimatedCollectedCount(2, 5), 5);
 });
 
+test('orta kasnak yanındaki pul animasyonu normal pul çapını ve merkezini korur', () => {
+    const renderer = Object.create(Renderer.prototype);
+    const boardLayout = {
+        width: 800,
+        height: 600,
+        border: 20,
+        bar: 30,
+        tray: 55,
+        slotCountPerRow: 12,
+        slotHeight: 220,
+        leftField: { x: 43, width: 331 },
+        rightField: { x: 423, width: 331 },
+        centerPointInset: 7
+    };
+    const layout = {
+        boardLayout,
+        playfield: { top: 42, bottom: 566 }
+    };
+
+    const normal = renderer.getCheckerAnimationAnchor(8, 1, 1, layout);
+    const leftInner = renderer.getCheckerAnimationAnchor(7, 1, 1, layout);
+    const rightInner = renderer.getCheckerAnimationAnchor(6, 1, 1, layout);
+
+    assert.equal(leftInner.radius, normal.radius);
+    assert.equal(rightInner.radius, normal.radius);
+    assert.ok(
+        Math.abs(
+            leftInner.x -
+            (boardLayout.leftField.x + ((5.5 * boardLayout.leftField.width) / 6))
+        ) < 1e-9
+    );
+    assert.ok(
+        Math.abs(
+            rightInner.x -
+            (boardLayout.rightField.x + (boardLayout.rightField.width / 12))
+        ) < 1e-9
+    );
+});
+
+test('orta kasnak yanındaki dört pul yığını tam hane genişliğiyle çizilir', () => {
+    const pieceCalls = [];
+    const renderer = Object.create(Renderer.prototype);
+    const boardLayout = {
+        width: 800,
+        height: 600,
+        border: 20,
+        bar: 30,
+        tray: 55,
+        slotCountPerRow: 12,
+        slotHeight: 220,
+        leftField: { x: 43, width: 331 },
+        rightField: { x: 423, width: 331 },
+        centerPointInset: 7
+    };
+    Object.assign(renderer, {
+        ctx: {
+            clearRect() {},
+            drawImage() {}
+        },
+        canvas: {},
+        boardWidth: 800,
+        boardHeight: 600,
+        borderSize: 20,
+        trayWidth: 55,
+        slotHeight: 220,
+        theme: { pointHeight: 178 },
+        staticBoardDirty: false,
+        staticBoardCanvas: {},
+        highlightedSlots: [],
+        checkerMoveAnimationState: null,
+        die1Text: null,
+        die2Text: null,
+        calculateHighlights() {},
+        getPlayfieldEdges() {
+            return { top: 42, bottom: 566 };
+        },
+        getBoardLayout() {
+            return boardLayout;
+        },
+        resolveActiveBotMoveHighlight() {
+            return null;
+        },
+        drawMastermindPieces(x, y, width, slotData, isTop) {
+            pieceCalls.push({ x, y, width, slotData, isTop });
+        },
+        drawBearOffTrays() {},
+        updateTurnIndicator() {},
+        updateDoubleMoveRights() {}
+    });
+
+    const slots = Array.from({ length: 26 }, () => ({
+        player: null,
+        count: 0
+    }));
+    for (const slotId of [6, 7, 18, 19]) {
+        slots[slotId] = { player: 1, count: 1 };
+    }
+
+    renderer.render({
+        board: { slots },
+        currentPlayer: 1,
+        dice: { values: [] },
+        availableMoves: []
+    });
+
+    const slotWidth = boardLayout.leftField.width / 6;
+    for (const callIndex of [5, 6, 17, 18]) {
+        assert.equal(pieceCalls[callIndex].width, slotWidth);
+    }
+    assert.equal(pieceCalls[5].x, boardLayout.leftField.x + (5 * slotWidth));
+    assert.equal(pieceCalls[6].x, boardLayout.rightField.x);
+    assert.equal(pieceCalls[17].x, boardLayout.leftField.x + (5 * slotWidth));
+    assert.equal(pieceCalls[18].x, boardLayout.rightField.x);
+});
+
 test('bot hamle vurgusu statik tahta çizildikten sonra ve pullardan önce görünür katmana çizilir', () => {
     const calls = [];
     const renderer = Object.create(Renderer.prototype);

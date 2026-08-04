@@ -4,6 +4,7 @@ import { t } from './i18n.js';
 import {
     BOARD_LAYOUT,
     getBearOffTrayRect,
+    getCheckerRenderRect,
     getPointRenderRect
 } from './layout.js';
 import { getTheme } from './themes.js';
@@ -523,6 +524,10 @@ export class Renderer {
                 columnIndex,
                 boardLayout
             );
+            const checkerRect = getCheckerRenderRect(
+                columnIndex,
+                boardLayout
+            );
 
             if (this.highlightedSlots.includes(slotId)) {
                 this.drawHighlightGlow(
@@ -534,9 +539,9 @@ export class Renderer {
                 );
             }
             this.drawMastermindPieces(
-                pointRect.x,
+                checkerRect.x,
                 playfield.top,
-                pointRect.width,
+                checkerRect.width,
                 this.getAnimatedSlotData(
                     slotId,
                     game.board.slots[slotId]
@@ -552,6 +557,10 @@ export class Renderer {
                 columnIndex,
                 boardLayout
             );
+            const checkerRect = getCheckerRenderRect(
+                columnIndex,
+                boardLayout
+            );
             const y = playfield.bottom;
 
             if (this.highlightedSlots.includes(slotId)) {
@@ -564,9 +573,9 @@ export class Renderer {
                 );
             }
             this.drawMastermindPieces(
-                pointRect.x,
+                checkerRect.x,
                 y,
-                pointRect.width,
+                checkerRect.width,
                 this.getAnimatedSlotData(
                     slotId,
                     game.board.slots[slotId]
@@ -949,8 +958,8 @@ export class Renderer {
         const columnIndex = isTop
             ? 12 - slotId
             : slotId - 13;
-        const pointRect = getPointRenderRect(columnIndex, boardLayout);
-        const radius = (pointRect.width / 2) - 2;
+        const checkerRect = getCheckerRenderRect(columnIndex, boardLayout);
+        const radius = (checkerRect.width / 2) - 2;
         const maxVerticalArea = 200;
         let spacing = radius * 2;
         if (stackCount * spacing > maxVerticalArea) {
@@ -959,7 +968,7 @@ export class Renderer {
 
         const index = stackCount - 1;
         return {
-            x: pointRect.x + (pointRect.width / 2),
+            x: checkerRect.x + (checkerRect.width / 2),
             y: isTop
                 ? playfield.top + radius + 5 + (index * spacing)
                 : playfield.bottom - radius - 5 - (index * spacing),
