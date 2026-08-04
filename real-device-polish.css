@@ -1,5 +1,9 @@
 /* Focused real-device presentation fixes tracked in GitHub Issue #13. */
 
+#rotate-notice {
+    pointer-events: none;
+}
+
 .start-mode-card-bot:hover,
 .start-mode-card-bot:focus-within {
     border-color: rgba(247, 214, 142, 0.68);
@@ -203,6 +207,9 @@
 
     #dice-container {
         grid-area: dice;
+        justify-self: stretch;
+        align-self: stretch;
+        margin-left: 0;
     }
 
     #difficulty-container {
@@ -396,6 +403,9 @@
 
     #dice-container {
         grid-area: dice;
+        justify-self: stretch;
+        align-self: stretch;
+        margin-left: 0;
     }
 
     #difficulty-container,
