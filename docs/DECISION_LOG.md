@@ -1,6 +1,6 @@
 # Nardora Decision Log
 
-Last reviewed: **2026-08-03**
+Last reviewed: **2026-08-04**
 
 This log records durable decisions and their reasoning. New entries are appended. If a decision changes, retain the original and mark it superseded by the new entry.
 
@@ -177,6 +177,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Reason:** Mars is an expected Long Narde result and should be visible without changing legal movement, dice use, or the existing win condition.
 **Consequences:** The engine exposes deterministic `victoryType` and `matchPoints` values, and the result overlay explains human and bot Mars outcomes in English, Turkish, and Russian.
 **Review trigger:** A multi-game match format, tournament scoring, regional ruleset option, or authoritative online score service requires expanded scoring policy.
+
+### D-026 — Checker color is cosmetic player identity
+
+**Date:** 2026-08-04
+**Status:** Accepted
+**Decision:** Before a local bot match, the human may choose White (Ivory) or Black checkers and the bot receives the opposite visual color. The human remains engine player 1 and the bot remains engine player 2; movement direction, opening authority, dice, legal moves, results, and statistics do not change.
+**Reason:** Color preference improves player ownership and comfort, but coupling appearance to engine identity would create unnecessary rule, direction, persistence, and statistics risk.
+**Consequences:** The renderer maps stable engine players to theme checker tokens, the turn indicator and collected-checker trays use the mapped color, the preference stays on-device, and unfinished-match snapshots restore the match's color. Every theme must continue to provide distinct white/black checker tokens.
+**Review trigger:** A two-human match, seat selection, alternate color palette, accessibility mode, or regional ruleset makes color and engine-side assignment a meaningful gameplay choice.
 
 ## Open decisions
 

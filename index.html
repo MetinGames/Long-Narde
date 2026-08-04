@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="theme-manager.css">
     <link rel="stylesheet" href="ongoing-match.css">
+    <link rel="stylesheet" href="checker-color-picker.css">
     <link rel="stylesheet" href="real-device-polish.css">
     <link rel="stylesheet" href="assets/branding/nardora-splash.css">
 </head>
@@ -188,6 +189,31 @@
                     <option value="ru" data-i18n="language.ru">Русский</option>
                 </select>
             </div>
+            <fieldset id="checker-color-picker">
+                <legend data-i18n="checkerColor.title">Pul Renginiz</legend>
+                <div class="checker-color-options">
+                    <label class="checker-color-option">
+                        <input
+                            type="radio"
+                            name="checker-color"
+                            value="white"
+                            checked
+                        >
+                        <span class="checker-color-swatch checker-color-swatch-white" aria-hidden="true"></span>
+                        <span data-i18n="checkerColor.white">Beyaz (Fildişi)</span>
+                    </label>
+                    <label class="checker-color-option">
+                        <input
+                            type="radio"
+                            name="checker-color"
+                            value="black"
+                        >
+                        <span class="checker-color-swatch checker-color-swatch-black" aria-hidden="true"></span>
+                        <span data-i18n="checkerColor.black">Siyah</span>
+                    </label>
+                </div>
+                <p id="checker-color-detail" data-i18n="checkerColor.detail">Bot karşı rengi alır; kurallar ve oyun yönü değişmez.</p>
+            </fieldset>
             <div id="ongoing-match-entry">
                 <button
                     id="continue-match-button"

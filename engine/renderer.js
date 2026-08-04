@@ -13,6 +13,11 @@ import {
     easeCheckerMoveProgress,
     interpolateCheckerPoint
 } from './checkerMoveAnimation.js';
+import {
+    CHECKER_COLOR,
+    getOppositeCheckerColor,
+    normalizeCheckerColor
+} from './checkerColorPreference.js';
 
 const DEFAULT_THEME_ID = 'anatolian';
 
@@ -91,15 +96,29 @@ export class Renderer {
         this.checkerMoveAnimationState = null;
         this.botMoveHighlightState = null;
         this.pointNumbersVisible = false;
+        this.humanCheckerColor = CHECKER_COLOR.WHITE;
 
         this.prepareCanvas();
     }
 
+    setHumanCheckerColor(color) {
+        this.humanCheckerColor = normalizeCheckerColor(color);
+        return this.humanCheckerColor;
+    }
+
+    getHumanCheckerColor() {
+        return normalizeCheckerColor(this.humanCheckerColor);
+    }
+
+    getCheckerColorForPlayer(player) {
+        return player === 1
+            ? this.getHumanCheckerColor()
+            : getOppositeCheckerColor(this.getHumanCheckerColor());
+    }
+
     updateTurnIndicator(currentPlayer) {
-        const playerKey =
-            currentPlayer === 1
-                ? 'player.white'
-                : 'player.black';
+        const checkerColor = this.getCheckerColorForPlayer(currentPlayer);
+        const playerKey = `player.${checkerColor}`;
         const playerName = t(playerKey);
 
         if (this.currentPlayerText) {
@@ -109,7 +128,7 @@ export class Renderer {
 
         if (!this.turnIndicator) return;
 
-        const isWhiteTurn = currentPlayer === 1;
+        const isWhiteTurn = checkerColor === CHECKER_COLOR.WHITE;
         this.turnIndicator.classList.toggle(
             'is-white-turn',
             isWhiteTurn
@@ -878,9 +897,8 @@ export class Renderer {
         this.ctx.beginPath();
         this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
 
-        const checkerTokens = player === 1
-            ? this.theme.checkers.white
-            : this.theme.checkers.black;
+        const checkerColor = this.getCheckerColorForPlayer(player);
+        const checkerTokens = this.theme.checkers[checkerColor];
         const pieceGrad = this.ctx.createRadialGradient(
             centerX - 4,
             centerY - 4,
@@ -1145,13 +1163,15 @@ export class Renderer {
                 y + slice.height
             );
 
-            if (player === 1) {
-                grad.addColorStop(0, this.theme.checkers.white.collectedGradient[0]);
-                grad.addColorStop(1, this.theme.checkers.white.collectedGradient[1]);
+            const checkerColor = this.getCheckerColorForPlayer(player);
+            const checkerTokens = this.theme.checkers[checkerColor];
+            if (checkerColor === CHECKER_COLOR.WHITE) {
+                grad.addColorStop(0, checkerTokens.collectedGradient[0]);
+                grad.addColorStop(1, checkerTokens.collectedGradient[1]);
                 this.ctx.strokeStyle = 'rgba(90, 64, 32, 0.65)';
             } else {
-                grad.addColorStop(0, this.theme.checkers.black.collectedGradient[0]);
-                grad.addColorStop(1, this.theme.checkers.black.collectedGradient[1]);
+                grad.addColorStop(0, checkerTokens.collectedGradient[0]);
+                grad.addColorStop(1, checkerTokens.collectedGradient[1]);
                 this.ctx.strokeStyle = 'rgba(218, 189, 137, 0.25)';
             }
 
@@ -1198,7 +1218,7 @@ export class Renderer {
                 );
             }
 
-            this.ctx.fillStyle = player === 1
+            this.ctx.fillStyle = checkerColor === CHECKER_COLOR.WHITE
                 ? 'rgba(255, 249, 225, 0.52)'
                 : 'rgba(255, 255, 255, 0.16)';
             this.ctx.fillRect(

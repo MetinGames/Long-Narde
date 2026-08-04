@@ -19,6 +19,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
         path.join(root, 'ongoing-match.css'),
         'utf8'
     );
+    const checkerColorCss = fs.readFileSync(
+        path.join(root, 'checker-color-picker.css'),
+        'utf8'
+    );
     assert.ok(css.includes('@media (max-width: 900px) and (orientation: landscape)'), 'Missing landscape mobile media query');
     assert.ok(css.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Missing portrait mobile media query');
     assert.ok(css.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Missing low landscape mobile media query');
@@ -84,6 +88,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(themeCss.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Theme manager low-landscape layout missing');
     assert.ok(themeCss.includes('max-height: calc(100dvh - 20px)'), 'Theme manager dynamic viewport guard missing');
     assert.match(ongoingMatchCss, /#ongoing-match-entry:has\(#continue-match-button\[hidden\]\)\s*\{[^}]*display:\s*none;/, 'Hidden Continue Match entry must not leave visual-baseline spacing');
+    assert.ok(checkerColorCss.includes('#checker-color-picker'), 'Checker color picker style missing');
+    assert.ok(checkerColorCss.includes('.checker-color-option:has(input:focus-visible)'), 'Checker color keyboard focus style missing');
+    assert.ok(checkerColorCss.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Checker color portrait layout missing');
+    assert.ok(checkerColorCss.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Checker color compact landscape layout missing');
 });
 
 test('index.html contains rotate notice element, start screen, and restart button', () => {
@@ -109,6 +117,10 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="player-stats-button"'), 'Player stats button missing');
     assert.ok(html.includes('id="start-language-container"'), 'Start screen language row missing');
     assert.ok(html.includes('id="start-language-select"'), 'Start screen language select missing');
+    assert.ok(html.includes('id="checker-color-picker"'), 'Start checker color picker missing');
+    assert.equal((html.match(/name="checker-color"/g) || []).length, 2, 'Exactly two checker color choices should be available');
+    assert.ok(/name="checker-color"[\s\S]*?value="white"[\s\S]*?checked/i.test(html), 'Ivory checker color should remain the default');
+    assert.ok(/name="checker-color"[\s\S]*?value="black"/i.test(html), 'Black checker color choice missing');
     assert.ok(/id="start-language-select"[^>]*data-i18n-aria-label="ui.language"/i.test(html), 'Start language select i18n aria label missing');
     assert.ok(/id="start-language-label"[^>]*for="start-language-select"/i.test(html), 'Start language visible label missing');
     assert.ok(html.includes('id="feedback-button"'), 'Feedback button missing');
@@ -147,6 +159,7 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(/id="theme-manager-modal"[^>]*aria-modal="true"/i.test(html), 'Theme manager aria-modal missing');
     assert.equal((html.match(/data-theme-option=/g) || []).length, 2, 'Exactly two supported theme previews should be rendered');
     assert.ok(html.includes('theme-manager.css'), 'Theme manager stylesheet link missing');
+    assert.ok(html.includes('checker-color-picker.css'), 'Checker color picker stylesheet link missing');
     assert.ok(html.includes('real-device-polish.css'), 'Real-device polish stylesheet link missing');
     assert.equal((html.match(/value="champion"/g) || []).length, 2, 'Champion difficulty should exist in both synchronized selectors');
     assert.ok(/<option value="champion" data-i18n="difficulty\.champion">Şampiyon<\/option>/i.test(html), 'Champion difficulty option missing expected value/i18n pairing');

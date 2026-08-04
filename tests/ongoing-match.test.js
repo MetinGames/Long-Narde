@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { NardeGame } from '../engine/game.js';
 import {
     ONGOING_MATCH_MAX_AGE_MS,
+    ONGOING_MATCH_SCHEMA_VERSION,
     ONGOING_MATCH_STORAGE_KEY,
     OngoingMatchStore
 } from '../engine/ongoingMatch.js';
@@ -49,7 +50,8 @@ test('yarim mac surumlu olarak kaydedilir ve ayni kurallı duruma doner', () => 
         gameState: sourceGame.exportState(),
         totalMoves: 1,
         difficulty: 'champion',
-        autoBearOffEnabled: true
+        autoBearOffEnabled: true,
+        humanCheckerColor: 'black'
     });
     assert.ok(saved);
     assert.ok(storage.getItem(ONGOING_MATCH_STORAGE_KEY));
@@ -68,18 +70,20 @@ test('yarim mac surumlu olarak kaydedilir ve ayni kurallı duruma doner', () => 
     assert.equal(loaded.totalMoves, 1);
     assert.equal(loaded.difficulty, 'champion');
     assert.equal(loaded.autoBearOffEnabled, true);
+    assert.equal(loaded.humanCheckerColor, 'black');
 });
 
 test('bozuk pul korunumlu kayit reddedilir ve depodan temizlenir', () => {
     const storage = new FakeStorage();
     const game = createMidTurnGame();
     const raw = {
-        schemaVersion: 1,
+        schemaVersion: ONGOING_MATCH_SCHEMA_VERSION,
         savedAt: 500,
         gameState: game.exportState(),
         totalMoves: 1,
         difficulty: 'medium',
-        autoBearOffEnabled: false
+        autoBearOffEnabled: false,
+        humanCheckerColor: 'white'
     };
     raw.gameState.board.slots[4].count = 14;
     storage.setItem(ONGOING_MATCH_STORAGE_KEY, JSON.stringify(raw));
@@ -110,12 +114,13 @@ test('bitmis gibi gorunen aktif kayit ve hamle metadatasi eksik kayit reddedilir
     const storage = new FakeStorage();
     const game = createMidTurnGame();
     const base = {
-        schemaVersion: 1,
+        schemaVersion: ONGOING_MATCH_SCHEMA_VERSION,
         savedAt: 700,
         gameState: game.exportState(),
         totalMoves: 1,
         difficulty: 'medium',
-        autoBearOffEnabled: false
+        autoBearOffEnabled: false,
+        humanCheckerColor: 'not-a-color'
     };
 
     const completed = structuredClone(base);
@@ -130,6 +135,17 @@ test('bitmis gibi gorunen aktif kayit ve hamle metadatasi eksik kayit reddedilir
     missingMove.gameState.moveHistory[0].move = null;
     storage.setItem(ONGOING_MATCH_STORAGE_KEY, JSON.stringify(missingMove));
     assert.equal(store.load(), null);
+
+    storage.setItem(ONGOING_MATCH_STORAGE_KEY, JSON.stringify(base));
+    assert.equal(store.load().humanCheckerColor, 'white');
+
+    const legacyWithoutColor = structuredClone(base);
+    delete legacyWithoutColor.humanCheckerColor;
+    storage.setItem(
+        ONGOING_MATCH_STORAGE_KEY,
+        JSON.stringify(legacyWithoutColor)
+    );
+    assert.equal(store.load().humanCheckerColor, 'white');
 });
 
 test('localStorage hatalari oyun akisina yansitilmaz', () => {

@@ -193,6 +193,8 @@ test('start flow, language synchronization, and canvas readiness', async ({
     const sideLanguage = page.locator('#language-select');
     const startDifficulty = page.locator('#start-bot-difficulty');
     const sideDifficulty = page.locator('#bot-difficulty');
+    const whiteCheckerColor = page.locator('input[name="checker-color"][value="white"]');
+    const blackCheckerColor = page.locator('input[name="checker-color"][value="black"]');
     const friendMatch = page.locator('#friend-match-button');
     const onlineMatch = page.locator('#online-match-button');
 
@@ -218,6 +220,8 @@ test('start flow, language synchronization, and canvas readiness', async ({
     await expect(friendMatch).toHaveAttribute('aria-disabled', 'true');
     await expect(onlineMatch).toBeDisabled();
     await expect(onlineMatch).toHaveAttribute('aria-disabled', 'true');
+    await expect(whiteCheckerColor).toBeChecked();
+    await expect(blackCheckerColor).not.toBeChecked();
 
     await startLanguage.selectOption('ru');
     await expect(startTitle).toHaveText('Добро пожаловать в Nardora');
@@ -226,10 +230,20 @@ test('start flow, language synchronization, and canvas readiness', async ({
     await startLanguage.selectOption('en');
     await startDifficulty.selectOption('champion');
     await expect(sideDifficulty).toHaveValue('champion');
+    await blackCheckerColor.check();
+    await expect(blackCheckerColor).toBeChecked();
+    expect(await page.evaluate(() =>
+        localStorage.getItem('nardora.checkerColor.v1')
+    )).toBe('black');
     await page.locator('#bot-match-button').click();
 
     await expect(page.locator('#start-screen')).toBeHidden();
     await expect(page.locator('#game-canvas')).toBeVisible();
+    await expect(page.locator('#turn-indicator')).toHaveAttribute(
+        'data-active-player',
+        'black'
+    );
+    await expect(page.locator('#current-player')).toHaveText('Black');
     await expect(page.locator('#fullscreen-toggle')).toHaveAttribute(
         'aria-pressed',
         'false'
@@ -289,6 +303,7 @@ test('unfinished local match is offered and resumes after refresh', async ({
 
     const continueButton = page.locator('#continue-match-button');
     await expect(continueButton).toBeHidden();
+    await page.locator('input[name="checker-color"][value="black"]').check();
     await page.locator('#start-button').click();
     await expect(page.locator('#start-screen')).toBeHidden();
 
@@ -303,6 +318,9 @@ test('unfinished local match is offered and resumes after refresh', async ({
     await expect(page.locator('#start-screen')).toBeVisible();
     await expect(continueButton).toBeVisible();
     await expect(continueButton).toContainText('Continue Match');
+    await expect(
+        page.locator('input[name="checker-color"][value="black"]')
+    ).toBeChecked();
 
     await continueButton.click();
     await expect(page.locator('#start-screen')).toBeHidden();

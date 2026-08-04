@@ -1,0 +1,135 @@
+#checker-color-picker {
+    width: min(100%, 440px);
+    margin: 0 auto 14px;
+    padding: 9px 11px 10px;
+    border: 1px solid rgba(229, 182, 96, 0.32);
+    border-radius: 14px;
+    background: rgba(32, 18, 11, 0.52);
+    color: #f4ddb0;
+}
+
+#checker-color-picker legend {
+    padding: 0 7px;
+    color: #d9bd7b;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.checker-color-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.checker-color-option {
+    position: relative;
+    min-width: 0;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border: 1px solid rgba(229, 190, 111, 0.38);
+    border-radius: 11px;
+    background: rgba(55, 31, 18, 0.78);
+    color: #f7e8c7;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.checker-color-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.checker-color-option:has(input:checked) {
+    border-color: rgba(255, 222, 142, 0.88);
+    background: rgba(105, 65, 31, 0.82);
+    box-shadow: 0 0 0 2px rgba(245, 206, 129, 0.2);
+}
+
+.checker-color-option:has(input:focus-visible) {
+    outline: 2px solid rgba(245, 206, 129, 0.85);
+    outline-offset: 2px;
+}
+
+.checker-color-swatch {
+    width: 27px;
+    height: 27px;
+    flex: 0 0 27px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.42), inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.checker-color-swatch-white {
+    border: 1px solid #9c8a62;
+    background: radial-gradient(circle at 35% 32%, #fffdf0 0%, #e8dcb8 70%, #aa9566 100%);
+}
+
+.checker-color-swatch-black {
+    border: 1px solid #625a54;
+    background: radial-gradient(circle at 35% 32%, #69615a 0%, #292522 68%, #090807 100%);
+}
+
+#checker-color-detail {
+    margin: 7px 2px 0;
+    color: rgba(238, 223, 191, 0.76);
+    font-size: 0.69rem;
+    line-height: 1.3;
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+    #checker-color-picker {
+        width: 100%;
+        margin-bottom: 11px;
+        padding: 7px 8px 8px;
+    }
+
+    .checker-color-option {
+        min-height: 44px;
+        padding: 6px 8px;
+        font-size: 0.76rem;
+    }
+
+    #checker-color-detail {
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+    #checker-color-picker {
+        width: min(100%, 400px);
+        margin-bottom: 7px;
+        padding: 5px 8px 6px;
+    }
+
+    #checker-color-picker legend {
+        font-size: 0.64rem;
+    }
+
+    .checker-color-option {
+        min-height: 34px;
+        padding: 4px 7px;
+        font-size: 0.7rem;
+    }
+
+    .checker-color-swatch {
+        width: 22px;
+        height: 22px;
+        flex-basis: 22px;
+    }
+
+    #checker-color-detail {
+        margin-top: 4px;
+        font-size: 0.6rem;
+    }
+}
