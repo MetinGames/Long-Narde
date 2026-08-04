@@ -181,7 +181,30 @@ test('start flow, language synchronization, and canvas readiness', async ({
     )).toBe('visible');
 
     await page.locator('#auto-bearoff-help summary').click();
-    await expect(page.locator('#auto-bearoff-hint')).toBeVisible();
+    const autoBearOffContainer = page.locator('#auto-bearoff-container');
+    const autoBearOffHint = page.locator('#auto-bearoff-hint');
+    await expect(autoBearOffHint).toBeVisible();
+
+    const fullscreenToggle = page.locator('#fullscreen-toggle');
+    const [containerBox, hintBox, fullscreenBox] = await Promise.all([
+        autoBearOffContainer.boundingBox(),
+        autoBearOffHint.boundingBox(),
+        fullscreenToggle.boundingBox()
+    ]);
+    expect(containerBox).not.toBeNull();
+    expect(hintBox).not.toBeNull();
+    expect(fullscreenBox).not.toBeNull();
+    expect(hintBox.x).toBeGreaterThanOrEqual(containerBox.x - 1);
+    expect(hintBox.x + hintBox.width).toBeLessThanOrEqual(
+        containerBox.x + containerBox.width + 1
+    );
+    expect(hintBox.y).toBeGreaterThanOrEqual(containerBox.y - 1);
+    expect(hintBox.y + hintBox.height).toBeLessThanOrEqual(
+        containerBox.y + containerBox.height + 1
+    );
+    expect(hintBox.y + hintBox.height).toBeLessThanOrEqual(
+        fullscreenBox.y + 1
+    );
     await expect(page.locator('#die1')).not.toHaveText('-');
     await expect(page.locator('#die2')).not.toHaveText('-');
     expect(runtimeErrors).toEqual([]);

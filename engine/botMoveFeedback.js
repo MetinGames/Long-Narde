@@ -1,6 +1,6 @@
 // engine/botMoveFeedback.js
 
-export const BOT_MOVE_STEP_DELAY_MS = 900;
+export const BOT_MOVE_STEP_DELAY_MS = 700;
 
 const DEFAULT_HIGHLIGHT_DURATION_MS = 1700;
 const REDUCED_MOTION_HIGHLIGHT_DURATION_MS = 1500;

@@ -134,7 +134,6 @@ Verified engine modules currently present:
 - `engine/dice.js`
 - `engine/friendMatchPreviewController.js`
 - `engine/game.js`
-- `engine/gameFeedbackToast.js`
 - `engine/howToPlayGuide.js`
 - `engine/i18n.js`
 - `engine/input.js`
@@ -158,7 +157,6 @@ Verified test files currently present:
 
 - `tests/app-resume-controller.test.js`
 - `tests/core-rules.test.js`
-- `tests/game-feedback-toast.test.js`
 - `tests/gameplay-feedback.test.js`
 - `tests/friend-match-preview-controller.test.js`
 - `tests/how-to-play-guide.test.js`

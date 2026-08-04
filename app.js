@@ -43,7 +43,6 @@ import {
 } from './engine/botMoveFeedback.js';
 import { BotTurnTouchFeedback } from './engine/botTurnTouchFeedback.js';
 import { RestartButtonLock } from './engine/restartButtonLock.js';
-import { GameFeedbackToast } from './engine/gameFeedbackToast.js';
 import { createAppRuntimeState } from './engine/appRuntimeState.js';
 import { createRuntimeDiagnostics } from './engine/runtimeDiagnostics.js';
 import { createBotCallbackController } from './engine/botCallbackController.js';
@@ -96,7 +95,6 @@ let firstMatchTutorialController = null;
 let playerStatsModal = null;
 let feedbackModal = null;
 let restartButtonLock = null;
-let gameFeedbackToast = null;
 let languageSelectors = null;
 let fullscreenController = null;
 let mobileThemeLabelController = null;
@@ -121,7 +119,20 @@ const matchStatsRecorder = new MatchStatsRecorder({
 const botCallbackController = createBotCallbackController({
     scheduleCallback: (callback, delay) => schedule(callback, delay, {
         kind: 'bot-callback'
-    })
+    }),
+    onError: error => {
+        runtimeDiagnostics.recordStateChange('bot-callback-error', {
+            message: error instanceof Error ? error.message : String(error)
+        });
+        endBotMoveFeedback(renderer);
+
+        if (
+            game.gameStatus === 'PLAYING' &&
+            game.currentPlayer === 2
+        ) {
+            finishCurrentTurn();
+        }
+    }
 });
 
 const autoBearOffFlow = createAutoBearOffFlow({
@@ -254,7 +265,6 @@ function clearRuntimeTasks() {
     runtimeState.clearScheduledTimeouts(clearTimeout);
 
     restartButtonLock?.clearPendingUnlock();
-    gameFeedbackToast?.hide();
 }
 
 function setStatus(message) {
@@ -561,7 +571,6 @@ function beginCurrentTurn(options = {}) {
 
     if (game.currentPlayer === 1) {
         botTurnTouchFeedback.reset();
-        gameFeedbackToast?.hide();
         ui.setHumanTurnLayout();
         setStatus(
             t(statusOverrideKey || 'status.yourTurn'),
@@ -569,7 +578,6 @@ function beginCurrentTurn(options = {}) {
         );
     } else {
         botTurnTouchFeedback.reset();
-        gameFeedbackToast?.hide();
         ui.setBotTurnLayout();
         setStatus(
             t(statusOverrideKey || 'status.botTurn'),
@@ -680,18 +688,6 @@ async function runBotMove() {
         reducedMotion: prefersReducedMotion()
     });
 
-    const moveTarget = move.target === 25
-        ? t('collect')
-        : move.target;
-    const botMoveMessage = t('status.botMoved', {
-        from: move.from,
-        target: moveTarget
-    });
-    setStatus(botMoveMessage, { force: true });
-    gameFeedbackToast?.show(botMoveMessage, {
-        durationMs: 1600
-    });
-
     const moveId = runtimeState.incrementTotalMoveCounter();
     sound.playPiecePlaceForMove({
         moveId,
@@ -727,7 +723,6 @@ function showGameOver(winner, messageKey = null) {
     });
     playerStatsModal?.render();
     botTurnTouchFeedback.reset();
-    gameFeedbackToast?.hide();
     endBotMoveFeedback(renderer);
     updateScreen();
     ui.setBotTurnLayout();
@@ -857,7 +852,6 @@ function restartGame() {
     renderer.clearVictoryMoment();
     resetBotMoveFeedback(renderer);
     botTurnTouchFeedback.reset();
-    gameFeedbackToast?.hide();
     restartButtonLock?.unlock();
     timeoutController.resetAll();
     resetAutoBearOffForNewGame();
@@ -1015,8 +1009,6 @@ function bindEvents() {
         document.getElementById('feedback-close-button');
     const canvas =
         document.getElementById('game-canvas');
-    const boardWrapper =
-        document.getElementById('board-wrapper');
     autoBearOffContainer =
         document.getElementById('auto-bearoff-container');
     autoBearOffToggle =
@@ -1332,12 +1324,6 @@ function bindEvents() {
         button: restartButton,
         delayMs: 700
     });
-    gameFeedbackToast = new GameFeedbackToast({
-        container: boardWrapper,
-        durationMs: 1400
-    });
-    gameFeedbackToast.ensureElement();
-
     fullscreenController = createFullscreenController({
         rootElement: document.getElementById('game-container'),
         toggleButton: document.getElementById('fullscreen-toggle'),
@@ -1408,9 +1394,7 @@ function bindEvents() {
                     currentPlayer: game.currentPlayer
                 })
             ) {
-                gameFeedbackToast?.show(t('status.waitForBotTurn'), {
-                    durationMs: 1400
-                });
+                setStatus(t('status.waitForBotTurn'), { force: true });
             }
         },
         layout: () => renderer.getBoardLayout(),
