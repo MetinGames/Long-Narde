@@ -2,6 +2,10 @@
     margin: 0 0 12px;
 }
 
+#ongoing-match-entry:has(#continue-match-button[hidden]) {
+    display: none;
+}
+
 #continue-match-button[hidden] {
     display: none !important;
 }
