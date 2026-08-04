@@ -34,6 +34,16 @@ const BLACK_WRAP_PROGRESS_FIXTURE = Object.freeze({
     turnsCompleted: Object.freeze({ 1: 8, 2: 7 })
 });
 
+const OPPONENT_BLOCK_THREAT_FIXTURE = Object.freeze({
+    stateHash: '3e9b409d',
+    stateKey: '1|0|2,3|0|0|' +
+        '3:1:1;4:2:1;5:1:1;6:1:1;7:1:1;8:1:1;9:2:3;' +
+        '10:2:1;11:1:1;12:2:4;15:1:1;16:1:4;17:1:3;' +
+        '19:2:1;20:2:1;21:2:1;22:2:2;23:2:1;24:1:1;',
+    roll: Object.freeze([2, 3]),
+    turnsCompleted: Object.freeze({ 1: 23, 2: 23 })
+});
+
 function createFixture(fixture) {
     return createChampionProfileGame(fixture);
 }
@@ -167,6 +177,40 @@ test('one-move reply lookahead chooses the plan with fewer opponent replies', ()
         immediateMobility.legalMoveCount
     );
     assert.equal(game.getSearchStateKey(), REPLY_LOOKAHEAD_FIXTURE.stateKey);
+});
+
+test('Champion advances a rear checker before an opponent prime traps it', () => {
+    const withoutThreatGame = createFixture(OPPONENT_BLOCK_THREAT_FIXTURE);
+    const withoutThreat = new NardeBot(
+        1,
+        'champion',
+        () => 0.5,
+        { useOpponentThreatAwareness: false }
+    );
+    const exposedPlan = withoutThreat.buildChampionPlan(withoutThreatGame);
+    applyPlan(withoutThreatGame, exposedPlan);
+    const exposedThreat = withoutThreat.getBlockingStructure(
+        withoutThreatGame,
+        2
+    );
+
+    const game = createFixture(OPPONENT_BLOCK_THREAT_FIXTURE);
+    const champion = new NardeBot(1, 'champion', () => 0.5);
+    const plan = champion.buildChampionPlan(game);
+
+    assert.deepEqual(exposedPlan.moves, [
+        { from: 15, dice: 3, target: 18 },
+        { from: 16, dice: 2, target: 18 }
+    ]);
+    assert.deepEqual(plan.moves, [
+        { from: 3, dice: 2, target: 5 },
+        { from: 5, dice: 3, target: 8 }
+    ]);
+    assert.equal(plan.pipReduction, exposedPlan.pipReduction);
+    assert.ok(
+        plan.opponentBlockingStructure.pressure < exposedThreat.pressure
+    );
+    assert.equal(game.getSearchStateKey(), OPPONENT_BLOCK_THREAT_FIXTURE.stateKey);
 });
 
 test('opponent reply analysis restores the live game state exactly', () => {

@@ -1,6 +1,7 @@
 // engine/bot.js
 
 const CHAMPION_REPLY_FINALIST_LIMIT = 12;
+const CHAMPION_OPPONENT_THREAT_SCALE = 0.15;
 const STANDARD_DIE_FACES = 6;
 
 export class NardeBot {
@@ -18,6 +19,8 @@ export class NardeBot {
             options.useOpponentAwareStrategy !== false;
         this.useOpponentReplyLookahead =
             options.useOpponentReplyLookahead !== false;
+        this.useOpponentThreatAwareness =
+            options.useOpponentThreatAwareness !== false;
         this.lastRuleAnalysisCacheMetrics = null;
         this.plannedTurnMoves = [];
         this.plannedTurnStateKey = '';
@@ -311,6 +314,7 @@ export class NardeBot {
         const homeCount = this.getHomeCheckerCount(game, player);
         const stackPenalty = this.getStackPenalty(game, player);
         const blockingStructure = this.getBlockingStructure(game, player);
+        let opponentBlockingStructure = null;
 
         const winNow = game.board.hasPlayerWon(player) ? 1 : 0;
 
@@ -322,10 +326,16 @@ export class NardeBot {
         score += (startHeadCount - headCount) * 300;
         score += (rearProgress - startRearProgress) * 180;
         if (this.useOpponentAwareStrategy) {
-            score += blockingStructure.pressure * 80;
-            score += blockingStructure.prime3 * 600;
-            score += blockingStructure.prime4 * 1_200;
-            score += blockingStructure.prime5 * 2_200;
+            score += this.getBlockingStructureScore(blockingStructure);
+            if (this.useOpponentThreatAwareness) {
+                opponentBlockingStructure = this.getBlockingStructure(
+                    game,
+                    opponent
+                );
+                score -= this.getBlockingStructureScore(
+                    opponentBlockingStructure
+                ) * CHAMPION_OPPONENT_THREAT_SCALE;
+            }
             score -= stackPenalty * 300;
         } else {
             score += prime3 * 220;
@@ -353,6 +363,7 @@ export class NardeBot {
             score,
             stackPenalty,
             blockingStructure,
+            opponentBlockingStructure,
             opponentReplyMobility: null,
             tieBreakKey,
             isBearOffStage
@@ -579,6 +590,13 @@ export class NardeBot {
             prime4,
             prime5
         };
+    }
+
+    getBlockingStructureScore(structure) {
+        return structure.pressure * 80 +
+            structure.prime3 * 600 +
+            structure.prime4 * 1_200 +
+            structure.prime5 * 2_200;
     }
 
     getRearCheckerProgress(game, player) {
