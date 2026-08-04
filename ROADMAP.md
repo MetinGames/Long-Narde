@@ -21,6 +21,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Core rules and regressions: maximum dice use, higher-die rule, special opening doubles, six-point prime restriction, black wraparound, bearing off, undo, and win detection.
 - Multi-die one-click movement when a legal combined route exists.
 - Start screen that pauses gameplay until the player starts a match.
+- Persistent White (Ivory)/Black checker choice before local play; the bot uses the opposite visual color without changing rule authority or movement direction.
 - Turkish, English, and Russian interface flow with synchronized selectors.
 - Turn confirmation, move-by-move undo, double-dice rights indicators, active-turn feedback, collected-checker tray, and victory feedback.
 - Per-turn timeout reset and two-stage timeout flow.
@@ -70,7 +71,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 15. **Completed — [#46](https://github.com/MetinGames/Long-Narde/issues/46):** delivered human, bot, Quick Bear-Off, bearing-off, and reverse Undo Canvas transitions without changing board authority or legal choices.
 16. **Completed — [#47](https://github.com/MetinGames/Long-Narde/issues/47):** preserved move-by-move Undo while aligning multi-die move counts, reverse-transition metadata, action buttons, and the persisted post-Undo state.
 17. **Completed — [#49](https://github.com/MetinGames/Long-Narde/issues/49):** kept the inset 6–7/18–19 triangle shapes clear of the centre hinge while restoring full-size checkers, original slot centres, and matching animation anchors.
-18. **In progress — [#51](https://github.com/MetinGames/Long-Narde/issues/51):** let the player choose White (Ivory) or Black checkers before a local match while the bot takes the opposite visual color and all rule authority remains unchanged.
+18. **Completed — [#51](https://github.com/MetinGames/Long-Narde/issues/51):** delivered a persistent White (Ivory)/Black start-screen choice, opposite bot color, renderer-wide checker mapping, and unfinished-match continuity without changing rule authority or movement direction.
 
 Completed in this synchronization cycle:
 
@@ -86,6 +87,7 @@ Completed in this synchronization cycle:
 - [#9](https://github.com/MetinGames/Long-Narde/issues/9) contextual rule explanations and the first-match guide delivered with engine reason codes, TR/EN/RU copy, local-only seen state, reopen behavior, and cross-browser keyboard/touch coverage.
 - [#14](https://github.com/MetinGames/Long-Narde/issues/14) visual theme gallery delivered with reusable renderer/UI tokens, persistent synchronized selection, enhanced-contrast text/focus gates, responsive keyboard/touch behavior, PWA coverage, and a dedicated visual baseline.
 - [#44](https://github.com/MetinGames/Long-Narde/issues/44), [#45](https://github.com/MetinGames/Long-Narde/issues/45), [#46](https://github.com/MetinGames/Long-Narde/issues/46), [#47](https://github.com/MetinGames/Long-Narde/issues/47), and [#49](https://github.com/MetinGames/Long-Narde/issues/49) reached `main` through [#48](https://github.com/MetinGames/Long-Narde/pull/48) and [#50](https://github.com/MetinGames/Long-Narde/pull/50), covering match resume, Mars, checker motion, Undo consistency, and stable hinge-adjacent checker geometry.
+- [#51](https://github.com/MetinGames/Long-Narde/issues/51) adds the persistent pre-match checker-color choice, opposite bot appearance, resume continuity, and cross-browser visual coverage through [#52](https://github.com/MetinGames/Long-Narde/pull/52).
 
 ## Phase 0 — Product exit gate met; maintenance continues
 
@@ -134,7 +136,7 @@ Target: **2026-09-30**
 - **In progress:** Benchmark and refine the shipped Champion bot against representative positions and Metin's real matches; move heavy calculation to a Web Worker only if measurements justify it ([#11](https://github.com/MetinGames/Long-Narde/issues/11)).
 - **Done:** delivered the local game-feel and continuity slice: responsive checker transitions [#46](https://github.com/MetinGames/Long-Narde/issues/46), consistent move-by-move Undo [#47](https://github.com/MetinGames/Long-Narde/issues/47), Mars results [#45](https://github.com/MetinGames/Long-Narde/issues/45), and safe unfinished-match resume [#44](https://github.com/MetinGames/Long-Narde/issues/44).
 - **Done:** kept the four centre-hinge points visually inset without shrinking or shifting their checker stacks ([#49](https://github.com/MetinGames/Long-Narde/issues/49)).
-- **In progress:** add an accessible, persistent start-screen White (Ivory)/Black checker choice with opposite bot color and unfinished-match continuity ([#51](https://github.com/MetinGames/Long-Narde/issues/51)).
+- **Done:** added an accessible, persistent start-screen White (Ivory)/Black checker choice with opposite bot color and unfinished-match continuity ([#51](https://github.com/MetinGames/Long-Narde/issues/51)).
 - **Done:** Built a contextual **Rule Explanation System** that explains common blocked, mandatory, bearing-off, prime and automatic-pass states from engine-owned reasons ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Added a dismissible and reopenable **Interactive First-Match Tutorial** using the existing localized guide, with a local-only versioned seen flag and keyboard/touch/small-screen coverage ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Built the visual theme-management screen in [#14](https://github.com/MetinGames/Long-Narde/issues/14), preserving the approved Anadolu and walnut families while adding persistent selection, reusable contrast-aware tokens, responsive access, and visual regression coverage.
