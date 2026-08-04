@@ -402,19 +402,44 @@ test('social mode entry is honest and localized in all supported languages', asy
     const i18n = await import(modulePath.href);
 
     i18n.setLanguage('tr');
+    assert.equal(i18n.t('mode.continueMatch'), 'Maça Devam Et');
     assert.equal(i18n.t('mode.quickPlay'), 'Hızlı Oyun');
     assert.equal(i18n.t('mode.friendMatch'), 'Arkadaş Maçı');
     assert.equal(i18n.t('mode.comingNext'), 'Sırada');
 
     i18n.setLanguage('en');
+    assert.equal(i18n.t('mode.continueMatch'), 'Continue Match');
     assert.equal(i18n.t('mode.botMatch'), 'Bot Match');
     assert.equal(i18n.t('mode.onlineDetail'), 'Safe accounts and online play are in development.');
     assert.equal(i18n.t('mode.comingNext'), 'Coming next');
 
     i18n.setLanguage('ru');
+    assert.equal(i18n.t('mode.continueMatch'), 'Продолжить матч');
     assert.equal(i18n.t('mode.quickPlay'), 'Быстрая игра');
     assert.equal(i18n.t('mode.friendMatchDetail'), 'Далее — приватные столы и ссылки-приглашения.');
     assert.equal(i18n.t('mode.comingNext'), 'Скоро');
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
+test('Mars result copy is explicit in all supported languages', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    i18n.setLanguage('tr');
+    assert.match(i18n.t('game.winMarsMessage'), /2 puanlık Mars/);
+    i18n.setLanguage('en');
+    assert.match(i18n.t('game.loseMarsMessage'), /two-point Mars/);
+    i18n.setLanguage('ru');
+    assert.match(i18n.t('game.winMarsMessage'), /марсом в два очка/);
 
     restoreGlobalProperty('localStorage', originalLocalStorage);
     restoreGlobalProperty('navigator', originalNavigator);

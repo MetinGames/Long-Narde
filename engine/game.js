@@ -1,6 +1,10 @@
 // engine/game.js
 import { Board } from './board.js';
 import { Dice } from './dice.js';
+import {
+    createGameStateSnapshot,
+    sanitizeGameState
+} from './gameSnapshot.js';
 
 function cloneDiceSequences(sequences) {
     return sequences.map(sequence => [...sequence]);
@@ -39,6 +43,8 @@ export class NardeGame {
         this.mode = 'casual';
         this.timeoutStrikes = 0;
         this.endReason = null;
+        this.victoryType = null;
+        this.matchPoints = 0;
         this.availableMoves = [];
         this.headMovesThisTurn = 0;
         this.turnsCompleted = { 1: 0, 2: 0 };
@@ -74,6 +80,8 @@ export class NardeGame {
 
         this.status = 'GAME_OVER';
         this.endReason = 'timeout';
+        this.victoryType = 'timeout';
+        this.matchPoints = 1;
         return 'gameOver';
     }
 
@@ -89,6 +97,8 @@ export class NardeGame {
         this.mode = 'casual';
         this.timeoutStrikes = 0;
         this.endReason = null;
+        this.victoryType = null;
+        this.matchPoints = 0;
         this.availableMoves = [];
         this.headMovesThisTurn = 0;
         this.turnsCompleted = { 1: 0, 2: 0 };
@@ -121,6 +131,39 @@ export class NardeGame {
         this.board.borneOff = { ...snapshot.borneOff };
         this.availableMoves = [...snapshot.availableMoves];
         this.headMovesThisTurn = snapshot.headMoves;
+    }
+
+    exportState() {
+        return createGameStateSnapshot(this);
+    }
+
+    restoreState(rawState) {
+        const state = sanitizeGameState(rawState);
+        if (!state) return false;
+
+        this.board.slots = state.board.slots.map(slot => ({ ...slot }));
+        this.board.borneOff = { ...state.board.borneOff };
+        this.dice.values = [...state.diceValues];
+        this.currentPlayer = state.currentPlayer;
+        this.status = state.status;
+        this.mode = state.mode;
+        this.timeoutStrikes = state.timeoutStrikes;
+        this.endReason = null;
+        this.victoryType = null;
+        this.matchPoints = 0;
+        this.availableMoves = [...state.availableMoves];
+        this.headMovesThisTurn = state.headMovesThisTurn;
+        this.turnsCompleted = { ...state.turnsCompleted };
+        this.moveHistory = state.moveHistory.map(snapshot => ({
+            slots: snapshot.slots.map(slot => ({ ...slot })),
+            borneOff: { ...snapshot.borneOff },
+            availableMoves: [...snapshot.availableMoves],
+            headMoves: snapshot.headMoves,
+            move: snapshot.move ? { ...snapshot.move } : null
+        }));
+        this.ruleAnalysisCacheScope = null;
+        this.resetAnalysisMetrics();
+        return true;
     }
 
     resetAnalysisMetrics() {
@@ -215,18 +258,28 @@ export class NardeGame {
         return rollResult.values;
     }
 
-    undoTurnMoves() {
+    undoLastMove() {
         if (
             this.gameStatus !== 'PLAYING' ||
             this.moveHistory.length === 0
         ) {
-            return false;
+            return null;
         }
 
         const previousMove =
             this.moveHistory.pop();
+        const move = previousMove.move
+            ? { ...previousMove.move }
+            : null;
         this.restoreMoveState(previousMove);
-        return true;
+        return {
+            restored: true,
+            move
+        };
+    }
+
+    undoTurnMoves() {
+        return Boolean(this.undoLastMove());
     }
 
     confirmTurnEnd() {
@@ -243,12 +296,20 @@ export class NardeGame {
         if (this.board.hasPlayerWon(1)) {
             this.status = 'GAME_OVER';
             this.endReason = 'white_win';
+            this.victoryType = this.board.borneOff[2] === 0
+                ? 'mars'
+                : 'normal';
+            this.matchPoints = this.victoryType === 'mars' ? 2 : 1;
             return 1;
         }
 
         if (this.board.hasPlayerWon(2)) {
             this.status = 'GAME_OVER';
             this.endReason = 'black_win';
+            this.victoryType = this.board.borneOff[1] === 0
+                ? 'mars'
+                : 'normal';
+            this.matchPoints = this.victoryType === 'mars' ? 2 : 1;
             return 2;
         }
 
@@ -281,6 +342,15 @@ export class NardeGame {
                 ? this.createMoveStateSnapshot()
                 : null;
 
+        const movingPlayer = this.currentPlayer;
+        const targetSlot = this.board.isBearingOffMove(
+            movingPlayer,
+            fromSlot,
+            toSlot
+        )
+            ? 25
+            : toSlot;
+
         if (!this.board.movePiece(fromSlot, toSlot)) return false;
 
         this.availableMoves.splice(moveIndex, 1);
@@ -290,6 +360,12 @@ export class NardeGame {
         }
 
         if (moveSnapshot) {
+            moveSnapshot.move = {
+                fromSlot,
+                targetSlot,
+                player: movingPlayer,
+                diceValue
+            };
             this.moveHistory.push(moveSnapshot);
         }
 

@@ -1,0 +1,33 @@
+#ongoing-match-entry {
+    margin: 0 0 12px;
+}
+
+#ongoing-match-entry:has(#continue-match-button[hidden]) {
+    display: none;
+}
+
+#continue-match-button[hidden] {
+    display: none !important;
+}
+
+#continue-match-button {
+    min-height: 78px;
+    border-color: rgba(125, 220, 167, 0.72);
+    background: linear-gradient(145deg, #285e46 0%, #183a2c 100%);
+    color: #f1fff7;
+    box-shadow: 0 11px 22px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(222, 255, 235, 0.18);
+}
+
+#continue-match-button .start-mode-icon {
+    background: rgba(218, 255, 233, 0.13);
+}
+
+#continue-match-button .start-mode-copy > span {
+    color: rgba(235, 255, 243, 0.8);
+}
+
+@media (max-width: 560px) {
+    #continue-match-button {
+        min-height: 66px;
+    }
+}

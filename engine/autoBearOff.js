@@ -253,34 +253,50 @@ export function createAutoBearOffFlow({
             return;
         }
 
+        const finishAppliedMove = applied => {
+            if (!isRunning || expectedToken !== runToken) return;
+            if (!applied) {
+                stop('apply-failed');
+                return;
+            }
+
+            onAfterMove?.(next);
+
+            if (game.gameStatus === 'GAME_OVER' || game.currentPlayer !== player) {
+                stop('state-changed');
+                return;
+            }
+
+            if (shouldEndTurn(game, player)) {
+                onFinishTurn?.();
+                stop('finished-turn');
+                return;
+            }
+
+            if (game.getSearchStateKey() === stateBefore) {
+                stop('stalled');
+                return;
+            }
+
+            scheduledStepId = scheduleStep(
+                () => step(expectedToken),
+                stepDelayMs
+            );
+        };
+
         const applied = applyMove(next);
-        if (!applied) {
-            stop('apply-failed');
+        if (applied && typeof applied.then === 'function') {
+            applied
+                .then(finishAppliedMove)
+                .catch(() => {
+                    if (isRunning && expectedToken === runToken) {
+                        stop('apply-failed');
+                    }
+                });
             return;
         }
 
-        onAfterMove?.(next);
-
-        if (game.gameStatus === 'GAME_OVER' || game.currentPlayer !== player) {
-            stop('state-changed');
-            return;
-        }
-
-        if (shouldEndTurn(game, player)) {
-            onFinishTurn?.();
-            stop('finished-turn');
-            return;
-        }
-
-        if (game.getSearchStateKey() === stateBefore) {
-            stop('stalled');
-            return;
-        }
-
-        scheduledStepId = scheduleStep(
-            () => step(expectedToken),
-            stepDelayMs
-        );
+        finishAppliedMove(applied);
     }
 
     function evaluate() {

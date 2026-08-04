@@ -43,8 +43,24 @@ export function createAppRuntimeState() {
         resetTotalMoveCounter() {
             totalMoveCounter = 0;
         },
-        incrementTotalMoveCounter() {
-            totalMoveCounter += 1;
+        setTotalMoveCounter(value) {
+            totalMoveCounter = Number.isSafeInteger(value) && value >= 0
+                ? value
+                : 0;
+            return totalMoveCounter;
+        },
+        incrementTotalMoveCounter(amount = 1) {
+            const safeAmount = Number.isSafeInteger(amount) && amount > 0
+                ? amount
+                : 1;
+            totalMoveCounter += safeAmount;
+            return totalMoveCounter;
+        },
+        decrementTotalMoveCounter(amount = 1) {
+            const safeAmount = Number.isSafeInteger(amount) && amount > 0
+                ? amount
+                : 1;
+            totalMoveCounter = Math.max(0, totalMoveCounter - safeAmount);
             return totalMoveCounter;
         },
 

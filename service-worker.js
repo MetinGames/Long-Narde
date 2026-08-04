@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v17-2026-08-04';
+const CACHE_VERSION = 'v18-2026-08-04';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -7,6 +7,7 @@ const PRECACHE_PATHS = [
     './index.html',
     './style.css',
     './theme-manager.css',
+    './ongoing-match.css',
     './real-device-polish.css',
     './manifest.webmanifest',
     './app.js',
@@ -25,6 +26,7 @@ const PRECACHE_PATHS = [
     './engine/assets.js',
     './engine/autoBearOff.js',
     './engine/board.js',
+    './engine/checkerMoveAnimation.js',
     './engine/bot.js',
     './engine/botCallbackController.js',
     './engine/botDifficultyController.js',
@@ -34,6 +36,7 @@ const PRECACHE_PATHS = [
     './engine/friendMatchPreviewController.js',
     './engine/fullscreenController.js',
     './engine/game.js',
+    './engine/gameSnapshot.js',
     './engine/firstMatchTutorial.js',
     './engine/howToPlayGuide.js',
     './engine/i18n.js',
@@ -43,6 +46,7 @@ const PRECACHE_PATHS = [
     './engine/mobileThemeLabelController.js',
     './engine/nardoraSplash.js',
     './engine/noLegalMoveAutoPass.js',
+    './engine/ongoingMatch.js',
     './engine/ruleExplanations.js',
     './engine/playerIdentity.js',
     './engine/playerStats.js',

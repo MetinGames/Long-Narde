@@ -15,6 +15,7 @@
     <link rel="apple-touch-icon" href="./assets/branding/icons/apple-touch-icon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="theme-manager.css">
+    <link rel="stylesheet" href="ongoing-match.css">
     <link rel="stylesheet" href="real-device-polish.css">
     <link rel="stylesheet" href="assets/branding/nardora-splash.css">
 </head>
@@ -186,6 +187,27 @@
                     <option value="en" data-i18n="language.en">English</option>
                     <option value="ru" data-i18n="language.ru">Русский</option>
                 </select>
+            </div>
+            <div id="ongoing-match-entry">
+                <button
+                    id="continue-match-button"
+                    class="start-mode-card start-mode-card-resume"
+                    data-mode="continue-match"
+                    type="button"
+                    hidden
+                    aria-hidden="true"
+                >
+                    <span class="start-mode-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6" />
+                            <path d="M12 8v4l2.8 1.8" />
+                        </svg>
+                    </span>
+                    <span class="start-mode-copy">
+                        <strong data-i18n="mode.continueMatch">Maça Devam Et</strong>
+                        <span data-i18n="mode.continueMatchDetail">Bu cihazda kaydedilen yarım maça dönün.</span>
+                    </span>
+                </button>
             </div>
             <div id="start-mode-menu" role="group" aria-labelledby="start-mode-menu-title">
                 <h3 id="start-mode-menu-title" data-i18n="mode.title">Oyun Modları</h3>

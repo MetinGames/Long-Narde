@@ -318,3 +318,42 @@ test('aynı otomatik akış aynı hamleyi iki kez uygulamaz', () => {
     assert.equal(moveSignatures.length, 1);
     assert.deepEqual(moveSignatures, ['24-1-25']);
 });
+
+test('animasyon gibi asenkron hamle tamamlanmadan sonraki adima gecmez', async () => {
+    const game = prepareGame({
+        dice: [1],
+        pieces: [{ slot: 24, count: 1, owner: 1 }]
+    });
+    let completeMove;
+    let finishCount = 0;
+
+    const flow = createAutoBearOffFlow({
+        game,
+        getContext: () => ({
+            isEnabled: true,
+            isStartScreen: false,
+            isTimeoutResolutionInProgress: false
+        }),
+        applyMove: move => new Promise(resolve => {
+            completeMove = () => resolve(
+                game.executeMove(move.from, move.dice)
+            );
+        }),
+        onFinishTurn: () => {
+            finishCount += 1;
+            game.confirmTurnEnd();
+        }
+    });
+
+    assert.equal(flow.evaluate(), true);
+    assert.equal(game.board.borneOff[1], 0);
+    assert.equal(finishCount, 0);
+
+    completeMove();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    assert.equal(game.board.borneOff[1], 1);
+    assert.equal(finishCount, 1);
+    assert.equal(flow.isRunning(), false);
+});

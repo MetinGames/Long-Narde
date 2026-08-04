@@ -64,6 +64,8 @@ const translations = {
         'ui.startDescription': 'Şimdi bota karşı oynayın. Arkadaş ve çevrimiçi masalar hazırlanıyor.',
         'ui.startButton': 'Oyuna Başla',
         'mode.title': 'Oyun Modları',
+        'mode.continueMatch': 'Maça Devam Et',
+        'mode.continueMatchDetail': 'Bu cihazda kaydedilen yarım maça dönün.',
         'mode.quickPlay': 'Hızlı Oyun',
         'mode.quickPlayDetail': 'Hazır ayarlarla hemen bota karşı başlayın.',
         'mode.botMatch': 'Bot Maçı',
@@ -239,6 +241,9 @@ const translations = {
         'language.en': 'English',
         'language.ru': 'Русский',
         'status.starting': 'Yeni oyun başlıyor...',
+        'status.matchResumed': 'Kaydedilen maça devam ediliyor...',
+        'status.matchResumedYourTurn': 'Kaydedilen maç açıldı. Sıra sizde.',
+        'status.matchResumedBotTurn': 'Kaydedilen maç açıldı. Bilgisayar hamlesine devam ediyor.',
         'status.readyToStart': 'Oyuna başlamak için Oyuna Başla düğmesine basın.',
         'status.yourTurn': 'Sıra sizde.',
         'status.botTurn': 'Bilgisayarın sırası.',
@@ -280,7 +285,11 @@ const translations = {
         'game.winTitle': 'Tebrikler! 🎉',
         'game.loseTitle': 'Bu Kez Bilgisayar Kazandı',
         'game.winMessage': 'Kazandınız! Harika bir oyun çıkardınız.',
-        'game.loseMessage': 'Yeni oyunda rövanşı alabilirsiniz.'
+        'game.loseMessage': 'Yeni oyunda rövanşı alabilirsiniz.',
+        'game.winMarsTitle': 'Mars! 🏆',
+        'game.loseMarsTitle': 'Bilgisayar Mars Yaptı',
+        'game.winMarsMessage': 'Rakibiniz hiç pul toplayamadı. Bu galibiyet 2 puanlık Mars olarak sonuçlandı.',
+        'game.loseMarsMessage': 'Hiç pul toplayamadan oyun bitti. Bilgisayar 2 puanlık Mars kazandı.'
     },
     en: {
         'page.title': 'Nardora: Long Narde Game',
@@ -345,6 +354,8 @@ const translations = {
         'ui.startDescription': 'Play the bot now. Friend and online tables are on the way.',
         'ui.startButton': 'Start Game',
         'mode.title': 'Game Modes',
+        'mode.continueMatch': 'Continue Match',
+        'mode.continueMatchDetail': 'Return to the unfinished match saved on this device.',
         'mode.quickPlay': 'Quick Play',
         'mode.quickPlayDetail': 'Start against the bot immediately with ready settings.',
         'mode.botMatch': 'Bot Match',
@@ -520,6 +531,9 @@ const translations = {
         'language.en': 'English',
         'language.ru': 'Русский',
         'status.starting': 'A new game is starting...',
+        'status.matchResumed': 'Continuing the saved match...',
+        'status.matchResumedYourTurn': 'Saved match restored. It is your turn.',
+        'status.matchResumedBotTurn': 'Saved match restored. The computer is continuing its turn.',
         'status.readyToStart': 'Tap Start Game when you are ready to begin.',
         'status.yourTurn': 'Your turn.',
         'status.botTurn': "Computer's turn.",
@@ -561,7 +575,11 @@ const translations = {
         'game.winTitle': 'Congratulations! 🎉',
         'game.loseTitle': 'The Computer Won This Time',
         'game.winMessage': 'You won! That was a great game.',
-        'game.loseMessage': 'You can take your revenge in a new game.'
+        'game.loseMessage': 'You can take your revenge in a new game.',
+        'game.winMarsTitle': 'Mars! 🏆',
+        'game.loseMarsTitle': 'The Computer Won by Mars',
+        'game.winMarsMessage': 'Your opponent bore off no checkers. This is a two-point Mars victory.',
+        'game.loseMarsMessage': 'The match ended before you bore off a checker. The computer earned a two-point Mars.'
     },
     ru: {
         'page.title': 'Nardora: Длинные нарды',
@@ -626,6 +644,8 @@ const translations = {
         'ui.startDescription': 'Играйте с ботом уже сейчас. Столы с друзьями и онлайн-игра уже в разработке.',
         'ui.startButton': 'Начать игру',
         'mode.title': 'Режимы игры',
+        'mode.continueMatch': 'Продолжить матч',
+        'mode.continueMatchDetail': 'Вернуться к незавершённому матчу, сохранённому на этом устройстве.',
         'mode.quickPlay': 'Быстрая игра',
         'mode.quickPlayDetail': 'Сразу начните игру с ботом с готовыми настройками.',
         'mode.botMatch': 'Матч с ботом',
@@ -801,6 +821,9 @@ const translations = {
         'language.en': 'English',
         'language.ru': 'Русский',
         'status.starting': 'Начинается новая игра...',
+        'status.matchResumed': 'Продолжаем сохранённый матч...',
+        'status.matchResumedYourTurn': 'Сохранённый матч восстановлен. Ваш ход.',
+        'status.matchResumedBotTurn': 'Сохранённый матч восстановлен. Компьютер продолжает ход.',
         'status.readyToStart': 'Нажмите Начать игру, когда будете готовы.',
         'status.yourTurn': 'Ваш ход.',
         'status.botTurn': 'Ход компьютера.',
@@ -842,7 +865,11 @@ const translations = {
         'game.winTitle': 'Поздравляем! 🎉',
         'game.loseTitle': 'На этот раз победил компьютер',
         'game.winMessage': 'Вы победили! Отличная игра.',
-        'game.loseMessage': 'Вы сможете взять реванш в новой игре.'
+        'game.loseMessage': 'Вы сможете взять реванш в новой игре.',
+        'game.winMarsTitle': 'Марс! 🏆',
+        'game.loseMarsTitle': 'Компьютер выиграл марсом',
+        'game.winMarsMessage': 'Соперник не снял ни одной шашки. Это победа марсом в два очка.',
+        'game.loseMarsMessage': 'Матч завершился до того, как вы сняли шашку. Компьютер получил два очка за марс.'
     }
 };
 

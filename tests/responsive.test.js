@@ -15,6 +15,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
         path.join(root, 'real-device-polish.css'),
         'utf8'
     );
+    const ongoingMatchCss = fs.readFileSync(
+        path.join(root, 'ongoing-match.css'),
+        'utf8'
+    );
     assert.ok(css.includes('@media (max-width: 900px) and (orientation: landscape)'), 'Missing landscape mobile media query');
     assert.ok(css.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Missing portrait mobile media query');
     assert.ok(css.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Missing low landscape mobile media query');
@@ -79,6 +83,7 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(themeCss.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Theme manager portrait layout missing');
     assert.ok(themeCss.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Theme manager low-landscape layout missing');
     assert.ok(themeCss.includes('max-height: calc(100dvh - 20px)'), 'Theme manager dynamic viewport guard missing');
+    assert.match(ongoingMatchCss, /#ongoing-match-entry:has\(#continue-match-button\[hidden\]\)\s*\{[^}]*display:\s*none;/, 'Hidden Continue Match entry must not leave visual-baseline spacing');
 });
 
 test('index.html contains rotate notice element, start screen, and restart button', () => {

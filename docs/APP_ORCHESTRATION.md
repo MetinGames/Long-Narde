@@ -1,6 +1,6 @@
 # Nardora app orchestration map
 
-Last reviewed: **2026-08-03**
+Last reviewed: **2026-08-04**
 
 `app.js` remains Nardora's composition root. It creates the game-facing objects and coordinates engine modules, but durable behavior should move into focused modules when ownership and tests are clear. This map prevents broad rewrites and makes the next extraction order explicit.
 
@@ -14,6 +14,8 @@ Last reviewed: **2026-08-03**
 | Human turn, timeout, auto-pass, and Quick Bear-Off coordination | `app.js` + focused engine controllers | Extract only one proven flow at a time |
 | Automatic dice roll and bot-turn sequencing | `app.js` + animation/bot callback modules | Preserve behavior; extract after callback ownership review |
 | Victory and game-over orchestration | `app.js` + victory/statistics modules | Candidate after end-state integration tests expand |
+| Checker transition capture, reduced-motion profile, and Canvas animation state | `checkerMoveAnimation.js` + `renderer.js`; `app.js` sequences transitions | Board state remains authoritative; animation cannot change or defer legality |
+| Versioned unfinished-match validation and device storage | `gameSnapshot.js` + `ongoingMatch.js`; `app.js` selects durable save points and resume sequencing | Keep local-only and fail closed; future online resume uses the authoritative table contract instead |
 | Slot selection and move application | `app.js` + game/input modules | Rule-sensitive; leave until its boundary is fully characterized |
 | Modal, language, fullscreen, feedback, and control assembly | `app.js` + focused UI modules | Keep assembly in `app.js`; controllers own their listeners |
 | Provider-neutral room, invite, presence, reconnect, and authority contract | `privateTableProtocol.js` | Keep outside `app.js`; future Friend Match controllers consume the adapter surface |
@@ -37,6 +39,7 @@ Last reviewed: **2026-08-03**
 | Local Friend Match modal, actions, and room subscription | `friendMatchPreviewController.js` | Idempotent `start()`, explicit `stop()`, one active subscription, stale lifecycle callback guard |
 | First pointer/key audio unlock | `app.js` | One-shot listeners; candidate for extraction |
 | Buttons for restart, start, undo, confirm, theme, and difficulty | `app.js` | Review in small groups; do not create a catch-all event bus |
+| Continue Match button | `startModeController.js` + `app.js` | Uses the existing single-start lock; visibility follows validated local snapshot availability |
 | `DOMContentLoaded` | `app.js` | Bootstrap-only composition root |
 
 ## Extraction checkpoint
