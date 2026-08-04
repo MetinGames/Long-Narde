@@ -490,6 +490,34 @@ button.start-mode-card:not(:disabled):focus-visible,
     transform: translateY(-1px);
 }
 
+/* Keep every start action visible on common 720p desktop viewports. */
+@media (min-width: 601px) and (min-height: 601px) and (max-height: 760px) {
+    #start-screen-box {
+        padding: 18px 24px 12px;
+    }
+
+    #start-screen-box h2 {
+        margin-bottom: 8px;
+    }
+
+    #start-screen-description {
+        margin-bottom: 12px;
+    }
+
+    #start-language-container {
+        margin-bottom: 10px;
+    }
+
+    #start-mode-menu {
+        margin-bottom: 10px;
+    }
+
+    #friend-preview-entry,
+    #feedback-button-row {
+        margin-top: 7px;
+    }
+}
+
 #feedback-modal {
     position: absolute;
     inset: 0;
