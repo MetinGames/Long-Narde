@@ -41,7 +41,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **386 Node tests passing as of 2026-08-04**. The 70-case Playwright browser/device matrix includes save-refresh-resume and high-value visual journeys; local execution currently awaits a browser binary while CI remains the release gate.
+- **393 Node tests passing as of 2026-08-04**. The 70-case Playwright browser/device matrix includes save-refresh-resume and high-value visual journeys; local execution currently awaits a browser binary while CI remains the release gate.
 
 ## Current gaps and risks
 
@@ -74,6 +74,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 17. **Completed — [#49](https://github.com/MetinGames/Long-Narde/issues/49):** kept the inset 6–7/18–19 triangle shapes clear of the centre hinge while restoring full-size checkers, original slot centres, and matching animation anchors.
 18. **Completed — [#51](https://github.com/MetinGames/Long-Narde/issues/51):** delivered a persistent White (Ivory)/Black start-screen choice, opposite bot color, renderer-wide checker mapping, and unfinished-match continuity without changing rule authority or movement direction.
 19. **Completed — [#41](https://github.com/MetinGames/Long-Narde/issues/41):** replaced the fixed local bot turn deadline with a persistent Off / 30 / 60 / 90 second pre-match choice; disabled mode creates no timeout penalty and unfinished matches restore their saved duration.
+20. **Completed — [#55](https://github.com/MetinGames/Long-Narde/issues/55):** locked the existing six-point-prime restriction across both player directions, first/last windows, the physical 24 → 1 wrap, opponent boundary positions, source-stack simulation, invalid reasons, and legal-move enumeration without changing rule behavior.
 
 Completed in this synchronization cycle:
 
@@ -91,6 +92,7 @@ Completed in this synchronization cycle:
 - [#44](https://github.com/MetinGames/Long-Narde/issues/44), [#45](https://github.com/MetinGames/Long-Narde/issues/45), [#46](https://github.com/MetinGames/Long-Narde/issues/46), [#47](https://github.com/MetinGames/Long-Narde/issues/47), and [#49](https://github.com/MetinGames/Long-Narde/issues/49) reached `main` through [#48](https://github.com/MetinGames/Long-Narde/pull/48) and [#50](https://github.com/MetinGames/Long-Narde/pull/50), covering match resume, Mars, checker motion, Undo consistency, and stable hinge-adjacent checker geometry.
 - [#51](https://github.com/MetinGames/Long-Narde/issues/51) adds the persistent pre-match checker-color choice, opposite bot appearance, resume continuity, and cross-browser visual coverage through [#52](https://github.com/MetinGames/Long-Narde/pull/52).
 - [#41](https://github.com/MetinGames/Long-Narde/issues/41) now includes the persistent local bot turn-timer choice, explicit disabled state, and unfinished-match timer continuity.
+- [#55](https://github.com/MetinGames/Long-Narde/issues/55) adds deterministic six-point-prime edge fixtures for both directions, route boundaries, source-stack simulation, and rule-reason/move-list consistency without changing Long Narde legality.
 
 ## Phase 0 — Product exit gate met; maintenance continues
 
@@ -140,6 +142,7 @@ Target: **2026-09-30**
 - **Done:** delivered the local game-feel and continuity slice: responsive checker transitions [#46](https://github.com/MetinGames/Long-Narde/issues/46), consistent move-by-move Undo [#47](https://github.com/MetinGames/Long-Narde/issues/47), Mars results [#45](https://github.com/MetinGames/Long-Narde/issues/45), and safe unfinished-match resume [#44](https://github.com/MetinGames/Long-Narde/issues/44).
 - **Done:** kept the four centre-hinge points visually inset without shrinking or shifting their checker stacks ([#49](https://github.com/MetinGames/Long-Narde/issues/49)).
 - **Done:** added an accessible, persistent start-screen White (Ivory)/Black checker choice with opposite bot color and unfinished-match continuity ([#51](https://github.com/MetinGames/Long-Narde/issues/51)).
+- **Done:** expanded the six-point-prime release contract with mirrored route-boundary, wraparound, source-stack, invalid-reason, and legal-move regressions ([#55](https://github.com/MetinGames/Long-Narde/issues/55)).
 - **Done:** Built a contextual **Rule Explanation System** that explains common blocked, mandatory, bearing-off, prime and automatic-pass states from engine-owned reasons ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Added a dismissible and reopenable **Interactive First-Match Tutorial** using the existing localized guide, with a local-only versioned seen flag and keyboard/touch/small-screen coverage ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Built the visual theme-management screen in [#14](https://github.com/MetinGames/Long-Narde/issues/14), preserving the approved Anadolu and walnut families while adding persistent selection, reusable contrast-aware tokens, responsive access, and visual regression coverage.

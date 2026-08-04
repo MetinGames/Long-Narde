@@ -180,6 +180,7 @@ Verified test files currently present:
 - `tests/player-identity.test.js`
 - `tests/player-stats-modal.test.js`
 - `tests/player-stats.test.js`
+- `tests/prime-rule-edge-cases.test.js`
 - `tests/private-table-protocol.test.js`
 - `tests/pwa.test.js`
 - `tests/renderer-theme-storage.test.js`
