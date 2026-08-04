@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v14-2026-08-04';
+const CACHE_VERSION = 'v15-2026-08-04';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -29,7 +29,6 @@ const PRECACHE_PATHS = [
     './engine/botCallbackController.js',
     './engine/botDifficultyController.js',
     './engine/botMoveFeedback.js',
-    './engine/botTurnTouchFeedback.js',
     './engine/dice.js',
     './engine/feedbackModal.js',
     './engine/friendMatchPreviewController.js',
@@ -75,6 +74,7 @@ self.addEventListener('install', event => {
             { cache: 'reload' }
         ));
         await cache.addAll(requests);
+        await self.skipWaiting();
     })());
 });
 

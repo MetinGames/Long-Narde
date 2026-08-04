@@ -6,6 +6,7 @@ import vm from 'node:vm';
 import {
     activateWaitingServiceWorker,
     isServiceWorkerContextAllowed,
+    reloadOnServiceWorkerControllerChange,
     registerNardoraServiceWorker,
     scheduleNardoraServiceWorkerRegistration
 } from '../engine/pwa.js';
@@ -176,6 +177,7 @@ test('service worker precaches the complete local-play shell atomically', async 
         }
     });
     await installPromise;
+    assert.equal(harness.skipWaitingCalls, 1);
 
     const cachedPaths = harness.addedRequests.map(request => {
         assert.equal(request.cache, 'reload');
@@ -324,6 +326,38 @@ test('registration uses Pages-safe scope and activates an already waiting update
         updateViaCache: 'none'
     });
     assert.deepEqual(messages, [{ type: 'SKIP_WAITING' }]);
+    assert.equal(controllerChangeListeners.length, 1);
+    assert.equal(controllerChangeListeners[0].type, 'controllerchange');
+    assert.deepEqual(controllerChangeListeners[0].options, { once: true });
+
+    controllerChangeListeners[0].listener();
+    controllerChangeListeners[0].listener();
+    assert.equal(reloads, 1);
+});
+
+test('active pages reload once when a newly installed worker takes control', () => {
+    const controllerChangeListeners = [];
+    let reloads = 0;
+    const serviceWorkerContainer = {
+        controller: {},
+        addEventListener(type, listener, options) {
+            controllerChangeListeners.push({ type, listener, options });
+        }
+    };
+    const locationRef = {
+        reload() {
+            reloads += 1;
+        }
+    };
+
+    assert.equal(reloadOnServiceWorkerControllerChange({
+        serviceWorkerContainer,
+        locationRef
+    }), true);
+    assert.equal(reloadOnServiceWorkerControllerChange({
+        serviceWorkerContainer,
+        locationRef
+    }), false);
     assert.equal(controllerChangeListeners.length, 1);
     assert.equal(controllerChangeListeners[0].type, 'controllerchange');
     assert.deepEqual(controllerChangeListeners[0].options, { once: true });

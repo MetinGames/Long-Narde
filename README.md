@@ -130,7 +130,6 @@ Verified engine modules currently present:
 - `engine/board.js`
 - `engine/bot.js`
 - `engine/botMoveFeedback.js`
-- `engine/botTurnTouchFeedback.js`
 - `engine/dice.js`
 - `engine/friendMatchPreviewController.js`
 - `engine/game.js`

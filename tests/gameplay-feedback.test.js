@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { BotTurnTouchFeedback } from '../engine/botTurnTouchFeedback.js';
 import { RestartButtonLock } from '../engine/restartButtonLock.js';
 import {
     applyBotMoveFeedback,
@@ -27,70 +26,6 @@ function createButton() {
         }
     };
 }
-
-test('bot turu bekleme mesaji bot turunda ilk dokunusta bir kez gosterilir', () => {
-    const feedback = new BotTurnTouchFeedback();
-
-    assert.equal(
-        feedback.shouldShowWaitMessage({
-            isStartScreen: false,
-            gameStatus: 'PLAYING',
-            currentPlayer: 2
-        }),
-        true
-    );
-
-    assert.equal(
-        feedback.shouldShowWaitMessage({
-            isStartScreen: false,
-            gameStatus: 'PLAYING',
-            currentPlayer: 2
-        }),
-        false
-    );
-
-    feedback.reset();
-
-    assert.equal(
-        feedback.shouldShowWaitMessage({
-            isStartScreen: false,
-            gameStatus: 'PLAYING',
-            currentPlayer: 2
-        }),
-        true
-    );
-});
-
-test('bot turu bekleme mesaji start ekrani ve oyun sonu durumunda gosterilmez', () => {
-    const feedback = new BotTurnTouchFeedback();
-
-    assert.equal(
-        feedback.shouldShowWaitMessage({
-            isStartScreen: true,
-            gameStatus: 'PLAYING',
-            currentPlayer: 2
-        }),
-        false
-    );
-
-    assert.equal(
-        feedback.shouldShowWaitMessage({
-            isStartScreen: false,
-            gameStatus: 'GAME_OVER',
-            currentPlayer: 2
-        }),
-        false
-    );
-
-    assert.equal(
-        feedback.shouldShowWaitMessage({
-            isStartScreen: false,
-            gameStatus: 'PLAYING',
-            currentPlayer: 1
-        }),
-        false
-    );
-});
 
 test('restart kilidi butonu gecici olarak devre disi birakir ve sonra acar', async () => {
     const button = createButton();
