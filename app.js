@@ -36,6 +36,7 @@ import {
 } from './engine/victoryMoment.js';
 import {
     applyBotMoveFeedback,
+    BOT_MOVE_STEP_DELAY_MS,
     endBotMoveFeedback,
     resetBotMoveFeedback,
     startBotMoveFeedback
@@ -66,6 +67,7 @@ import {
     createMobileThemeLabelController
 } from './engine/mobileThemeLabelController.js';
 import { ThemeManagerController } from './engine/themeManagerController.js';
+import { PointNumberController } from './engine/pointNumberController.js';
 import { createStartModeController } from './engine/startModeController.js';
 import {
     FriendMatchPreviewController
@@ -99,6 +101,7 @@ let languageSelectors = null;
 let fullscreenController = null;
 let mobileThemeLabelController = null;
 let themeManagerController = null;
+let pointNumberController = null;
 let startModeController = null;
 let friendMatchPreviewController = null;
 let autoBearOffEnabled = false;
@@ -638,7 +641,7 @@ function startAutomaticDiceRoll() {
                 }),
                 { force: true }
             );
-            scheduleBotMoveCallback(550);
+            scheduleBotMoveCallback(BOT_MOVE_STEP_DELAY_MS);
         }
     });
 }
@@ -677,6 +680,18 @@ async function runBotMove() {
         reducedMotion: prefersReducedMotion()
     });
 
+    const moveTarget = move.target === 25
+        ? t('collect')
+        : move.target;
+    const botMoveMessage = t('status.botMoved', {
+        from: move.from,
+        target: moveTarget
+    });
+    setStatus(botMoveMessage, { force: true });
+    gameFeedbackToast?.show(botMoveMessage, {
+        durationMs: 1600
+    });
+
     const moveId = runtimeState.incrementTotalMoveCounter();
     sound.playPiecePlaceForMove({
         moveId,
@@ -694,7 +709,7 @@ async function runBotMove() {
         return;
     }
 
-    scheduleBotMoveCallback(550);
+    scheduleBotMoveCallback(BOT_MOVE_STEP_DELAY_MS);
 }
 
 function showGameOver(winner, messageKey = null) {
@@ -1298,6 +1313,7 @@ function bindEvents() {
             playerStatsModal?.refreshForLanguage();
             friendMatchPreviewController?.refreshForLanguage();
             fullscreenController?.refreshLabels();
+            pointNumberController?.refreshForLanguage();
             mobileThemeLabelController?.refresh();
             themeManagerController?.refreshForLanguage();
             updateScreen();
@@ -1333,6 +1349,16 @@ function bindEvents() {
             updateScreen();
         }
     });
+
+    pointNumberController = new PointNumberController({
+        button: document.getElementById('point-numbers-toggle'),
+        renderer,
+        translate: key => t(key),
+        onChange: () => {
+            updateScreen();
+        }
+    });
+    pointNumberController.start();
 
     ui.undoButton?.addEventListener('click', () => {
         if (

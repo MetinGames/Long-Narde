@@ -133,6 +133,21 @@ test('start flow, language synchronization, and canvas readiness', async ({
     await expect(startTitle).toHaveText('Welcome to Nardora');
     await expect(page.locator('#start-button')).toContainText('Quick Play');
     await expect(page.locator('#bot-match-button')).toContainText('Bot Match');
+    await page.locator('#bot-match-button').hover();
+    const hoverPresentation = await page.evaluate(() => {
+        const action = document.getElementById('bot-match-button');
+        const card = action?.closest('.start-mode-card-bot');
+        return {
+            actionOutline: action
+                ? getComputedStyle(action).outlineStyle
+                : null,
+            cardOutline: card
+                ? getComputedStyle(card).outlineStyle
+                : null
+        };
+    });
+    expect(hoverPresentation.actionOutline).toBe('none');
+    expect(hoverPresentation.cardOutline).toBe('solid');
     await expect(friendMatch).toBeDisabled();
     await expect(friendMatch).toHaveAttribute('aria-disabled', 'true');
     await expect(onlineMatch).toBeDisabled();
@@ -153,6 +168,20 @@ test('start flow, language synchronization, and canvas readiness', async ({
         'aria-pressed',
         'false'
     );
+    await expect(page.locator('#fullscreen-toggle-label')).toHaveText(
+        'Enter Fullscreen'
+    );
+
+    const pointNumbersToggle = page.locator('#point-numbers-toggle');
+    await expect(pointNumbersToggle).toHaveAttribute('aria-pressed', 'false');
+    await pointNumbersToggle.click();
+    await expect(pointNumbersToggle).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.evaluate(() =>
+        localStorage.getItem('narde-point-numbers')
+    )).toBe('visible');
+
+    await page.locator('#auto-bearoff-help summary').click();
+    await expect(page.locator('#auto-bearoff-hint')).toBeVisible();
     await expect(page.locator('#die1')).not.toHaveText('-');
     await expect(page.locator('#die2')).not.toHaveText('-');
     expect(runtimeErrors).toEqual([]);

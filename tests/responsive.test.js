@@ -11,6 +11,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
         path.join(root, 'theme-manager.css'),
         'utf8'
     );
+    const devicePolishCss = fs.readFileSync(
+        path.join(root, 'real-device-polish.css'),
+        'utf8'
+    );
     assert.ok(css.includes('@media (max-width: 900px) and (orientation: landscape)'), 'Missing landscape mobile media query');
     assert.ok(css.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Missing portrait mobile media query');
     assert.ok(css.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Missing low landscape mobile media query');
@@ -58,7 +62,9 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#info-panel > #turn-indicator.is-white-turn'), 'White turn indicator class style missing');
     assert.ok(css.includes('#info-panel > #turn-indicator.is-dark-turn'), 'Dark turn indicator class style missing');
     assert.ok(css.includes('#auto-bearoff-container'), 'Auto bear-off container layout guard missing');
-    assert.ok(css.includes('#auto-bearoff-hint'), 'Auto bear-off hint height guard missing');
+    assert.ok(devicePolishCss.includes('#auto-bearoff-help'), 'Auto bear-off disclosure style missing');
+    assert.ok(devicePolishCss.includes('#point-numbers-toggle'), 'Point-number toggle style missing');
+    assert.ok(devicePolishCss.includes('"auto timer dice"'), 'Portrait control areas should keep Quick Bear-Off help clear of timer controls');
     assert.ok(themeCss.includes('#theme-manager-modal'), 'Theme manager modal style missing');
     assert.ok(themeCss.includes('.theme-option-card:focus-visible'), 'Theme card keyboard focus style missing');
     assert.ok(themeCss.includes('env(safe-area-inset-bottom)'), 'Theme manager safe-area guard missing');
@@ -116,16 +122,19 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="die-right-1"'), 'Double move indicator 1 missing');
     assert.ok(html.includes('id="die-right-4"'), 'Double move indicator 4 missing');
     assert.ok(html.includes('id="fullscreen-toggle"'), 'Fullscreen toggle button missing');
-    assert.ok(html.includes('id="fullscreen-toggle-label"'), 'Fullscreen visible helper text missing');
+    assert.ok(html.includes('id="fullscreen-toggle-label"'), 'Fullscreen screen-reader label missing');
+    assert.ok(html.includes('id="point-numbers-toggle"'), 'Point-number toggle missing');
     assert.ok(html.includes('id="auto-bearoff-container"'), 'Auto bear-off container missing');
     assert.ok(html.includes('id="auto-bearoff-toggle"'), 'Auto bear-off toggle missing');
     assert.ok(html.includes('id="auto-bearoff-hint"'), 'Auto bear-off accessibility hint missing');
+    assert.ok(html.includes('id="auto-bearoff-help"'), 'Auto bear-off help disclosure missing');
     assert.ok(html.includes('id="theme-manager-button"'), 'In-game theme manager entry missing');
     assert.ok(html.includes('id="start-theme-manager-button"'), 'Start-screen theme manager entry missing');
     assert.ok(html.includes('id="theme-manager-modal"'), 'Theme manager modal missing');
     assert.ok(/id="theme-manager-modal"[^>]*aria-modal="true"/i.test(html), 'Theme manager aria-modal missing');
     assert.equal((html.match(/data-theme-option=/g) || []).length, 2, 'Exactly two supported theme previews should be rendered');
     assert.ok(html.includes('theme-manager.css'), 'Theme manager stylesheet link missing');
+    assert.ok(html.includes('real-device-polish.css'), 'Real-device polish stylesheet link missing');
     assert.equal((html.match(/value="champion"/g) || []).length, 2, 'Champion difficulty should exist in both synchronized selectors');
     assert.ok(/<option value="champion" data-i18n="difficulty\.champion">Şampiyon<\/option>/i.test(html), 'Champion difficulty option missing expected value/i18n pairing');
     assert.equal((html.match(/<option value="medium" data-i18n="difficulty\.medium" selected>Orta<\/option>/gi) || []).length, 2, 'Medium difficulty should remain the default in both selectors');

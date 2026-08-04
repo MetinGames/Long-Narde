@@ -41,7 +41,10 @@ test('zar animasyonu tamamlaninca yasal dizi yoksa otomatik pas startHumanTimer 
     const startTimerIdx = section.indexOf('startHumanTimer();', rollIdx);
     assert.notEqual(startTimerIdx, -1);
 
-    const botScheduleIdx = section.indexOf('scheduleBotMoveCallback(550);', rollIdx);
+    const botScheduleIdx = section.indexOf(
+        'scheduleBotMoveCallback(BOT_MOVE_STEP_DELAY_MS);',
+        rollIdx
+    );
     assert.notEqual(botScheduleIdx, -1);
 
     assert.ok(autoPassCheckIdx > rollIdx);

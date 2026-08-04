@@ -1,7 +1,9 @@
 // engine/botMoveFeedback.js
 
-const DEFAULT_HIGHLIGHT_DURATION_MS = 1250;
-const REDUCED_MOTION_HIGHLIGHT_DURATION_MS = 1000;
+export const BOT_MOVE_STEP_DELAY_MS = 900;
+
+const DEFAULT_HIGHLIGHT_DURATION_MS = 1700;
+const REDUCED_MOTION_HIGHLIGHT_DURATION_MS = 1500;
 
 export function clearBotMoveFeedback(renderer) {
     renderer?.clearBotMoveHighlight?.();
