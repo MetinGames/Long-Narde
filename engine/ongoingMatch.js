@@ -1,4 +1,5 @@
 import { sanitizeGameState } from './gameSnapshot.js';
+import { normalizeCheckerColor } from './checkerColorPreference.js';
 
 export const ONGOING_MATCH_STORAGE_KEY = 'nardora.ongoingMatch.v1';
 export const ONGOING_MATCH_SCHEMA_VERSION = 1;
@@ -32,7 +33,8 @@ export function sanitizeOngoingMatch(raw, {
         difficulty: DIFFICULTIES.has(raw.difficulty)
             ? raw.difficulty
             : 'medium',
-        autoBearOffEnabled: Boolean(raw.autoBearOffEnabled)
+        autoBearOffEnabled: Boolean(raw.autoBearOffEnabled),
+        humanCheckerColor: normalizeCheckerColor(raw.humanCheckerColor)
     };
 }
 
@@ -53,7 +55,8 @@ export class OngoingMatchStore {
         gameState,
         totalMoves,
         difficulty,
-        autoBearOffEnabled
+        autoBearOffEnabled,
+        humanCheckerColor
     } = {}) {
         const savedAt = this.now();
         const snapshot = sanitizeOngoingMatch({
@@ -62,7 +65,8 @@ export class OngoingMatchStore {
             gameState,
             totalMoves,
             difficulty,
-            autoBearOffEnabled
+            autoBearOffEnabled,
+            humanCheckerColor
         }, {
             now: savedAt,
             maxAgeMs: this.maxAgeMs

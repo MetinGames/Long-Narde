@@ -76,6 +76,9 @@ import {
     FriendMatchPreviewController
 } from './engine/friendMatchPreviewController.js';
 import { OngoingMatchStore } from './engine/ongoingMatch.js';
+import {
+    CheckerColorPreferenceController
+} from './engine/checkerColorPreference.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -92,7 +95,8 @@ const runtimeDiagnostics = createRuntimeDiagnostics({
         gameStatus: game.gameStatus,
         currentPlayer: game.currentPlayer,
         language: getLanguage(),
-        theme: renderer.theme?.id ?? 'unknown'
+        theme: renderer.theme?.id ?? 'unknown',
+        checkerColor: renderer.getHumanCheckerColor()
     })
 });
 let victoryMomentHook = null;
@@ -107,6 +111,7 @@ let mobileThemeLabelController = null;
 let themeManagerController = null;
 let pointNumberController = null;
 let startModeController = null;
+let checkerColorPreferenceController = null;
 let friendMatchPreviewController = null;
 let autoBearOffEnabled = false;
 let autoBearOffContainer = null;
@@ -281,7 +286,8 @@ function persistOngoingMatch() {
         gameState,
         totalMoves: runtimeState.getTotalMoveCounter(),
         difficulty: bot.difficulty,
-        autoBearOffEnabled
+        autoBearOffEnabled,
+        humanCheckerColor: renderer.getHumanCheckerColor()
     });
 }
 
@@ -347,6 +353,11 @@ function resumeSavedMatch() {
     bot.difficulty = snapshot.difficulty;
     bot.resetPlannedTurn?.();
     autoBearOffEnabled = snapshot.autoBearOffEnabled;
+    if (checkerColorPreferenceController) {
+        checkerColorPreferenceController.setColor(snapshot.humanCheckerColor);
+    } else {
+        renderer.setHumanCheckerColor(snapshot.humanCheckerColor);
+    }
     renderer.clearVictoryMoment();
     renderer.clearCheckerMoveAnimation();
     resetBotMoveFeedback(renderer);
@@ -1187,6 +1198,8 @@ function bindEvents() {
         document.getElementById('start-language-select');
     const startDifficultySelect =
         document.getElementById('start-bot-difficulty');
+    const checkerColorInputs =
+        document.querySelectorAll('input[name="checker-color"]');
     const themeSelect =
         document.getElementById('theme-select');
     const howToPlayButton =
@@ -1420,6 +1433,16 @@ function bindEvents() {
     for (const selector of difficultySelectors) {
         selector.addEventListener('change', handleDifficultyChange);
     }
+
+    checkerColorPreferenceController =
+        new CheckerColorPreferenceController({
+            inputs: checkerColorInputs,
+            onChange: color => {
+                renderer.setHumanCheckerColor(color);
+                updateScreen();
+            }
+        });
+    checkerColorPreferenceController.start();
 
     startModeController = createStartModeController({
         availableModes: [
