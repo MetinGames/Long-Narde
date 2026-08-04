@@ -66,7 +66,13 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(devicePolishCss.includes('#auto-bearoff-container:has(#auto-bearoff-help[open])'), 'Open Auto Bear-Off help should reserve its own control-card space');
     assert.ok(devicePolishCss.includes('#panel-controls:has(#auto-bearoff-help[open])'), 'Portrait help should expand to a full control row');
     assert.ok(devicePolishCss.includes('#point-numbers-toggle'), 'Point-number toggle style missing');
-    assert.ok(devicePolishCss.includes('"auto timer dice"'), 'Portrait control areas should keep Quick Bear-Off help clear of timer controls');
+    assert.ok(devicePolishCss.includes('"timer dice"'), 'Portrait timer and dice areas should share a stable row');
+    assert.ok(devicePolishCss.includes('"bearoff bearoff"'), 'Portrait Quick Bear-Off should own a full control row');
+    assert.ok(devicePolishCss.includes('"display display"'), 'Portrait display controls should own a full control row');
+    assert.match(devicePolishCss, /#rotate-notice\s*\{[^}]*pointer-events:\s*none;/, 'Portrait rotate notice must not block game controls');
+    assert.ok(devicePolishCss.includes('--mobile-panel-width'), 'Compact Safari landscape panel sizing guard missing');
+    assert.ok(devicePolishCss.includes('grid-template-areas: "board info"'), 'Compact Safari landscape should keep board and controls adjacent');
+    assert.match(devicePolishCss, /@media \(max-height:\s*600px\) and \(orientation:\s*landscape\)[\s\S]*#dice-container\s*\{[^}]*grid-area:\s*dice;[^}]*justify-self:\s*stretch;[^}]*align-self:\s*stretch;[^}]*margin-left:\s*0;/, 'Compact Safari dice card should stay inside its grid column');
     assert.ok(themeCss.includes('#theme-manager-modal'), 'Theme manager modal style missing');
     assert.ok(themeCss.includes('.theme-option-card:focus-visible'), 'Theme card keyboard focus style missing');
     assert.ok(themeCss.includes('env(safe-area-inset-bottom)'), 'Theme manager safe-area guard missing');

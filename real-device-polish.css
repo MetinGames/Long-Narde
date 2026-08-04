@@ -1,5 +1,9 @@
 /* Focused real-device presentation fixes tracked in GitHub Issue #13. */
 
+#rotate-notice {
+    pointer-events: none;
+}
+
 .start-mode-card-bot:hover,
 .start-mode-card-bot:focus-within {
     border-color: rgba(247, 214, 142, 0.68);
@@ -154,24 +158,76 @@
 }
 
 @media (max-width: 600px) and (orientation: portrait) {
+    body {
+        height: auto;
+        min-height: 100dvh;
+        overflow-y: auto;
+    }
+
+    #game-container {
+        grid-template-rows: auto auto;
+        max-height: none;
+    }
+
+    #info-panel {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        align-content: start;
+    }
+
+    #info-panel > #turn-indicator {
+        grid-area: auto;
+        order: 0;
+    }
+
     #panel-controls {
+        order: 1;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         grid-template-areas:
-            "auto timer dice"
-            "bot language theme"
-            "display display display";
+            "timer dice"
+            "bearoff bearoff"
+            "bot language"
+            "theme theme"
+            "display display";
+        gap: 6px;
     }
 
     #panel-controls:has(#auto-bearoff-help[open]) {
         grid-template-areas:
-            "auto auto auto"
-            "timer dice display"
-            "bot language theme";
+            "timer dice"
+            "bearoff bearoff"
+            "bot language"
+            "theme theme"
+            "display display";
+    }
+
+    #timer-container {
+        grid-area: timer;
+    }
+
+    #dice-container {
+        grid-area: dice;
+        justify-self: stretch;
+        align-self: stretch;
+        margin-left: 0;
+    }
+
+    #difficulty-container {
+        grid-area: bot;
+    }
+
+    #language-container {
+        grid-area: language;
+    }
+
+    #theme-container {
+        grid-area: theme;
     }
 
     #auto-bearoff-container {
-        grid-area: auto;
+        grid-area: bearoff;
         min-width: 0;
-        padding: 5px;
+        padding: 6px 8px;
     }
 
     #auto-bearoff-container:has(#auto-bearoff-help[open]) {
@@ -182,13 +238,14 @@
     #auto-bearoff-heading {
         position: relative;
         min-width: 0;
-        padding-right: 28px;
+        padding-right: 0;
     }
 
     #auto-bearoff-label {
+        flex: 1 1 auto;
         min-width: 0;
-        gap: 4px;
-        font-size: 0.68rem;
+        gap: 6px;
+        font-size: 0.78rem;
         line-height: 1.15;
     }
 
@@ -198,11 +255,9 @@
     }
 
     #auto-bearoff-help summary {
-        position: absolute;
+        position: static;
         z-index: 3;
-        top: 50%;
-        right: 0;
-        transform: translateY(-50%);
+        transform: none;
         width: 24px;
         height: 24px;
     }
@@ -215,6 +270,189 @@
 
     #fullscreen-container {
         grid-area: display;
+        min-height: 44px;
+        padding: 4px;
+    }
+
+    #difficulty-container,
+    #language-container,
+    #theme-container {
+        padding: 4px 6px;
+    }
+
+    #bot-difficulty,
+    #language-select,
+    #theme-select {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
+/* Physical iPhone Safari: keep the board and controls adjacent in the
+   reduced visual viewport left by browser chrome. */
+@media (max-height: 600px) and (orientation: landscape) {
+    html,
+    body {
+        width: 100%;
+        height: 100dvh;
+        min-height: 100dvh;
+        overflow: hidden;
+    }
+
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #game-container {
+        --mobile-panel-width: clamp(230px, 39vw, 300px);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) var(--mobile-panel-width);
+        grid-template-rows: minmax(0, 1fr);
+        grid-template-areas: "board info";
+        width: min(
+            100%,
+            calc(
+                133.333dvh -
+                16px +
+                var(--mobile-panel-width) +
+                6px
+            )
+        );
+        height: calc(100dvh - 8px);
+        max-height: calc(100dvh - 8px);
+        padding: 4px;
+        gap: 6px;
+        align-items: stretch;
+    }
+
+    #board-wrapper {
+        grid-area: board;
+        width: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        align-self: center;
+        justify-self: end;
+    }
+
+    #game-canvas {
+        width: 100%;
+        max-width: 100%;
+        max-height: calc(100dvh - 16px);
+        object-fit: contain;
+    }
+
+    #info-panel {
+        grid-area: info;
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+        padding: 6px;
+        gap: 5px;
+        align-content: start;
+        overflow: hidden;
+    }
+
+    #info-panel:has(#auto-bearoff-help[open]) {
+        overflow-y: auto;
+    }
+
+    #info-panel > #turn-indicator {
+        grid-area: auto;
+        min-height: 30px;
+    }
+
+    #panel-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas:
+            "bot language"
+            "theme theme"
+            "bearoff bearoff"
+            "display display"
+            "timer dice";
+        gap: 5px;
+        align-content: start;
+    }
+
+    #difficulty-container {
+        grid-area: bot;
+    }
+
+    #language-container {
+        grid-area: language;
+    }
+
+    #theme-container {
+        grid-area: theme;
+    }
+
+    #auto-bearoff-container {
+        grid-area: bearoff;
+    }
+
+    #fullscreen-container {
+        grid-area: display;
+    }
+
+    #timer-container {
+        grid-area: timer;
+    }
+
+    #dice-container {
+        grid-area: dice;
+        justify-self: stretch;
+        align-self: stretch;
+        margin-left: 0;
+    }
+
+    #difficulty-container,
+    #language-container,
+    #theme-container,
+    #auto-bearoff-container,
+    #fullscreen-container,
+    #timer-container,
+    #dice-container {
+        width: 100%;
+        min-width: 0;
+        min-height: 38px;
+        padding: 4px 6px;
+    }
+
+    #bot-difficulty,
+    #language-select,
+    #theme-select {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+        max-width: 100%;
+        min-height: 34px;
+        padding: 3px 5px;
+        font-size: 0.72rem;
+    }
+
+    #auto-bearoff-label {
+        min-width: 0;
+        font-size: 0.76rem;
+    }
+
+    #fullscreen-toggle,
+    #point-numbers-toggle {
+        min-height: 36px;
+        padding: 5px 8px;
+    }
+
+    #timer-container .timer-title {
+        margin-bottom: 3px;
+        font-size: 0.62rem;
+    }
+
+    .die {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
     }
 }
 
