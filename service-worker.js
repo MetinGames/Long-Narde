@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v12-2026-08-04';
+const CACHE_VERSION = 'v13-2026-08-04';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -7,6 +7,7 @@ const PRECACHE_PATHS = [
     './index.html',
     './style.css',
     './theme-manager.css',
+    './real-device-polish.css',
     './manifest.webmanifest',
     './app.js',
     './assets/boards/anadolu-ustasi-board-v1.webp',
@@ -48,6 +49,7 @@ const PRECACHE_PATHS = [
     './engine/playerIdentity.js',
     './engine/playerStats.js',
     './engine/playerStatsModal.js',
+    './engine/pointNumberController.js',
     './engine/privateTableProtocol.js',
     './engine/pwa.js',
     './engine/renderer.js',

@@ -4,8 +4,7 @@ import { t } from './i18n.js';
 import {
     BOARD_LAYOUT,
     getBearOffTrayRect,
-    getSlotX,
-    getSlotWidthForColumn
+    getPointRenderRect
 } from './layout.js';
 import { getTheme } from './themes.js';
 import { assets } from './assets.js';
@@ -85,6 +84,7 @@ export class Renderer {
         this.staticBoardDirty = true;
         this.victoryMomentState = null;
         this.botMoveHighlightState = null;
+        this.pointNumbersVisible = false;
 
         this.prepareCanvas();
     }
@@ -232,6 +232,18 @@ export class Renderer {
         this.botMoveHighlightState = null;
     }
 
+    setPointNumbersVisible(isVisible) {
+        const nextValue = Boolean(isVisible);
+        if (this.pointNumbersVisible === nextValue) return;
+
+        this.pointNumbersVisible = nextValue;
+        this.staticBoardDirty = true;
+    }
+
+    arePointNumbersVisible() {
+        return this.pointNumbersVisible;
+    }
+
     resolveActiveBotMoveHighlight(nowMs = getNowMs()) {
         if (!this.botMoveHighlightState) return null;
 
@@ -265,7 +277,8 @@ export class Renderer {
             ...BOARD_LAYOUT,
             leftField: playfield.leftField,
             rightField: playfield.rightField,
-            trayArea: playfield.tray
+            trayArea: playfield.tray,
+            centerPointInset: playfield.centerPointInset
         };
     }
 
@@ -373,17 +386,6 @@ export class Renderer {
             this.theme.pointHeight || this.slotHeight;
         const playfield = this.getPlayfieldEdges();
         const boardLayout = this.getBoardLayout();
-        const botMoveHighlight =
-            this.resolveActiveBotMoveHighlight();
-
-        if (botMoveHighlight) {
-            this.drawBotMoveHighlight(botMoveHighlight, {
-                boardLayout,
-                playfield,
-                pointHeight
-            });
-        }
-
         this.ctx.clearRect(
             0,
             0,
@@ -394,17 +396,14 @@ export class Renderer {
 
         for (let slotId = 12; slotId >= 1; slotId--) {
             const columnIndex = 12 - slotId;
-            const slotWidth =
-                getSlotWidthForColumn(columnIndex, boardLayout);
-            const x = getSlotX(
+            const pointRect = getPointRenderRect(
                 columnIndex,
-                slotWidth,
                 boardLayout
             );
             this.drawMastermindTriangle(
-                x,
+                pointRect.x,
                 playfield.top,
-                slotWidth,
+                pointRect.width,
                 pointHeight,
                 true,
                 slotId,
@@ -414,17 +413,14 @@ export class Renderer {
 
         for (let slotId = 13; slotId <= 24; slotId++) {
             const columnIndex = slotId - 13;
-            const slotWidth =
-                getSlotWidthForColumn(columnIndex, boardLayout);
-            const x = getSlotX(
+            const pointRect = getPointRenderRect(
                 columnIndex,
-                slotWidth,
                 boardLayout
             );
             this.drawMastermindTriangle(
-                x,
+                pointRect.x,
                 playfield.bottom,
-                slotWidth,
+                pointRect.width,
                 pointHeight,
                 false,
                 slotId,
@@ -481,29 +477,37 @@ export class Renderer {
         const playfield = this.getPlayfieldEdges();
         const boardLayout = this.getBoardLayout();
 
+        const botMoveHighlight =
+            this.resolveActiveBotMoveHighlight();
+
+        if (botMoveHighlight) {
+            this.drawBotMoveHighlight(botMoveHighlight, {
+                boardLayout,
+                playfield,
+                pointHeight
+            });
+        }
+
         for (let slotId = 12; slotId >= 1; slotId--) {
             const columnIndex = 12 - slotId;
-            const slotWidth =
-                getSlotWidthForColumn(columnIndex, boardLayout);
-            const x = getSlotX(
+            const pointRect = getPointRenderRect(
                 columnIndex,
-                slotWidth,
                 boardLayout
             );
 
             if (this.highlightedSlots.includes(slotId)) {
                 this.drawHighlightGlow(
-                    x,
+                    pointRect.x,
                     playfield.top,
-                    slotWidth,
+                    pointRect.width,
                     pointHeight,
                     true
                 );
             }
             this.drawMastermindPieces(
-                x,
+                pointRect.x,
                 playfield.top,
-                slotWidth,
+                pointRect.width,
                 game.board.slots[slotId],
                 true,
                 selectedSlotId === slotId
@@ -512,28 +516,25 @@ export class Renderer {
 
         for (let slotId = 13; slotId <= 24; slotId++) {
             const columnIndex = slotId - 13;
-            const slotWidth =
-                getSlotWidthForColumn(columnIndex, boardLayout);
-            const x = getSlotX(
+            const pointRect = getPointRenderRect(
                 columnIndex,
-                slotWidth,
                 boardLayout
             );
             const y = playfield.bottom;
 
             if (this.highlightedSlots.includes(slotId)) {
                 this.drawHighlightGlow(
-                    x,
+                    pointRect.x,
                     y,
-                    slotWidth,
+                    pointRect.width,
                     pointHeight,
                     false
                 );
             }
             this.drawMastermindPieces(
-                x,
+                pointRect.x,
                 y,
-                slotWidth,
+                pointRect.width,
                 game.board.slots[slotId],
                 false,
                 selectedSlotId === slotId
@@ -656,6 +657,8 @@ export class Renderer {
         this.ctx.strokeStyle = this.theme.pointStroke || 'rgba(212, 175, 55, 0.4)';
         this.ctx.stroke();
 
+        if (!this.pointNumbersVisible) return;
+
         // Hane Numaraları (Ağırbaşlı Altın Tonu)
         const numberY = isTop ? y + height + 16 : y - height - 7;
         const numberX = x + (width / 2);
@@ -698,16 +701,15 @@ export class Renderer {
         const columnIndex = isTop
             ? 12 - slotId
             : slotId - 13;
-        const slotWidth = getSlotWidthForColumn(columnIndex, boardLayout);
-        const x = getSlotX(columnIndex, slotWidth, boardLayout);
+        const pointRect = getPointRenderRect(columnIndex, boardLayout);
         const y = isTop ? playfield.top : playfield.bottom;
 
         return {
             type: 'slot',
             isTop,
-            x,
+            x: pointRect.x,
             y,
-            slotWidth,
+            slotWidth: pointRect.width,
             pointHeight
         };
     }
@@ -911,28 +913,28 @@ export class Renderer {
             Math.min(15, collected)
         );
         const laneWidth = Math.max(
-            5,
-            Math.min(8, trayRect.width - 22)
+            16,
+            Math.min(28, trayRect.width - 14)
         );
         const laneX =
-            trayRect.x + trayRect.width - laneWidth - 6;
+            trayRect.x + ((trayRect.width - laneWidth) / 2);
         const laneTop = trayRect.y + 12;
         const laneBottom = trayRect.y + trayRect.height - 12;
         const laneHeight = Math.max(20, laneBottom - laneTop);
-        const sliceHeight = Math.max(
-            2,
-            Math.floor((laneHeight - 4) / 15)
+        const sliceStep = Math.max(
+            5,
+            Math.min(8, Math.floor((laneHeight - 4) / 15))
         );
         const stackBottom = laneBottom - 2;
         const slices = [];
 
         for (let i = 0; i < safeCollected; i++) {
-            const y = stackBottom - ((i + 1) * sliceHeight);
+            const y = stackBottom - ((i + 1) * sliceStep);
             slices.push({
                 x: laneX,
                 y,
                 width: laneWidth,
-                height: sliceHeight - 1
+                height: sliceStep - 1
             });
         }
 
@@ -987,18 +989,56 @@ export class Renderer {
             }
 
             this.ctx.fillStyle = grad;
-            this.ctx.fillRect(
-                slice.x,
-                y,
-                slice.width,
-                slice.height
+            this.ctx.shadowColor = 'rgba(0, 0, 0, 0.42)';
+            this.ctx.shadowBlur = 2;
+            this.ctx.shadowOffsetY = 1;
+            const cornerRadius = Math.min(
+                3,
+                slice.height / 2
             );
+            const canDrawRoundedSlice =
+                typeof this.ctx.roundRect === 'function';
+
+            if (canDrawRoundedSlice) {
+                this.ctx.beginPath();
+                this.ctx.roundRect(
+                    slice.x,
+                    y,
+                    slice.width,
+                    slice.height,
+                    cornerRadius
+                );
+                this.ctx.fill();
+            } else {
+                this.ctx.fillRect(
+                    slice.x,
+                    y,
+                    slice.width,
+                    slice.height
+                );
+            }
+            this.ctx.shadowBlur = 0;
+            this.ctx.shadowOffsetY = 0;
             this.ctx.lineWidth = 0.7;
-            this.ctx.strokeRect(
-                slice.x,
-                y,
-                slice.width,
-                slice.height
+            if (canDrawRoundedSlice) {
+                this.ctx.stroke();
+            } else {
+                this.ctx.strokeRect(
+                    slice.x,
+                    y,
+                    slice.width,
+                    slice.height
+                );
+            }
+
+            this.ctx.fillStyle = player === 1
+                ? 'rgba(255, 249, 225, 0.52)'
+                : 'rgba(255, 255, 255, 0.16)';
+            this.ctx.fillRect(
+                slice.x + 2,
+                y + 1,
+                Math.max(1, slice.width - 4),
+                1
             );
         }
     }

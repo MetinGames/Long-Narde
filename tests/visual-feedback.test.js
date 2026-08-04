@@ -225,6 +225,8 @@ test('toplanan pullar için dilim düzeni hazne içinde üretilir', () => {
         assert.equal(layout.length, 6);
         assert.ok(layout[0].x >= trayRect.x);
         assert.ok(layout[0].x + layout[0].width <= trayRect.x + trayRect.width);
+        assert.ok(layout[0].width >= 24);
+        assert.ok(layout[0].width > layout[0].height * 3);
         assert.ok(layout[0].y > layout[1].y);
     } finally {
         restore();
@@ -367,4 +369,72 @@ test('bot hamle vurgusu manuel olarak temizlenebilir', () => {
     } finally {
         restore();
     }
+});
+
+test('bot hamle vurgusu statik tahta çizildikten sonra ve pullardan önce görünür katmana çizilir', () => {
+    const calls = [];
+    const renderer = Object.create(Renderer.prototype);
+    Object.assign(renderer, {
+        ctx: {
+            clearRect() {
+                calls.push('clear');
+            },
+            drawImage() {
+                calls.push('board');
+            }
+        },
+        canvas: {},
+        boardWidth: 800,
+        boardHeight: 600,
+        borderSize: 20,
+        trayWidth: 55,
+        slotHeight: 220,
+        theme: { pointHeight: 178 },
+        staticBoardDirty: false,
+        staticBoardCanvas: {},
+        highlightedSlots: [],
+        die1Text: null,
+        die2Text: null,
+        calculateHighlights() {},
+        getPlayfieldEdges() {
+            return { top: 42, bottom: 566 };
+        },
+        getBoardLayout() {
+            return {
+                width: 800,
+                height: 600,
+                border: 20,
+                bar: 30,
+                tray: 55,
+                slotCountPerRow: 12,
+                slotHeight: 220
+            };
+        },
+        resolveActiveBotMoveHighlight() {
+            return { fromSlot: 13, targetSlot: 18 };
+        },
+        drawBotMoveHighlight() {
+            calls.push('bot-highlight');
+        },
+        drawMastermindPieces() {
+            calls.push('piece');
+        },
+        drawBearOffTrays() {},
+        updateTurnIndicator() {},
+        updateDoubleMoveRights() {}
+    });
+
+    const slots = Array.from({ length: 26 }, () => ({
+        player: 0,
+        count: 0
+    }));
+    renderer.render({
+        board: { slots },
+        currentPlayer: 1,
+        dice: { values: [] },
+        availableMoves: []
+    });
+
+    assert.ok(calls.indexOf('board') < calls.indexOf('bot-highlight'));
+    assert.ok(calls.indexOf('bot-highlight') < calls.indexOf('piece'));
 });

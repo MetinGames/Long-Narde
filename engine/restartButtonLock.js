@@ -21,14 +21,20 @@ export class RestartButtonLock {
     setButtonState(disabled) {
         if (!this.button) return;
 
-        this.button.disabled = disabled;
+        // Keep receiving click events so an elapsed lock can recover even if
+        // the browser throttled or discarded its unlock timer.
+        this.button.disabled = false;
         this.button.setAttribute(
             'aria-disabled',
             disabled ? 'true' : 'false'
         );
+        this.button.classList?.toggle(
+            'is-restart-locked',
+            disabled
+        );
 
         if (this.button.style && typeof this.button.style === 'object') {
-            this.button.style.pointerEvents = disabled ? 'none' : 'auto';
+            this.button.style.pointerEvents = 'auto';
         }
     }
 
@@ -71,18 +77,28 @@ export class RestartButtonLock {
     }
 
     unlock() {
-        this.clearPendingUnlock();
+        this.cancelPendingUnlockTimer();
         this.locked = false;
         this.unlockAt = 0;
         this.setButtonState(false);
     }
 
     isLocked() {
+        if (
+            this.locked &&
+            this.unlockAt > 0 &&
+            this.now() >= this.unlockAt
+        ) {
+            this.unlock();
+        }
+
         return this.locked;
     }
 
     dispose() {
-        this.clearPendingUnlock();
+        this.cancelPendingUnlockTimer();
         this.locked = false;
+        this.unlockAt = 0;
+        this.setButtonState(false);
     }
 }

@@ -82,6 +82,7 @@ export const THEMES = Object.freeze({
         playfield: Object.freeze({
             top: 42,
             bottom: 566,
+            centerPointInset: 7,
             leftField: Object.freeze({
                 x: 43,
                 width: 331

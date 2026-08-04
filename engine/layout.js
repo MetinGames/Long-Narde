@@ -67,6 +67,46 @@ export function getSlotX(
     return x;
 }
 
+export function getPointRenderRect(
+    columnIndex,
+    layout = BOARD_LAYOUT
+) {
+    const slotWidth = getSlotWidthForColumn(
+        columnIndex,
+        layout
+    );
+    const slotX = getSlotX(
+        columnIndex,
+        slotWidth,
+        layout
+    );
+    const configuredInset = Number(
+        layout.centerPointInset
+    );
+    const centerPointInset = Number.isFinite(configuredInset)
+        ? Math.max(0, Math.min(slotWidth - 1, configuredInset))
+        : 0;
+
+    if (columnIndex === 5) {
+        return {
+            x: slotX,
+            width: slotWidth - centerPointInset
+        };
+    }
+
+    if (columnIndex === 6) {
+        return {
+            x: slotX + centerPointInset,
+            width: slotWidth - centerPointInset
+        };
+    }
+
+    return {
+        x: slotX,
+        width: slotWidth
+    };
+}
+
 export function getSlotFromCoordinates(
     x,
     y,

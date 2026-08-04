@@ -111,9 +111,9 @@ test('restart kilidi butonu gecici olarak devre disi birakir ve sonra acar', asy
     lock.lock();
 
     assert.equal(lock.isLocked(), true);
-    assert.equal(button.disabled, true);
+    assert.equal(button.disabled, false);
     assert.equal(button.getAttribute('aria-disabled'), 'true');
-    assert.equal(button.style.pointerEvents, 'none');
+    assert.equal(button.style.pointerEvents, 'auto');
     assert.equal(timers[0].delay, 700);
 
     timers[0].callback();
@@ -150,7 +150,8 @@ test('restart kilidi yeniden lock cagrisinda eski zamanlayiciyi temizler', () =>
 
     assert.equal(firstTimer.cleared, true);
     assert.equal(timers.length, 2);
-    assert.equal(button.disabled, true);
+    assert.equal(button.disabled, false);
+    assert.equal(button.getAttribute('aria-disabled'), 'true');
 
     lock.unlock();
     assert.equal(button.disabled, false);
@@ -247,6 +248,30 @@ test('erken restart tiklamasi engellenir, 700ms sonrasi gecerli tiklama oyunu ba
     assert.equal(overlayVisible, false);
 });
 
+test('restart zamanlayicisi calismazsa suresi dolan kilit ilk tiklamada kendini acar', () => {
+    const button = createButton();
+    let now = 0;
+    const lock = new RestartButtonLock({
+        button,
+        delayMs: 700,
+        now: () => now,
+        schedule() {
+            return { lost: true };
+        },
+        cancel() {}
+    });
+
+    lock.lock();
+    assert.equal(lock.isLocked(), true);
+    assert.equal(button.getAttribute('aria-disabled'), 'true');
+
+    now = 701;
+    assert.equal(lock.isLocked(), false);
+    assert.equal(button.getAttribute('aria-disabled'), 'false');
+    assert.equal(button.disabled, false);
+    assert.equal(button.style.pointerEvents, 'auto');
+});
+
 test('bot hamle geri bildirimi yardimcilari renderer metotlarini dogru cagirir', () => {
     const calls = [];
     const renderer = {
@@ -277,11 +302,11 @@ test('bot hamle geri bildirimi yardimcilari renderer metotlarini dogru cagirir',
     assert.equal(calls[1].type, 'set');
     assert.equal(calls[1].payload.fromSlot, 13);
     assert.equal(calls[1].payload.targetSlot, 16);
-    assert.equal(calls[1].payload.durationMs, 1250);
+    assert.equal(calls[1].payload.durationMs, 1700);
 
     assert.equal(calls[2].type, 'set');
     assert.equal(calls[2].payload.targetSlot, 25);
-    assert.equal(calls[2].payload.durationMs, 1000);
+    assert.equal(calls[2].payload.durationMs, 1500);
 
     const clearCalls = calls.filter(item => item.type === 'clear').length;
     assert.equal(clearCalls, 4);

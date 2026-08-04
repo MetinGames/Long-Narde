@@ -15,6 +15,7 @@
     <link rel="apple-touch-icon" href="./assets/branding/icons/apple-touch-icon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="theme-manager.css">
+    <link rel="stylesheet" href="real-device-polish.css">
     <link rel="stylesheet" href="assets/branding/nardora-splash.css">
 </head>
 <body>
@@ -72,18 +73,27 @@
             </div>
 
             <div id="auto-bearoff-container" class="is-disabled">
-                <label for="auto-bearoff-toggle" id="auto-bearoff-label">
-                    <input
-                        id="auto-bearoff-toggle"
-                        type="checkbox"
-                        aria-describedby="auto-bearoff-hint"
-                    >
-                    <span data-i18n="ui.autoBearOff">Otomatik Topla</span>
-                </label>
-                <p
-                    id="auto-bearoff-hint"
-                    data-i18n="ui.autoBearOffHintDisabled"
-                >Otomatik toplama için tüm pullarınız son altı hanede olmalı.</p>
+                <div id="auto-bearoff-heading">
+                    <label for="auto-bearoff-toggle" id="auto-bearoff-label">
+                        <input
+                            id="auto-bearoff-toggle"
+                            type="checkbox"
+                        >
+                        <span data-i18n="ui.autoBearOff">Otomatik Topla</span>
+                    </label>
+                    <details id="auto-bearoff-help">
+                        <summary
+                            data-i18n-aria-label="ui.autoBearOffHelp"
+                            data-i18n-title="ui.autoBearOffHelp"
+                            aria-label="Otomatik toplama açıklamasını göster"
+                            title="Otomatik toplama açıklamasını göster"
+                        >?</summary>
+                        <p
+                            id="auto-bearoff-hint"
+                            data-i18n="ui.autoBearOffHintDisabled"
+                        >Otomatik toplama için tüm pullarınız son altı hanede olmalı.</p>
+                    </details>
+                </div>
             </div>
 
             <div id="fullscreen-container">
@@ -102,6 +112,18 @@
                         </svg>
                     </span>
                     <span id="fullscreen-toggle-label" class="fullscreen-toggle-label">Tam Ekrana Geç</span>
+                </button>
+                <button
+                    id="point-numbers-toggle"
+                    type="button"
+                    aria-pressed="false"
+                    data-i18n-aria-label="ui.showPointNumbers"
+                    data-i18n-title="ui.showPointNumbers"
+                    aria-label="Hane numaralarını göster"
+                    title="Hane numaralarını göster"
+                >
+                    <span class="point-numbers-toggle-icon" aria-hidden="true">123</span>
+                    <span class="visually-hidden" data-i18n="ui.showPointNumbers">Hane numaralarını göster</span>
                 </button>
             </div>
 
