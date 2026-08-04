@@ -5,6 +5,7 @@ import { BotTurnTouchFeedback } from '../engine/botTurnTouchFeedback.js';
 import { RestartButtonLock } from '../engine/restartButtonLock.js';
 import {
     applyBotMoveFeedback,
+    BOT_MOVE_STEP_DELAY_MS,
     clearBotMoveFeedback,
     endBotMoveFeedback,
     resetBotMoveFeedback,
@@ -310,4 +311,5 @@ test('bot hamle geri bildirimi yardimcilari renderer metotlarini dogru cagirir',
 
     const clearCalls = calls.filter(item => item.type === 'clear').length;
     assert.equal(clearCalls, 4);
+    assert.equal(BOT_MOVE_STEP_DELAY_MS, 700);
 });

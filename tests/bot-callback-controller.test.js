@@ -89,3 +89,28 @@ test('bot callback controller still settles when a stale step is replaced by one
     assert.equal(attempt, 2);
     assert.equal(controller.isScheduled(), false);
 });
+
+test('bot callback controller recovers from an async failure without leaving the turn locked', async () => {
+    const timers = [];
+    const recoveredErrors = [];
+    const controller = createBotCallbackController({
+        scheduleCallback(callback, delay) {
+            const timer = { callback, delay };
+            timers.push(timer);
+            return timer;
+        },
+        onError(error) {
+            recoveredErrors.push(error.message);
+        }
+    });
+
+    controller.scheduleNext(async () => {
+        throw new Error('bot-step-failed');
+    }, 700);
+
+    await timers[0].callback();
+
+    assert.deepEqual(recoveredErrors, ['bot-step-failed']);
+    assert.equal(controller.isScheduled(), false);
+    assert.equal(controller.isExecuting(), false);
+});

@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v13-2026-08-04';
+const CACHE_VERSION = 'v14-2026-08-04';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -35,7 +35,6 @@ const PRECACHE_PATHS = [
     './engine/friendMatchPreviewController.js',
     './engine/fullscreenController.js',
     './engine/game.js',
-    './engine/gameFeedbackToast.js',
     './engine/firstMatchTutorial.js',
     './engine/howToPlayGuide.js',
     './engine/i18n.js',

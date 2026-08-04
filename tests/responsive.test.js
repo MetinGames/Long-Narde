@@ -47,8 +47,6 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#friend-preview-modal'), 'Local friend preview modal style missing');
     assert.ok(css.includes('#friend-preview-timeline'), 'Local friend preview timeline style missing');
     assert.ok(css.includes('#friend-preview-button:focus-visible'), 'Local friend preview keyboard focus style missing');
-    assert.ok(css.includes('#game-feedback-toast'), 'Game feedback toast style missing');
-    assert.ok(css.includes('#game-feedback-toast.is-visible'), 'Game feedback toast visibility style missing');
     assert.ok(css.includes('#fullscreen-toggle'), 'Fullscreen toggle style missing');
     assert.ok(css.includes('#auto-bearoff-container'), 'Auto bear-off container style missing');
     assert.ok(css.includes('#auto-bearoff-toggle'), 'Auto bear-off toggle style missing');
@@ -63,6 +61,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#info-panel > #turn-indicator.is-dark-turn'), 'Dark turn indicator class style missing');
     assert.ok(css.includes('#auto-bearoff-container'), 'Auto bear-off container layout guard missing');
     assert.ok(devicePolishCss.includes('#auto-bearoff-help'), 'Auto bear-off disclosure style missing');
+    assert.match(devicePolishCss, /#auto-bearoff-help\s*\{[^}]*position:\s*static;/, 'Auto bear-off disclosure should anchor its hint to the full control card');
+    assert.match(devicePolishCss, /#auto-bearoff-hint\s*\{[^}]*right:\s*0;[^}]*left:\s*0;[^}]*width:\s*auto;/, 'Auto bear-off hint should stay inside the control card');
+    assert.ok(devicePolishCss.includes('#auto-bearoff-container:has(#auto-bearoff-help[open])'), 'Open Auto Bear-Off help should reserve its own control-card space');
+    assert.ok(devicePolishCss.includes('#panel-controls:has(#auto-bearoff-help[open])'), 'Portrait help should expand to a full control row');
     assert.ok(devicePolishCss.includes('#point-numbers-toggle'), 'Point-number toggle style missing');
     assert.ok(devicePolishCss.includes('"auto timer dice"'), 'Portrait control areas should keep Quick Bear-Off help clear of timer controls');
     assert.ok(themeCss.includes('#theme-manager-modal'), 'Theme manager modal style missing');

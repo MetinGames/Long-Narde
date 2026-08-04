@@ -82,6 +82,12 @@
     min-height: 44px;
 }
 
+#auto-bearoff-container:has(#auto-bearoff-help[open]) {
+    grid-column: 1 / -1;
+    min-height: 128px;
+    padding-bottom: 80px;
+}
+
 #auto-bearoff-heading {
     min-height: 26px;
     display: flex;
@@ -91,7 +97,7 @@
 }
 
 #auto-bearoff-help {
-    position: relative;
+    position: static;
     flex: 0 0 auto;
 }
 
@@ -125,8 +131,10 @@
     position: absolute;
     z-index: 40;
     right: 0;
-    top: calc(100% + 6px);
-    width: min(230px, calc(100vw - 32px));
+    left: 0;
+    top: 40px;
+    width: auto;
+    box-sizing: border-box;
     min-height: 0;
     margin: 0;
     padding: 9px 10px;
@@ -153,10 +161,22 @@
             "display display display";
     }
 
+    #panel-controls:has(#auto-bearoff-help[open]) {
+        grid-template-areas:
+            "auto auto auto"
+            "timer dice display"
+            "bot language theme";
+    }
+
     #auto-bearoff-container {
         grid-area: auto;
         min-width: 0;
         padding: 5px;
+    }
+
+    #auto-bearoff-container:has(#auto-bearoff-help[open]) {
+        min-height: 128px;
+        padding-bottom: 80px;
     }
 
     #auto-bearoff-heading {
@@ -173,20 +193,24 @@
     }
 
     #auto-bearoff-help {
+        position: static;
+        transform: none;
+    }
+
+    #auto-bearoff-help summary {
         position: absolute;
         z-index: 3;
         top: 50%;
         right: 0;
         transform: translateY(-50%);
-    }
-
-    #auto-bearoff-help summary {
         width: 24px;
         height: 24px;
     }
 
     #auto-bearoff-hint {
-        right: -4px;
+        right: 0;
+        left: 0;
+        top: 36px;
     }
 
     #fullscreen-container {

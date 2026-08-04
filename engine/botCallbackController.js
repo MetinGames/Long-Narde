@@ -1,5 +1,6 @@
 export function createBotCallbackController({
-    scheduleCallback
+    scheduleCallback,
+    onError = null
 }) {
     let isScheduled = false;
     let isExecuting = false;
@@ -7,6 +8,14 @@ export function createBotCallbackController({
     function reset() {
         isScheduled = false;
         isExecuting = false;
+    }
+
+    function recover(error) {
+        if (typeof onError === 'function') {
+            return onError(error);
+        }
+
+        throw error;
     }
 
     function scheduleNext(callback, delay = 550) {
@@ -23,16 +32,18 @@ export function createBotCallbackController({
             try {
                 const result = callback();
                 if (result && typeof result.then === 'function') {
-                    return result.finally(() => {
-                        isExecuting = false;
-                    });
+                    return result
+                        .catch(recover)
+                        .finally(() => {
+                            isExecuting = false;
+                        });
                 }
 
                 isExecuting = false;
                 return result;
             } catch (error) {
                 isExecuting = false;
-                throw error;
+                return recover(error);
             }
         }, delay);
     }
