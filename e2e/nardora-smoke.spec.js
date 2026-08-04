@@ -230,7 +230,9 @@ test('start flow, language synchronization, and canvas readiness', async ({
     await startLanguage.selectOption('en');
     await startDifficulty.selectOption('champion');
     await expect(sideDifficulty).toHaveValue('champion');
-    await blackCheckerColor.check();
+    await page.locator('.checker-color-option', {
+        has: blackCheckerColor
+    }).click();
     await expect(blackCheckerColor).toBeChecked();
     expect(await page.evaluate(() =>
         localStorage.getItem('nardora.checkerColor.v1')
@@ -303,7 +305,12 @@ test('unfinished local match is offered and resumes after refresh', async ({
 
     const continueButton = page.locator('#continue-match-button');
     await expect(continueButton).toBeHidden();
-    await page.locator('input[name="checker-color"][value="black"]').check();
+    const blackCheckerColor = page.locator(
+        'input[name="checker-color"][value="black"]'
+    );
+    await page.locator('.checker-color-option', {
+        has: blackCheckerColor
+    }).click();
     await page.locator('#start-button').click();
     await expect(page.locator('#start-screen')).toBeHidden();
 
