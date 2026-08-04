@@ -23,9 +23,4 @@ export class Dice {
     reset() {
         this.values = [];
     }
-
-    reset() {
-        this.values = [];
-        this.movesLeft = [];
-    }
 }
