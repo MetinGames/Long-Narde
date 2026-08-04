@@ -3,12 +3,35 @@ const LOCAL_SERVICE_WORKER_HOSTS = new Set([
     '127.0.0.1',
     '[::1]'
 ]);
+const controllerChangeSubscriptions = new WeakSet();
 
 export function isServiceWorkerContextAllowed(locationRef = globalThis.location) {
     if (!locationRef) return false;
 
     return locationRef.protocol === 'https:' ||
         LOCAL_SERVICE_WORKER_HOSTS.has(locationRef.hostname);
+}
+
+export function reloadOnServiceWorkerControllerChange({
+    serviceWorkerContainer,
+    locationRef
+}) {
+    if (
+        !serviceWorkerContainer?.controller ||
+        typeof serviceWorkerContainer.addEventListener !== 'function' ||
+        controllerChangeSubscriptions.has(serviceWorkerContainer)
+    ) {
+        return false;
+    }
+
+    controllerChangeSubscriptions.add(serviceWorkerContainer);
+    let reloadRequested = false;
+    serviceWorkerContainer.addEventListener('controllerchange', () => {
+        if (reloadRequested) return;
+        reloadRequested = true;
+        locationRef?.reload?.();
+    }, { once: true });
+    return true;
 }
 
 export function activateWaitingServiceWorker({
@@ -24,12 +47,10 @@ export function activateWaitingServiceWorker({
         return false;
     }
 
-    let reloadRequested = false;
-    serviceWorkerContainer.addEventListener('controllerchange', () => {
-        if (reloadRequested) return;
-        reloadRequested = true;
-        locationRef?.reload?.();
-    }, { once: true });
+    reloadOnServiceWorkerControllerChange({
+        serviceWorkerContainer,
+        locationRef
+    });
 
     registration.waiting.postMessage({ type: 'SKIP_WAITING' });
     return true;
@@ -50,6 +71,11 @@ export async function registerNardoraServiceWorker({
     }
 
     try {
+        reloadOnServiceWorkerControllerChange({
+            serviceWorkerContainer,
+            locationRef
+        });
+
         const registration = await serviceWorkerContainer.register(
             scriptUrl.href,
             {

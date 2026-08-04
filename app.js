@@ -41,7 +41,6 @@ import {
     resetBotMoveFeedback,
     startBotMoveFeedback
 } from './engine/botMoveFeedback.js';
-import { BotTurnTouchFeedback } from './engine/botTurnTouchFeedback.js';
 import { RestartButtonLock } from './engine/restartButtonLock.js';
 import { createAppRuntimeState } from './engine/appRuntimeState.js';
 import { createRuntimeDiagnostics } from './engine/runtimeDiagnostics.js';
@@ -106,8 +105,6 @@ let autoBearOffEnabled = false;
 let autoBearOffContainer = null;
 let autoBearOffToggle = null;
 let autoBearOffHint = null;
-
-const botTurnTouchFeedback = new BotTurnTouchFeedback();
 
 const timeoutController = new TurnTimeoutController();
 const playerStatsStore = new PlayerStatsStore();
@@ -312,7 +309,6 @@ function startGame() {
     runtimeDiagnostics.recordGameStart('startGame');
     renderer.clearVictoryMoment();
     resetBotMoveFeedback(renderer);
-    botTurnTouchFeedback.reset();
     timeoutController.resetAll();
     resetAutoBearOffForNewGame();
 
@@ -331,7 +327,6 @@ function initializeBeforeStart() {
     game.initGame();
     renderer.clearVictoryMoment();
     resetBotMoveFeedback(renderer);
-    botTurnTouchFeedback.reset();
     timeoutController.resetAll();
     resetAutoBearOffForNewGame();
 
@@ -570,14 +565,12 @@ function beginCurrentTurn(options = {}) {
     resetBotCallbackGuards();
 
     if (game.currentPlayer === 1) {
-        botTurnTouchFeedback.reset();
         ui.setHumanTurnLayout();
         setStatus(
             t(statusOverrideKey || 'status.yourTurn'),
             { force: true }
         );
     } else {
-        botTurnTouchFeedback.reset();
         ui.setBotTurnLayout();
         setStatus(
             t(statusOverrideKey || 'status.botTurn'),
@@ -722,7 +715,6 @@ function showGameOver(winner, messageKey = null) {
         difficulty: bot.difficulty
     });
     playerStatsModal?.render();
-    botTurnTouchFeedback.reset();
     endBotMoveFeedback(renderer);
     updateScreen();
     ui.setBotTurnLayout();
@@ -851,7 +843,6 @@ function restartGame() {
     runtimeDiagnostics.recordGameStart('restartGame');
     renderer.clearVictoryMoment();
     resetBotMoveFeedback(renderer);
-    botTurnTouchFeedback.reset();
     restartButtonLock?.unlock();
     timeoutController.resetAll();
     resetAutoBearOffForNewGame();
@@ -1386,17 +1377,6 @@ function bindEvents() {
             !autoBearOffFlow.isRunning() &&
             game.currentPlayer === 1 &&
             game.gameStatus === 'PLAYING',
-        onBlockedInteraction: () => {
-            if (
-                botTurnTouchFeedback.shouldShowWaitMessage({
-                    isStartScreen: runtimeState.isInitialStartPending(),
-                    gameStatus: game.gameStatus,
-                    currentPlayer: game.currentPlayer
-                })
-            ) {
-                setStatus(t('status.waitForBotTurn'), { force: true });
-            }
-        },
         layout: () => renderer.getBoardLayout(),
         onSlotClick: handleSlotClick
     });

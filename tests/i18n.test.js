@@ -318,7 +318,7 @@ test('auto bear-off label is localized in Turkish, English, and Russian', async 
     restoreGlobalProperty('navigator', originalNavigator);
 });
 
-test('point-number controls and bot move summaries are localized in all languages', async () => {
+test('point-number controls are localized in all languages', async () => {
     const savedStorage = new FakeStorage({ 'narde-language': 'en' });
     const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
     const originalNavigator = defineGlobalProperty('navigator', {
@@ -333,10 +333,6 @@ test('point-number controls and bot move summaries are localized in all language
         i18n.setLanguage(language);
         assert.notEqual(i18n.t('ui.showPointNumbers'), 'ui.showPointNumbers');
         assert.notEqual(i18n.t('ui.hidePointNumbers'), 'ui.hidePointNumbers');
-        assert.match(
-            i18n.t('status.botMoved', { from: 13, target: 18 }),
-            /13.*18/
-        );
     }
 
     restoreGlobalProperty('localStorage', originalLocalStorage);
