@@ -371,6 +371,47 @@ test('bot hamle vurgusu manuel olarak temizlenebilir', () => {
     }
 });
 
+test('pul animasyonu hedefteki son pulu gecici olarak hareket katmanina ayirir', () => {
+    const renderer = Object.create(Renderer.prototype);
+    renderer.checkerMoveAnimationState = null;
+
+    renderer.startCheckerMoveAnimation({
+        fromSlot: 1,
+        targetSlot: 4,
+        player: 1,
+        sourceCountBefore: 15,
+        targetCountAfter: 3,
+        liftPx: 24
+    });
+
+    assert.equal(renderer.checkerMoveAnimationState.progress, 0);
+    assert.deepEqual(
+        renderer.getAnimatedSlotData(4, { count: 3, player: 1 }),
+        { count: 2, player: 1 }
+    );
+    assert.equal(renderer.getAnimatedCollectedCount(1, 6), 6);
+
+    renderer.setCheckerMoveAnimationProgress(0.5);
+    assert.equal(renderer.checkerMoveAnimationState.progress, 0.5);
+    renderer.clearCheckerMoveAnimation();
+    assert.equal(renderer.checkerMoveAnimationState, null);
+});
+
+test('toplama animasyonu son hazne dilimini gecici olarak gizler', () => {
+    const renderer = Object.create(Renderer.prototype);
+    renderer.startCheckerMoveAnimation({
+        fromSlot: 24,
+        targetSlot: 25,
+        player: 1,
+        sourceCountBefore: 1,
+        targetCountAfter: 15,
+        liftPx: 24
+    });
+
+    assert.equal(renderer.getAnimatedCollectedCount(1, 15), 14);
+    assert.equal(renderer.getAnimatedCollectedCount(2, 5), 5);
+});
+
 test('bot hamle vurgusu statik tahta çizildikten sonra ve pullardan önce görünür katmana çizilir', () => {
     const calls = [];
     const renderer = Object.create(Renderer.prototype);

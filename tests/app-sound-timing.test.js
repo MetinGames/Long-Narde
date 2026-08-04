@@ -32,11 +32,14 @@ test('insan hamlesinde pul sesi, basarili uygulama sonrasinda ve renderdan once 
     const soundIdx = section.indexOf('sound.playPiecePlaceForMove({', applyIdx);
     assert.notEqual(soundIdx, -1);
 
-    const updateIdx = section.indexOf('updateScreen();', applyIdx);
-    assert.notEqual(updateIdx, -1);
+    const animationIdx = section.indexOf(
+        'await playAppliedCheckerTransition(transition);',
+        applyIdx
+    );
+    assert.notEqual(animationIdx, -1);
 
     assert.ok(soundIdx > applyIdx);
-    assert.ok(soundIdx < updateIdx);
+    assert.ok(soundIdx < animationIdx);
 });
 
 test('pul sesi turn confirm akisina birakilmaz ve undo akisinda calmiyor', () => {
@@ -54,7 +57,7 @@ test('pul sesi turn confirm akisina birakilmaz ve undo akisinda calmiyor', () =>
     const confirmTail = bindSection.slice(confirmIdx, bindSection.indexOf('bindCanvasInput(canvas, {', confirmIdx));
     assert.equal(/playPiecePlaceForMove\(/.test(confirmTail), false);
 
-    const undoIdx = bindSection.indexOf("ui.undoButton?.addEventListener('click', () => {");
+    const undoIdx = bindSection.indexOf("ui.undoButton?.addEventListener('click', async () => {");
     assert.notEqual(undoIdx, -1);
 
     const undoTail = bindSection.slice(undoIdx, bindSection.indexOf("ui.confirmButton?.addEventListener('click', () => {", undoIdx));

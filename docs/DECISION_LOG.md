@@ -160,6 +160,24 @@ This log records durable decisions and their reasoning. New entries are appended
 **Consequences:** New themes must provide the complete token contract, meet automated contrast gates, preserve checker identity and legal-state clarity, include TR/EN/RU copy, and update browser visual baselines. Focused controller and stylesheet files own gallery lifecycle and presentation without expanding `style.css`.
 **Review trigger:** Dynamic downloadable themes, user-authored palettes, a new rendering architecture, or measured accessibility evidence requires a different token or validation model.
 
+### D-024 — Unfinished local matches use validated device-only snapshots
+
+**Date:** 2026-08-04
+**Status:** Accepted
+**Decision:** Save an unfinished local bot match after durable transitions in a versioned `localStorage` envelope. Restore only active, checker-conserving, schema-compatible snapshots no older than 30 days. Restore the board, dice rights, turn/opening state, Undo history, move count, difficulty, timeout strikes, and Quick Bear-Off preference; give a restored human turn a fresh local deadline.
+**Reason:** A refresh, browser close, PWA restart, or mobile lifecycle interruption should not discard a meaningful local match, but browser storage must not become an unvalidated game-authority boundary.
+**Consequences:** Continue Match appears only for a valid unfinished snapshot. Completed, corrupt, incompatible, expired, or structurally impossible states fail closed and are removed. The snapshot stays on the device, is not cloud sync, and is never trusted for future online results, scores, dice, or ratings.
+**Review trigger:** Cloud accounts, cross-device sync, authoritative online matches, storage quotas, or a schema migration require a different persistence and trust boundary.
+
+### D-025 — Mars is a two-point result classification
+
+**Date:** 2026-08-04
+**Status:** Accepted
+**Decision:** A normal 15-checker bearing-off win is classified as **Mars** when the losing player has borne off zero checkers. Mars is worth two points; otherwise the win is a normal one-point result. Timeout is never Mars.
+**Reason:** Mars is an expected Long Narde result and should be visible without changing legal movement, dice use, or the existing win condition.
+**Consequences:** The engine exposes deterministic `victoryType` and `matchPoints` values, and the result overlay explains human and bot Mars outcomes in English, Turkish, and Russian.
+**Review trigger:** A multi-game match format, tournament scoring, regional ruleset option, or authoritative online score service requires expanded scoring policy.
+
 ## Open decisions
 
 1. **Monetization:** premium purchase, ads, cosmetic purchases, subscription or hybrid.

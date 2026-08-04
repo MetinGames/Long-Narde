@@ -276,6 +276,43 @@ test('start flow, language synchronization, and canvas readiness', async ({
     expect(runtimeErrors).toEqual([]);
 });
 
+test('unfinished local match is offered and resumes after refresh', async ({
+    page
+}, testInfo) => {
+    test.skip(
+        testInfo.project.name !== 'desktop-chromium',
+        'The persistence journey is covered once; storage validation is unit tested.'
+    );
+
+    const runtimeErrors = captureRuntimeErrors(page);
+    await openReadyStartScreen(page);
+
+    const continueButton = page.locator('#continue-match-button');
+    await expect(continueButton).toBeHidden();
+    await page.locator('#start-button').click();
+    await expect(page.locator('#start-screen')).toBeHidden();
+
+    await expect.poll(() => page.evaluate(() =>
+        localStorage.getItem('nardora.ongoingMatch.v1')
+    )).not.toBeNull();
+
+    await page.reload();
+    await expect(page.locator('#nardora-splash')).toHaveCount(0, {
+        timeout: 7_000
+    });
+    await expect(page.locator('#start-screen')).toBeVisible();
+    await expect(continueButton).toBeVisible();
+    await expect(continueButton).toContainText('Continue Match');
+
+    await continueButton.click();
+    await expect(page.locator('#start-screen')).toBeHidden();
+    await expect(page.locator('#game-canvas')).toBeVisible();
+    await expect.poll(() => page.evaluate(() =>
+        localStorage.getItem('nardora.ongoingMatch.v1')
+    )).not.toBeNull();
+    expect(runtimeErrors).toEqual([]);
+});
+
 test('start-screen dialogs open and close without starting a match', async ({
     page
 }) => {

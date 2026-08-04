@@ -12,6 +12,11 @@ import {
 } from './engine/i18n.js';
 import { setupLanguageSelectors } from './engine/languageSelectors.js';
 import { DiceRollAnimation } from './engine/animations.js';
+import {
+    captureCheckerTransition,
+    completeCheckerTransition,
+    getCheckerMoveAnimationProfile
+} from './engine/checkerMoveAnimation.js';
 import { bindCanvasInput } from './engine/input.js';
 import { TurnTimeoutController } from './engine/timeoutController.js';
 import { HowToPlayGuide } from './engine/howToPlayGuide.js';
@@ -70,6 +75,7 @@ import { createStartModeController } from './engine/startModeController.js';
 import {
     FriendMatchPreviewController
 } from './engine/friendMatchPreviewController.js';
+import { OngoingMatchStore } from './engine/ongoingMatch.js';
 
 const game = new NardeGame();
 const renderer = new Renderer();
@@ -77,6 +83,7 @@ const bot = new NardeBot(2, 'medium');
 const ui = new UIManager();
 const diceRollAnimation = new DiceRollAnimation();
 const sound = new SoundManager();
+const ongoingMatchStore = new OngoingMatchStore();
 
 const runtimeState = createAppRuntimeState();
 const runtimeDiagnostics = createRuntimeDiagnostics({
@@ -105,6 +112,8 @@ let autoBearOffEnabled = false;
 let autoBearOffContainer = null;
 let autoBearOffToggle = null;
 let autoBearOffHint = null;
+let continueMatchButton = null;
+let isCheckerMoveAnimating = false;
 
 const timeoutController = new TurnTimeoutController();
 const playerStatsStore = new PlayerStatsStore();
@@ -145,11 +154,16 @@ const autoBearOffFlow = createAutoBearOffFlow({
         runtimeState.removeScheduledTimeout(timeoutId);
     },
     stepDelayMs: 300,
-    applyMove: move => {
+    applyMove: async move => {
         if (game.gameStatus !== 'PLAYING' || game.currentPlayer !== 1) {
             return false;
         }
 
+        const transition = captureCheckerTransition(game, {
+            fromSlot: move.from,
+            targetSlot: move.target,
+            player: 1
+        });
         const applied = game.executeMove(move.from, move.dice);
         if (!applied) return false;
 
@@ -161,10 +175,11 @@ const autoBearOffFlow = createAutoBearOffFlow({
             moveId,
             isCollect: move.target === 25
         });
-        updateScreen();
+        const winner = game.checkWinCondition();
+        persistOngoingMatch();
+        await playAppliedCheckerTransition(transition);
         ui.setHumanMoveLayout();
 
-        const winner = game.checkWinCondition();
         if (winner !== 0) {
             void (async () => {
                 await playVictoryMomentIfEligible({
@@ -248,6 +263,124 @@ function scheduleBotMoveCallback(delay = 550) {
     return botCallbackController.scheduleNext(runBotMove, delay);
 }
 
+function persistOngoingMatch() {
+    if (
+        runtimeState.isInitialStartPending() ||
+        game.gameStatus === 'GAME_OVER'
+    ) {
+        if (game.gameStatus === 'GAME_OVER') {
+            ongoingMatchStore.clear();
+        }
+        return null;
+    }
+
+    const gameState = game.exportState();
+    if (!gameState) return null;
+
+    return ongoingMatchStore.save({
+        gameState,
+        totalMoves: runtimeState.getTotalMoveCounter(),
+        difficulty: bot.difficulty,
+        autoBearOffEnabled
+    });
+}
+
+function refreshContinueMatchEntry(snapshot = ongoingMatchStore.load()) {
+    if (!continueMatchButton) return Boolean(snapshot);
+
+    const isAvailable = Boolean(snapshot);
+    continueMatchButton.hidden = !isAvailable;
+    continueMatchButton.setAttribute('aria-hidden', String(!isAvailable));
+    return isAvailable;
+}
+
+async function playAppliedCheckerTransition(capture) {
+    const transition = completeCheckerTransition(capture, game);
+    if (!transition) {
+        updateScreen();
+        return false;
+    }
+
+    const profile = getCheckerMoveAnimationProfile(prefersReducedMotion());
+    const sessionToken = runtimeState.captureSessionToken();
+    isCheckerMoveAnimating = true;
+    renderer.startCheckerMoveAnimation({
+        ...transition,
+        liftPx: profile.liftPx
+    });
+    updateScreen();
+
+    try {
+        await animateForDuration(profile.durationMs, progress => {
+            if (!runtimeState.isSessionTokenCurrent(sessionToken)) return;
+            renderer.setCheckerMoveAnimationProgress(progress);
+            updateScreen();
+        });
+    } finally {
+        if (runtimeState.isSessionTokenCurrent(sessionToken)) {
+            renderer.clearCheckerMoveAnimation();
+            isCheckerMoveAnimating = false;
+            updateScreen();
+        }
+    }
+
+    return true;
+}
+
+function resumeSavedMatch() {
+    const snapshot = ongoingMatchStore.load();
+    if (!snapshot || !game.restoreState(snapshot.gameState)) {
+        ongoingMatchStore.clear();
+        refreshContinueMatchEntry(null);
+        return false;
+    }
+
+    void sound.activateFromUserGesture().catch(() => {});
+    clearRuntimeTasks();
+    matchStatsRecorder.beginMatch();
+    howToPlayGuide?.close({ returnFocus: false });
+    playerStatsModal?.close({ returnFocus: false });
+    hideStartScreen();
+
+    runtimeState.resetForSession({ initialStartPending: false });
+    runtimeState.setTotalMoveCounter(snapshot.totalMoves);
+    bot.difficulty = snapshot.difficulty;
+    bot.resetPlannedTurn?.();
+    autoBearOffEnabled = snapshot.autoBearOffEnabled;
+    renderer.clearVictoryMoment();
+    renderer.clearCheckerMoveAnimation();
+    resetBotMoveFeedback(renderer);
+    timeoutController.resetAll();
+    restartButtonLock?.unlock();
+
+    for (const selectorId of ['bot-difficulty', 'start-bot-difficulty']) {
+        const selector = document.getElementById(selectorId);
+        if (selector) selector.value = bot.difficulty;
+    }
+
+    updateScreen();
+    ui.updateTimerText(getHumanTurnDuration());
+    persistOngoingMatch();
+
+    if (game.gameStatus === 'WAITING_FOR_DICE') {
+        beginCurrentTurn({ statusOverrideKey: 'status.matchResumed' });
+        return true;
+    }
+
+    if (game.currentPlayer === 1) {
+        ui.setHumanPlayingLayout();
+        setStatus(t('status.matchResumedYourTurn'), { force: true });
+        startHumanTimer();
+        synchronizeAutoBearOffFlow();
+    } else {
+        ui.setBotTurnLayout();
+        setStatus(t('status.matchResumedBotTurn'), { force: true });
+        scheduleBotMoveCallback(BOT_MOVE_STEP_DELAY_MS);
+    }
+
+    return true;
+}
+
 function clearRuntimeTasks() {
     runtimeState.invalidateSessionToken();
     bot.resetPlannedTurn?.();
@@ -258,6 +391,8 @@ function clearRuntimeTasks() {
     clearInterval(runtimeState.getTurnTimerInterval());
     runtimeState.clearTurnTimerInterval();
     diceRollAnimation.stop();
+    renderer.clearCheckerMoveAnimation();
+    isCheckerMoveAnimating = false;
 
     runtimeState.clearScheduledTimeouts(clearTimeout);
 
@@ -299,6 +434,7 @@ function startGame() {
     if (!runtimeState.isInitialStartPending()) return false;
 
     void sound.activateFromUserGesture().catch(() => {});
+    ongoingMatchStore.clear();
 
     matchStatsRecorder.beginMatch();
     howToPlayGuide?.close({ returnFocus: false });
@@ -316,6 +452,7 @@ function startGame() {
     ui.setHumanTurnLayout();
     ui.updateTimerText(getHumanTurnDuration());
     setStatus(t('status.starting'), { force: true });
+    persistOngoingMatch();
     schedule(startAutomaticDiceRoll, 650);
     return true;
 }
@@ -334,6 +471,7 @@ function initializeBeforeStart() {
     ui.setHumanTurnLayout();
     ui.updateTimerText(getHumanTurnDuration());
     setStatus(t('status.readyToStart'), { force: true });
+    refreshContinueMatchEntry();
     showStartScreen();
 }
 
@@ -350,8 +488,9 @@ function syncActionButtonStates() {
     } = getActionButtonState(game);
 
     const autoRunning = autoBearOffFlow.isRunning();
-    ui.setUndoEnabled(autoRunning ? false : canUndo);
-    ui.setConfirmEnabled(autoRunning ? false : canConfirm);
+    const controlsLocked = autoRunning || isCheckerMoveAnimating;
+    ui.setUndoEnabled(controlsLocked ? false : canUndo);
+    ui.setConfirmEnabled(controlsLocked ? false : canConfirm);
 }
 
 function getHumanTurnDuration() {
@@ -394,6 +533,7 @@ function setAutoBearOffEnabled(value) {
     }
 
     updateAutoBearOffControl();
+    persistOngoingMatch();
 }
 
 function resetAutoBearOffForNewGame() {
@@ -505,6 +645,7 @@ function finishCurrentTurn() {
     runtimeState.clearSelectedSlotId();
 
     game.confirmTurnEnd();
+    persistOngoingMatch();
     updateScreen();
     beginCurrentTurn();
 }
@@ -529,6 +670,8 @@ function passCurrentTurnWhenNoLegalMove() {
     if (!autoPass.passed) {
         return false;
     }
+
+    persistOngoingMatch();
 
     const statusOverrideKey =
         getNoLegalMoveRuleExplanation().messageKey;
@@ -614,6 +757,8 @@ function startAutomaticDiceRoll() {
             return;
         }
 
+        persistOngoingMatch();
+
         runtimeState.clearSelectedSlotId();
 
         if (!hasAnyRuleCompliantTurnStart(game, { player: rollingPlayer })) {
@@ -669,6 +814,13 @@ async function runBotMove() {
     startBotMoveFeedback(renderer);
 
     const move = bot.makeDecision(game);
+    const transition = move
+        ? captureCheckerTransition(game, {
+            fromSlot: move.from,
+            targetSlot: move.target,
+            player: bot.playerNumber
+        })
+        : null;
     if (!move || !game.executeMove(move.from, move.dice)) {
         endBotMoveFeedback(renderer);
         finishCurrentTurn();
@@ -686,9 +838,10 @@ async function runBotMove() {
         moveId,
         isCollect: move.target === 25
     });
-    updateScreen();
-
     const winner = game.checkWinCondition();
+    persistOngoingMatch();
+    await playAppliedCheckerTransition(transition);
+
     if (winner !== 0) {
         await playVictoryMomentIfEligible({
             winner,
@@ -703,6 +856,7 @@ async function runBotMove() {
 
 function showGameOver(winner, messageKey = null) {
     terminateGame();
+    ongoingMatchStore.clear();
     runtimeState.clearSelectedSlotId();
     runtimeDiagnostics.recordGameEnd(
         `winner=${winner} | reason=${game.endReason} | status=${game.gameStatus}`
@@ -723,21 +877,25 @@ function showGameOver(winner, messageKey = null) {
     const title = document.getElementById('winner-title');
     const message = document.getElementById('winner-message');
     const statMoves = document.getElementById('stat-moves');
+    const isMars = game.victoryType === 'mars';
 
     if (title) {
         title.textContent =
-            winner === 1 ? t('game.winTitle') : t('game.loseTitle');
+            winner === 1
+                ? t(isMars ? 'game.winMarsTitle' : 'game.winTitle')
+                : t(isMars ? 'game.loseMarsTitle' : 'game.loseTitle');
     }
     if (message) {
         message.textContent =
             messageKey
                 ? t(messageKey)
                 : winner === 1
-                    ? t('game.winMessage')
-                    : t('game.loseMessage');
+                    ? t(isMars ? 'game.winMarsMessage' : 'game.winMessage')
+                    : t(isMars ? 'game.loseMarsMessage' : 'game.loseMessage');
     }
     if (statMoves) statMoves.textContent = runtimeState.getTotalMoveCounter();
     if (overlay) {
+        overlay.dataset.resultType = game.victoryType || 'normal';
         overlay.style.display = 'flex';
         overlay.setAttribute('aria-hidden', 'false');
     }
@@ -830,6 +988,7 @@ function restartGame() {
     }
 
     clearRuntimeTasks();
+    ongoingMatchStore.clear();
     matchStatsRecorder.beginMatch();
 
     const overlay = document.getElementById('game-over-overlay');
@@ -852,6 +1011,7 @@ function restartGame() {
     ui.updateTimerText(getHumanTurnDuration());
     setStatus(t('status.starting'), { force: true });
 
+    persistOngoingMatch();
     schedule(startAutomaticDiceRoll, 650);
 }
 
@@ -924,6 +1084,12 @@ async function handleSlotClick(slotId) {
 
     // Hedefte kendi pulumuz olsa bile önce hamleyi uygula.
     if (legalTargets.includes(slotId)) {
+        const transition = captureCheckerTransition(game, {
+            fromSlot: selectedSlotId,
+            targetSlot: slotId,
+            player: game.currentPlayer
+        });
+        const historyLengthBefore = game.moveHistory.length;
         if (!game.processPlayerInput(selectedSlotId, slotId)) {
             setStatus(
                 t('status.applyFailed')
@@ -934,15 +1100,22 @@ async function handleSlotClick(slotId) {
         game.resetTimeoutStrikes();
         timeoutController.clearForfeitWindow();
         runtimeState.clearSelectedSlotId();
-        const moveId = runtimeState.incrementTotalMoveCounter();
+        const consumedDiceRights = Math.max(
+            1,
+            game.moveHistory.length - historyLengthBefore
+        );
+        const moveId = runtimeState.incrementTotalMoveCounter(
+            consumedDiceRights
+        );
         sound.playPiecePlaceForMove({
             moveId,
             isCollect: slotId === 25
         });
-        updateScreen();
+        const winner = game.checkWinCondition();
+        persistOngoingMatch();
+        await playAppliedCheckerTransition(transition);
         ui.setHumanMoveLayout();
 
-        const winner = game.checkWinCondition();
         if (winner !== 0) {
             await playVictoryMomentIfEligible({
                 winner,
@@ -986,6 +1159,8 @@ function bindEvents() {
         document.getElementById('restart-button');
     const startButton =
         document.getElementById('start-button');
+    continueMatchButton =
+        document.getElementById('continue-match-button');
     const botMatchButton =
         document.getElementById('bot-match-button');
     const friendMatchButton =
@@ -1236,6 +1411,7 @@ function bindEvents() {
         for (const selector of difficultySelectors) {
             selector.value = selection.difficulty;
         }
+        persistOngoingMatch();
         setStatus(
             t('status.difficulty', { level: event.target.selectedOptions[0].text }),
             { force: true }
@@ -1247,6 +1423,7 @@ function bindEvents() {
 
     startModeController = createStartModeController({
         availableModes: [
+            { mode: 'continue-match', button: continueMatchButton },
             { mode: 'quick-play', button: startButton },
             { mode: 'bot-match', button: botMatchButton }
         ],
@@ -1254,7 +1431,9 @@ function bindEvents() {
             { mode: 'friend-match', button: friendMatchButton },
             { mode: 'online', button: onlineMatchButton }
         ],
-        onStart: () => startGame()
+        onStart: mode => mode === 'continue-match'
+            ? resumeSavedMatch()
+            : startGame()
     });
     startModeController.start();
 
@@ -1337,14 +1516,25 @@ function bindEvents() {
     });
     pointNumberController.start();
 
-    ui.undoButton?.addEventListener('click', () => {
+    ui.undoButton?.addEventListener('click', async () => {
+        const move = game.moveHistory.at(-1)?.move || null;
+        const reverseTransition = move
+            ? captureCheckerTransition(game, {
+                fromSlot: move.targetSlot,
+                targetSlot: move.fromSlot,
+                player: move.player
+            })
+            : null;
         if (
             !autoBearOffFlow.isRunning() &&
+            !isCheckerMoveAnimating &&
             game.currentPlayer === 1 &&
-            game.undoTurnMoves()
+            game.undoLastMove()
         ) {
+            runtimeState.decrementTotalMoveCounter();
             runtimeState.clearSelectedSlotId();
-            updateScreen();
+            persistOngoingMatch();
+            await playAppliedCheckerTransition(reverseTransition);
             applyPostUndoLayout({ game, ui });
             setStatus(t('status.undo'));
         }
@@ -1375,6 +1565,7 @@ function bindEvents() {
     bindCanvasInput(canvas, {
         canInteract: () =>
             !autoBearOffFlow.isRunning() &&
+            !isCheckerMoveAnimating &&
             game.currentPlayer === 1 &&
             game.gameStatus === 'PLAYING',
         layout: () => renderer.getBoardLayout(),

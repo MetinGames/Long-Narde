@@ -32,6 +32,12 @@ test('move counters and timeout guard flags can be updated', () => {
     assert.equal(state.incrementTotalMoveCounter(), 2);
     assert.equal(state.getTotalMoveCounter(), 2);
 
+    assert.equal(state.incrementTotalMoveCounter(2), 4);
+    assert.equal(state.decrementTotalMoveCounter(), 3);
+    assert.equal(state.decrementTotalMoveCounter(2), 1);
+    assert.equal(state.setTotalMoveCounter(12), 12);
+    assert.equal(state.decrementTotalMoveCounter(20), 0);
+
     state.resetTotalMoveCounter();
     assert.equal(state.getTotalMoveCounter(), 0);
 

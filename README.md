@@ -10,13 +10,16 @@ Long Narde is a static, installable browser-based long narde game with a local h
 
 ## Current status
 
-The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, exposes the bot difficulty before play, and keeps the real Friend Match and Online entries visibly unavailable. A separate **Local Table Preview** demonstrates the private-table lifecycle on one device without claiming that networking or online play exists. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes a local profile with 15 built-in avatars, achievements, difficulty-based statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, multiple feedback helpers, and a tested in-memory private-table protocol foundation.
+The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, offers Continue Match when a valid unfinished local game exists, exposes the bot difficulty before play, and keeps the real Friend Match and Online entries visibly unavailable. A separate **Local Table Preview** demonstrates the private-table lifecycle on one device without claiming that networking or online play exists. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes responsive Canvas checker movement, move-consistent Undo, normal/Mars result classification, a local profile with 15 built-in avatars, achievements, difficulty-based statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, multiple feedback helpers, and a tested in-memory private-table protocol foundation.
 
 This project is not documented here as having online multiplayer, user accounts, cloud sync, ranked matchmaking, or a backend service.
 
 ## Main features
 
 - Local human-vs-bot long narde gameplay.
+- Versioned, validated on-device recovery for unfinished local bot matches.
+- Responsive checker transitions for human, bot, bearing-off, Quick Bear-Off, and Undo flows, with reduced-motion support.
+- Normal one-point and Mars two-point result classification; timeout remains separate.
 - Honest mode-entry screen with working Quick Play/Bot Match choices, synchronized difficulty, disabled Friend Match/Online entries, and an explicitly local same-device table-flow preview.
 - Start-screen language, how-to-play, profile/progression, and feedback entry points.
 - Shared Turkish, English, and Russian interface support.
@@ -61,7 +64,7 @@ Long Narde in this repository follows the long narde rules implemented in the co
 - Friend Match and Online remain disabled and labelled as upcoming until their real hosted flows exist. **Local Table Preview** is a separate same-device state simulation; it does not start an online or bot match.
 - The language selects on the start screen and side panel update the same i18n state.
 - The bot-difficulty select changes the bot level before or during play.
-- Undo reverts the current turn where allowed.
+- Undo reverts one consumed die-right at a time during the current human turn and keeps the board, dice rights, move count, animation, and saved state aligned.
 - End Turn finalizes the human turn when no playable dice remain.
 - The turn timer counts down only after the game has started and the human turn is active.
 
@@ -130,15 +133,18 @@ Verified engine modules currently present:
 - `engine/board.js`
 - `engine/bot.js`
 - `engine/botMoveFeedback.js`
+- `engine/checkerMoveAnimation.js`
 - `engine/dice.js`
 - `engine/friendMatchPreviewController.js`
 - `engine/game.js`
+- `engine/gameSnapshot.js`
 - `engine/howToPlayGuide.js`
 - `engine/i18n.js`
 - `engine/input.js`
 - `engine/layout.js`
 - `engine/languageSelectors.js`
 - `engine/mobileThemeLabelController.js`
+- `engine/ongoingMatch.js`
 - `engine/playerStats.js`
 - `engine/playerStatsModal.js`
 - `engine/privateTableProtocol.js`
@@ -222,7 +228,7 @@ The current UI includes aria labels, aria-live status updates, modal dialog sema
 - There is no user account system, profile sync, custom photo upload, or cloud storage.
 - There is no built-in leaderboard or matchmaking service.
 - The current asset set is small; several asset folders are placeholders only.
-- The app currently relies on browser storage for local preferences and statistics.
+- The app currently relies on browser storage for local preferences, statistics, and a validated unfinished-match snapshot; these records do not sync across devices.
 
 ## Project operating documents
 

@@ -8,6 +8,10 @@ import {
 } from './layout.js';
 import { getTheme } from './themes.js';
 import { assets } from './assets.js';
+import {
+    easeCheckerMoveProgress,
+    interpolateCheckerPoint
+} from './checkerMoveAnimation.js';
 
 const DEFAULT_THEME_ID = 'anatolian';
 
@@ -83,6 +87,7 @@ export class Renderer {
         this.staticBoardCanvas = null;
         this.staticBoardDirty = true;
         this.victoryMomentState = null;
+        this.checkerMoveAnimationState = null;
         this.botMoveHighlightState = null;
         this.pointNumbersVisible = false;
 
@@ -203,6 +208,30 @@ export class Renderer {
 
     clearVictoryMoment() {
         this.victoryMomentState = null;
+    }
+
+    startCheckerMoveAnimation(payload) {
+        if (!payload) {
+            this.checkerMoveAnimationState = null;
+            return;
+        }
+
+        this.checkerMoveAnimationState = {
+            ...payload,
+            progress: 0
+        };
+    }
+
+    setCheckerMoveAnimationProgress(progress) {
+        if (!this.checkerMoveAnimationState) return;
+        this.checkerMoveAnimationState.progress = Math.max(
+            0,
+            Math.min(1, Number(progress) || 0)
+        );
+    }
+
+    clearCheckerMoveAnimation() {
+        this.checkerMoveAnimationState = null;
     }
 
     setBotMoveHighlight({
@@ -508,7 +537,10 @@ export class Renderer {
                 pointRect.x,
                 playfield.top,
                 pointRect.width,
-                game.board.slots[slotId],
+                this.getAnimatedSlotData(
+                    slotId,
+                    game.board.slots[slotId]
+                ),
                 true,
                 selectedSlotId === slotId
             );
@@ -535,13 +567,21 @@ export class Renderer {
                 pointRect.x,
                 y,
                 pointRect.width,
-                game.board.slots[slotId],
+                this.getAnimatedSlotData(
+                    slotId,
+                    game.board.slots[slotId]
+                ),
                 false,
                 selectedSlotId === slotId
             );
         }
 
         this.drawBearOffTrays(game);
+
+        this.drawCheckerMoveAnimation({
+            boardLayout,
+            playfield
+        });
 
         this.updateTurnIndicator(game.currentPlayer);
 
@@ -816,35 +856,153 @@ export class Renderer {
                 this.ctx.shadowBlur = 0; // Gölgeyi sıfırla
             }
             
-            // Pul Gövdesi (Gradyanlı Cilalı Doku)
-            this.ctx.beginPath(); 
-            this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            
-            const pieceGrad = this.ctx.createRadialGradient(centerX - 4, centerY - 4, 2, centerX, centerY, radius);
-            const checkerTokens = slotData.player === 1
-                ? this.theme.checkers.white
-                : this.theme.checkers.black;
-            pieceGrad.addColorStop(0, checkerTokens.gradient[0]);
-            pieceGrad.addColorStop(0.72, checkerTokens.gradient[1]);
-            pieceGrad.addColorStop(1, checkerTokens.gradient[2]);
-            this.ctx.fillStyle = pieceGrad;
-            this.ctx.shadowColor = this.theme.checkers.shadow;
-            this.ctx.shadowBlur = 4;
-            this.ctx.fill();
-            this.ctx.shadowBlur = 0;
-            
-            // Kenar Çerçevesi
-            this.ctx.lineWidth = 1.5; 
-            this.ctx.strokeStyle = checkerTokens.stroke;
-            this.ctx.stroke();
-            
-            // Pulun İçindeki El Oyması Halka Detayı
-            this.ctx.beginPath(); 
-            this.ctx.arc(centerX, centerY, radius * 0.55, 0, Math.PI * 2);
-            this.ctx.strokeStyle = checkerTokens.insetStroke;
-            this.ctx.lineWidth = 1;
-            this.ctx.stroke();
+            this.drawCheckerBody({
+                centerX,
+                centerY,
+                radius,
+                player: slotData.player
+            });
         }
+    }
+
+    drawCheckerBody({ centerX, centerY, radius, player }) {
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+
+        const checkerTokens = player === 1
+            ? this.theme.checkers.white
+            : this.theme.checkers.black;
+        const pieceGrad = this.ctx.createRadialGradient(
+            centerX - 4,
+            centerY - 4,
+            2,
+            centerX,
+            centerY,
+            radius
+        );
+        pieceGrad.addColorStop(0, checkerTokens.gradient[0]);
+        pieceGrad.addColorStop(0.72, checkerTokens.gradient[1]);
+        pieceGrad.addColorStop(1, checkerTokens.gradient[2]);
+        this.ctx.fillStyle = pieceGrad;
+        this.ctx.shadowColor = this.theme.checkers.shadow;
+        this.ctx.shadowBlur = 4;
+        this.ctx.fill();
+        this.ctx.shadowBlur = 0;
+
+        this.ctx.lineWidth = 1.5;
+        this.ctx.strokeStyle = checkerTokens.stroke;
+        this.ctx.stroke();
+
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius * 0.55, 0, Math.PI * 2);
+        this.ctx.strokeStyle = checkerTokens.insetStroke;
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+    }
+
+    getAnimatedSlotData(slotId, slotData) {
+        const state = this.checkerMoveAnimationState;
+        if (
+            !state ||
+            state.targetSlot !== slotId ||
+            slotData?.player !== state.player ||
+            slotData.count <= 0
+        ) {
+            return slotData;
+        }
+
+        return {
+            ...slotData,
+            count: Math.max(0, slotData.count - 1)
+        };
+    }
+
+    getAnimatedCollectedCount(player, collected) {
+        const state = this.checkerMoveAnimationState;
+        if (state?.targetSlot === 25 && state.player === player) {
+            return Math.max(0, collected - 1);
+        }
+        return collected;
+    }
+
+    getCheckerAnimationAnchor(
+        slotId,
+        stackCount,
+        player,
+        { boardLayout, playfield }
+    ) {
+        if (slotId === 25) {
+            const trayRect = getBearOffTrayRect(player, boardLayout);
+            const slices = this.getCollectedSliceLayout(stackCount, trayRect);
+            const slice = slices[slices.length - 1];
+            if (!slice) return null;
+
+            return {
+                x: slice.x + (slice.width / 2),
+                y: slice.y + (slice.height / 2),
+                radius: Math.max(5, Math.min(13, slice.width / 2))
+            };
+        }
+
+        if (slotId < 1 || slotId > 24 || stackCount <= 0) return null;
+        const isTop = slotId <= 12;
+        const columnIndex = isTop
+            ? 12 - slotId
+            : slotId - 13;
+        const pointRect = getPointRenderRect(columnIndex, boardLayout);
+        const radius = (pointRect.width / 2) - 2;
+        const maxVerticalArea = 200;
+        let spacing = radius * 2;
+        if (stackCount * spacing > maxVerticalArea) {
+            spacing = maxVerticalArea / stackCount;
+        }
+
+        const index = stackCount - 1;
+        return {
+            x: pointRect.x + (pointRect.width / 2),
+            y: isTop
+                ? playfield.top + radius + 5 + (index * spacing)
+                : playfield.bottom - radius - 5 - (index * spacing),
+            radius
+        };
+    }
+
+    drawCheckerMoveAnimation(layout) {
+        const state = this.checkerMoveAnimationState;
+        if (!state) return;
+
+        const from = this.getCheckerAnimationAnchor(
+            state.fromSlot,
+            state.sourceCountBefore,
+            state.player,
+            layout
+        );
+        const target = this.getCheckerAnimationAnchor(
+            state.targetSlot,
+            state.targetCountAfter,
+            state.player,
+            layout
+        );
+        if (!from || !target) return;
+
+        const point = interpolateCheckerPoint({
+            from,
+            target,
+            progress: state.progress,
+            liftPx: state.liftPx
+        });
+        const eased = easeCheckerMoveProgress(state.progress);
+        const radius = from.radius + ((target.radius - from.radius) * eased);
+
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.96;
+        this.drawCheckerBody({
+            centerX: point.x,
+            centerY: point.y,
+            radius,
+            player: state.player
+        });
+        this.ctx.restore();
     }
 
     calculatePipCount(game) {
@@ -1125,7 +1283,7 @@ export class Renderer {
         );
         this.drawCollectedSlices(
             2,
-            bCollected,
+            this.getAnimatedCollectedCount(2, bCollected),
             blackTray
         );
 
@@ -1170,7 +1328,7 @@ export class Renderer {
         );
         this.drawCollectedSlices(
             1,
-            wCollected,
+            this.getAnimatedCollectedCount(1, wCollected),
             whiteTray
         );
 
