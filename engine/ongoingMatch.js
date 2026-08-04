@@ -1,6 +1,7 @@
 import { sanitizeGameState } from './gameSnapshot.js';
 import { normalizeCheckerColor } from './checkerColorPreference.js';
 import { normalizeTurnTimerSeconds } from './turnTimerPreference.js';
+import { normalizeAutoTurnConfirmEnabled } from './autoTurnConfirm.js';
 
 export const ONGOING_MATCH_STORAGE_KEY = 'nardora.ongoingMatch.v1';
 export const ONGOING_MATCH_SCHEMA_VERSION = 1;
@@ -35,6 +36,9 @@ export function sanitizeOngoingMatch(raw, {
             ? raw.difficulty
             : 'medium',
         autoBearOffEnabled: Boolean(raw.autoBearOffEnabled),
+        autoTurnConfirmEnabled: normalizeAutoTurnConfirmEnabled(
+            raw.autoTurnConfirmEnabled
+        ),
         humanCheckerColor: normalizeCheckerColor(raw.humanCheckerColor),
         turnTimerSeconds: normalizeTurnTimerSeconds(raw.turnTimerSeconds)
     };
@@ -58,6 +62,7 @@ export class OngoingMatchStore {
         totalMoves,
         difficulty,
         autoBearOffEnabled,
+        autoTurnConfirmEnabled,
         humanCheckerColor,
         turnTimerSeconds
     } = {}) {
@@ -69,6 +74,7 @@ export class OngoingMatchStore {
             totalMoves,
             difficulty,
             autoBearOffEnabled,
+            autoTurnConfirmEnabled,
             humanCheckerColor,
             turnTimerSeconds
         }, {

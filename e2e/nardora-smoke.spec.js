@@ -114,6 +114,37 @@ function expectContained(inner, outer, tolerance = 1) {
     expect(inner.bottom).toBeLessThanOrEqual(outer.bottom + tolerance);
 }
 
+async function clickCanvasSlot(page, slotId) {
+    const canvas = page.locator('#game-canvas');
+    const themeId = await page.locator('#theme-select').inputValue();
+    const columnIndex = slotId <= 12
+        ? 12 - slotId
+        : slotId - 13;
+    let logicalX;
+
+    if (themeId === 'anatolian') {
+        const field = columnIndex < 6
+            ? { x: 43, width: 331 }
+            : { x: 423, width: 331 };
+        logicalX = field.x +
+            ((columnIndex % 6) + 0.5) * (field.width / 6);
+    } else {
+        const slotWidth = 675 / 12;
+        logicalX = 20 + (columnIndex + 0.5) * slotWidth;
+        if (columnIndex >= 6) logicalX += 30;
+    }
+
+    const logicalY = slotId <= 12 ? 90 : 510;
+    const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
+    await canvas.click({
+        position: {
+            x: logicalX * (box.width / 800),
+            y: logicalY * (box.height / 600)
+        }
+    });
+}
+
 test('first-match guide can be dismissed and reopened on keyboard and touch layouts', async ({
     page
 }, testInfo) => {
@@ -345,6 +376,69 @@ test('unfinished local match is offered and resumes after refresh', async ({
     await expect.poll(() => page.evaluate(() =>
         localStorage.getItem('nardora.ongoingMatch.v1')
     )).not.toBeNull();
+    expect(runtimeErrors).toEqual([]);
+});
+
+test('auto confirm keeps Undo available and manual Confirm wins the grace race', async ({
+    page
+}, testInfo) => {
+    test.skip(
+        testInfo.project.name !== 'desktop-chromium',
+        'The rule-safe grace journey is covered once; the controller is unit tested.'
+    );
+
+    const runtimeErrors = captureRuntimeErrors(page);
+    await page.addInitScript(() => {
+        Math.random = () => 0.42;
+        localStorage.setItem('nardora.autoTurnConfirm.v1', 'true');
+    });
+    await openReadyStartScreen(page);
+    await expect(page.locator('#auto-turn-confirm-toggle')).toBeChecked();
+    await page.locator('#start-button').click();
+    await expect(page.locator('#status-message')).toHaveText(
+        'Dice: 3, 3. Make your move.'
+    );
+
+    await clickCanvasSlot(page, 1);
+    await clickCanvasSlot(page, 10);
+    await expect(page.locator('#action-buttons')).toHaveClass(/is-visible/);
+    await clickCanvasSlot(page, 1);
+    await clickCanvasSlot(page, 4);
+
+    const undo = page.locator('#undo-button');
+    const confirm = page.locator('#confirm-button');
+    await expect(confirm).toHaveClass(/is-auto-confirm-pending/);
+    await expect(confirm).toHaveAttribute(
+        'data-auto-confirm-pending',
+        'true'
+    );
+    await expect(undo).toBeEnabled();
+    await undo.click();
+    await expect(page.locator('#status-message')).toHaveText(
+        'The last move was undone.'
+    );
+    await expect(confirm).not.toHaveClass(/is-auto-confirm-pending/);
+    await page.waitForTimeout(2_200);
+    await expect(page.locator('#turn-indicator')).toHaveAttribute(
+        'data-active-player',
+        'white'
+    );
+
+    await clickCanvasSlot(page, 1);
+    await clickCanvasSlot(page, 4);
+    await expect(confirm).toHaveClass(/is-auto-confirm-pending/);
+    await confirm.click();
+    await expect(confirm).not.toHaveClass(/is-auto-confirm-pending/);
+    await expect(page.locator('#turn-indicator')).toHaveAttribute(
+        'data-active-player',
+        'black'
+    );
+    expect(await page.evaluate(() => {
+        const snapshot = JSON.parse(
+            localStorage.getItem('nardora.ongoingMatch.v1')
+        );
+        return snapshot.autoTurnConfirmEnabled;
+    })).toBe(true);
     expect(runtimeErrors).toEqual([]);
 });
 

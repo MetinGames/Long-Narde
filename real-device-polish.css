@@ -86,10 +86,14 @@
     min-height: 44px;
 }
 
+#auto-bearoff-container:has(#auto-turn-confirm-toggle:checked) {
+    min-height: 60px;
+}
+
 #auto-bearoff-container:has(#auto-bearoff-help[open]) {
     grid-column: 1 / -1;
-    min-height: 128px;
-    padding-bottom: 80px;
+    min-height: 146px;
+    padding-bottom: 86px;
 }
 
 #auto-bearoff-heading {
@@ -98,6 +102,11 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+}
+
+#auto-bearoff-container:has(#auto-bearoff-help[open]) #auto-bearoff-heading,
+#auto-bearoff-container:has(#auto-turn-confirm-toggle:checked) #auto-bearoff-heading {
+    min-height: 42px;
 }
 
 #auto-bearoff-help {
@@ -136,7 +145,7 @@
     z-index: 40;
     right: 0;
     left: 0;
-    top: 40px;
+    top: 56px;
     width: auto;
     box-sizing: border-box;
     min-height: 0;
@@ -154,6 +163,10 @@
 @media (width: 430px) and (height: 932px) and (orientation: portrait) {
     #auto-bearoff-container {
         min-height: 46px;
+    }
+
+    #auto-bearoff-container:has(#auto-turn-confirm-toggle:checked) {
+        min-height: 62px;
     }
 }
 
@@ -231,8 +244,8 @@
     }
 
     #auto-bearoff-container:has(#auto-bearoff-help[open]) {
-        min-height: 128px;
-        padding-bottom: 80px;
+        min-height: 146px;
+        padding-bottom: 86px;
     }
 
     #auto-bearoff-heading {
@@ -243,6 +256,13 @@
 
     #auto-bearoff-label {
         flex: 1 1 auto;
+        min-width: 0;
+        gap: 6px;
+        font-size: 0.78rem;
+        line-height: 1.15;
+    }
+
+    #auto-turn-confirm-label {
         min-width: 0;
         gap: 6px;
         font-size: 0.78rem;
@@ -265,7 +285,7 @@
     #auto-bearoff-hint {
         right: 0;
         left: 0;
-        top: 36px;
+        top: 54px;
     }
 
     #fullscreen-container {
@@ -433,7 +453,8 @@
         font-size: 0.72rem;
     }
 
-    #auto-bearoff-label {
+    #auto-bearoff-label,
+    #auto-turn-confirm-label {
         min-width: 0;
         font-size: 0.76rem;
     }
@@ -459,5 +480,9 @@
 @media (min-width: 901px) and (max-height: 900px) {
     #auto-bearoff-container {
         min-height: 44px;
+    }
+
+    #auto-bearoff-container:has(#auto-turn-confirm-toggle:checked) {
+        min-height: 60px;
     }
 }

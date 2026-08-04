@@ -161,6 +161,7 @@ test('index links PWA metadata and the service worker bootstrap', () => {
     assert.match(html, /<link rel="apple-touch-icon" href="\.\/assets\/branding\/icons\/apple-touch-icon\.png">/);
     assert.match(html, /<link rel="stylesheet" href="theme-manager\.css">/);
     assert.match(html, /<link rel="stylesheet" href="checker-color-picker\.css">/);
+    assert.match(html, /<link rel="stylesheet" href="game-helpers\.css">/);
     assert.match(html, /<script type="module" src="\.\/engine\/pwa\.js"><\/script>/);
 });
 

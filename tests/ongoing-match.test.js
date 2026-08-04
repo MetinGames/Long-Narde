@@ -51,6 +51,7 @@ test('yarim mac surumlu olarak kaydedilir ve ayni kurallı duruma doner', () => 
         totalMoves: 1,
         difficulty: 'champion',
         autoBearOffEnabled: true,
+        autoTurnConfirmEnabled: true,
         humanCheckerColor: 'black',
         turnTimerSeconds: 90
     });
@@ -71,6 +72,7 @@ test('yarim mac surumlu olarak kaydedilir ve ayni kurallı duruma doner', () => 
     assert.equal(loaded.totalMoves, 1);
     assert.equal(loaded.difficulty, 'champion');
     assert.equal(loaded.autoBearOffEnabled, true);
+    assert.equal(loaded.autoTurnConfirmEnabled, true);
     assert.equal(loaded.humanCheckerColor, 'black');
     assert.equal(loaded.turnTimerSeconds, 90);
 });
@@ -85,6 +87,7 @@ test('bozuk pul korunumlu kayit reddedilir ve depodan temizlenir', () => {
         totalMoves: 1,
         difficulty: 'medium',
         autoBearOffEnabled: false,
+        autoTurnConfirmEnabled: false,
         humanCheckerColor: 'white'
     };
     raw.gameState.board.slots[4].count = 14;
@@ -122,6 +125,7 @@ test('bitmis gibi gorunen aktif kayit ve hamle metadatasi eksik kayit reddedilir
         totalMoves: 1,
         difficulty: 'medium',
         autoBearOffEnabled: false,
+        autoTurnConfirmEnabled: true,
         humanCheckerColor: 'not-a-color'
     };
 
@@ -144,12 +148,14 @@ test('bitmis gibi gorunen aktif kayit ve hamle metadatasi eksik kayit reddedilir
     const legacyWithoutColor = structuredClone(base);
     delete legacyWithoutColor.humanCheckerColor;
     delete legacyWithoutColor.turnTimerSeconds;
+    delete legacyWithoutColor.autoTurnConfirmEnabled;
     storage.setItem(
         ONGOING_MATCH_STORAGE_KEY,
         JSON.stringify(legacyWithoutColor)
     );
     assert.equal(store.load().humanCheckerColor, 'white');
     assert.equal(store.load().turnTimerSeconds, 30);
+    assert.equal(store.load().autoTurnConfirmEnabled, false);
 });
 
 test('localStorage hatalari oyun akisina yansitilmaz', () => {
