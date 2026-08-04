@@ -357,7 +357,7 @@ still adds five wins, so the two improvements have independent evidence. All
 seed `14303` with Champion as player one; it is preserved as evidence rather
 than tuned away without a representative real-match weakness.
 
-Symmetric opponent-aware extended traces:
+Symmetric opponent-aware traces before the opponent-prime refinement:
 
 | Seed | Champion as P1 | Champion as P2 |
 |---:|---|---|
@@ -384,6 +384,61 @@ device-dependent. The same `db3406da` double-two state remains the slowest
 decision. The PWA cache advances from `v10` to `v11` so offline clients receive
 the board, evaluator, and reporting change coherently.
 
+## Opponent-prime threat awareness
+
+The remaining seed `14303` loss exposed a general position weakness rather
+than a seed-specific exception. At deterministic state `3e9b409d`, the
+opponent already had a growing five-point blocking structure in front of
+Champion's rear checkers. The previous evaluator rewarded Champion's own
+blocking structure and opponent reply mobility, but did not assign a direct
+cost to the opponent's prime pressure. With roll 2–3 it therefore chose
+`15 → 18`, `16 → 18` while a safer `3 → 5`, `5 → 8` plan achieved the same
+five-pip reduction and reduced measured opponent pressure from 29 to 23.
+
+Champion now evaluates the opponent's blocking structure with the same
+general pressure/prime model used for its own structure and applies a small
+15% defensive cost. The deterministic fixture compares the old and current
+plans, proves equal pip progress, verifies the lower resulting threat, and
+confirms that planning restores the live state exactly. Dice, legality,
+Long Narde rules, and Master behavior are unchanged.
+
+The fixed 16-seed/32-match sample deliberately keeps the loss rather than
+tuning it away:
+
+| Strategy | Champion | Master | Draws | Champion avg | P95 | Maximum |
+|---|---:|---:|---:|---:|---:|---:|
+| Symmetric opponent-aware baseline | 31 | 1 | 0 | 8.45 ms | 22.24 ms | 906.85 ms |
+| Opponent-prime threat aware | 31 | 1 | 0 | 8.43 ms | 23.30 ms | 876.28 ms |
+
+All 31 wins remain wins. In the sole seed `14303` player-one loss, Champion
+improves from 2/15 to 7/15 collected checkers and from 29 to 11 remaining
+pips. That is evidence of a smaller losing margin, not a claim that one fixed
+sample proves universal strength. Timing remains device-dependent.
+
+Current threat-aware extended traces:
+
+| Seed | Champion as P1 | Champion as P2 |
+|---:|---|---|
+| 1103 | Champion, `f1fa394c` | Champion, `a0dd5b70` |
+| 2207 | Champion, `ecd5e920` | Champion, `f7ca2a21` |
+| 3301 | Champion, `780a711d` | Champion, `57206081` |
+| 4409 | Champion, `0e955a96` | Champion, `7e584e7e` |
+| 5501 | Champion, `5b66d39d` | Champion, `90f0d01d` |
+| 6607 | Champion, `ab3cfee4` | Champion, `e5724e12` |
+| 7703 | Champion, `16c5c0d9` | Champion, `b00d5076` |
+| 8807 | Champion, `7e5756c6` | Champion, `7ec7a37f` |
+| 9901 | Champion, `18b2ee40` | Champion, `04369fc0` |
+| 11003 | Champion, `379b2584` | Champion, `9d45ca4d` |
+| 12101 | Champion, `05a24a47` | Champion, `909c0c42` |
+| 13217 | Champion, `7b9e6d66` | Champion, `1373b10a` |
+| 14303 | Master, `cd389e42` | Champion, `aeca676b` |
+| 15401 | Champion, `d6a56d7d` | Champion, `d21562ef` |
+| 16519 | Champion, `05a24a47` | Champion, `339cc3c1` |
+| 17609 | Champion, `2d5df6a4` | Champion, `a0963372` |
+
+The PWA cache advances from `v15` to `v16` so installed/offline clients
+receive the evaluator and regression-tested behavior together.
+
 ## Next evidence-driven slices
 
 1. **Completed:** profiled state `addb3dba`; repeated rule-sequence analysis,
@@ -403,8 +458,10 @@ the board, evaluator, and reporting change coherently.
 7. **Completed:** traced four of the five losses to an asymmetric player-two
    pip metric, centralized the symmetric distance in `Board`, and raised the
    fixed sample from 27–5 to 31–1 with direct and match-level regressions.
-8. Convert additional real Metin match weaknesses into explicit strategy
-   fixtures. Inspect seed `14303` only if it represents a repeatable real-match
-   weakness; do not tune solely to remove the last benchmark loss.
-9. Consider a Web Worker only if optimized profiling still shows
+8. **Completed:** traced seed `14303` to the general risk of letting an
+   opponent prime close in front of rear checkers, added deterministic state
+   `3e9b409d`, and preserved 31–1 while reducing the remaining loss margin.
+9. Convert additional real Metin match weaknesses into explicit strategy
+   fixtures; do not tune solely to erase benchmark losses.
+10. Consider a Web Worker only if optimized profiling still shows
    player-visible blocking.
