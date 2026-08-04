@@ -64,6 +64,7 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('#auto-bearoff-container'), 'Auto bear-off container layout guard missing');
     assert.ok(devicePolishCss.includes('#auto-bearoff-help'), 'Auto bear-off disclosure style missing');
     assert.ok(devicePolishCss.includes('#point-numbers-toggle'), 'Point-number toggle style missing');
+    assert.ok(devicePolishCss.includes('"auto timer dice"'), 'Portrait control areas should keep Quick Bear-Off help clear of timer controls');
     assert.ok(themeCss.includes('#theme-manager-modal'), 'Theme manager modal style missing');
     assert.ok(themeCss.includes('.theme-option-card:focus-visible'), 'Theme card keyboard focus style missing');
     assert.ok(themeCss.includes('env(safe-area-inset-bottom)'), 'Theme manager safe-area guard missing');
