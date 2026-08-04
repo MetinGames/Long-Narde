@@ -192,6 +192,7 @@ test('start flow, language synchronization, and canvas readiness', async ({
     const startLanguage = page.locator('#start-language-select');
     const sideLanguage = page.locator('#language-select');
     const startDifficulty = page.locator('#start-bot-difficulty');
+    const startTurnTimer = page.locator('#start-turn-timer');
     const sideDifficulty = page.locator('#bot-difficulty');
     const whiteCheckerColor = page.locator('input[name="checker-color"][value="white"]');
     const blackCheckerColor = page.locator('input[name="checker-color"][value="black"]');
@@ -229,6 +230,14 @@ test('start flow, language synchronization, and canvas readiness', async ({
 
     await startLanguage.selectOption('en');
     await startDifficulty.selectOption('champion');
+    await expect(startTurnTimer).toHaveValue('30');
+    await startTurnTimer.selectOption('0');
+    await expect(page.locator('#timer-countdown')).toHaveText('Off');
+    await expect(page.locator('#timer-container')).toHaveClass(/is-disabled/);
+    await startTurnTimer.selectOption('60');
+    expect(await page.evaluate(() =>
+        localStorage.getItem('nardora.turnTimerSeconds.v1')
+    )).toBe('60');
     await expect(sideDifficulty).toHaveValue('champion');
     await page.locator('.checker-color-option', {
         has: blackCheckerColor
@@ -238,6 +247,7 @@ test('start flow, language synchronization, and canvas readiness', async ({
         localStorage.getItem('nardora.checkerColor.v1')
     )).toBe('black');
     await page.locator('#bot-match-button').click();
+    await expect(page.locator('#timer-countdown')).toContainText('60 s');
 
     await expect(page.locator('#start-screen')).toBeHidden();
     await expect(page.locator('#game-canvas')).toBeVisible();

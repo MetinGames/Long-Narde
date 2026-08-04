@@ -104,6 +104,8 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="online-match-button"'), 'Online match button missing');
     assert.ok(html.includes('id="start-mode-grid"'), 'Start mode grid missing');
     assert.ok(html.includes('id="start-bot-difficulty"'), 'Start difficulty select missing');
+    assert.ok(html.includes('id="start-turn-timer"'), 'Start turn-timer select missing');
+    assert.equal((html.match(/<option value="(?:0|30|60|90)"(?: selected)?>/g) || []).length, 4, 'Exactly four turn-timer choices should be available');
     assert.ok(/id="start-mode-menu"[^>]*role="group"[^>]*aria-labelledby="start-mode-menu-title"/i.test(html), 'Mode menu accessible group missing');
     assert.ok(/id="friend-match-button"[\s\S]*?disabled[\s\S]*?aria-disabled="true"/i.test(html), 'Friend match honest disabled state missing');
     assert.ok(/id="online-match-button"[\s\S]*?disabled[\s\S]*?aria-disabled="true"/i.test(html), 'Online honest disabled state missing');

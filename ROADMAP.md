@@ -25,6 +25,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Turkish, English, and Russian interface flow with synchronized selectors.
 - Turn confirmation, move-by-move undo, double-dice rights indicators, active-turn feedback, collected-checker tray, and victory feedback.
 - Per-turn timeout reset and two-stage timeout flow.
+- Persistent Off / 30 / 60 / 90 second local bot turn-timer choice with unfinished-match continuity.
 - Local player statistics, how-to-play guide, feedback modal, and GitHub issue forms.
 - Engine-owned contextual rule explanations plus a dismissible, locally remembered and reopenable first-match guide.
 - Runtime diagnostics export for player bug reports.
@@ -40,11 +41,11 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **379 Node tests passing as of 2026-08-04**. The 70-case Playwright browser/device matrix includes save-refresh-resume and high-value visual journeys; local execution currently awaits a browser binary while CI remains the release gate.
+- **386 Node tests passing as of 2026-08-04**. The 70-case Playwright browser/device matrix includes save-refresh-resume and high-value visual journeys; local execution currently awaits a browser binary while CI remains the release gate.
 
 ## Current gaps and risks
 
-- `app.js` is 1,627 lines; `engine/renderer.js` is 1,405 lines and `style.css` remains 3,512 lines. New checker-color preference logic and presentation live in focused files rather than growing the red-zone stylesheet; further extraction remains evidence-driven.
+- `app.js` is 1,679 lines; `engine/renderer.js` is 1,405 lines and `style.css` remains 3,528 lines. New checker-color and turn-timer preference logic lives in focused files; further extraction remains evidence-driven.
 - The repository has 50 non-main remote branches. The verified [branch inventory](docs/BRANCH_INVENTORY.md) classifies 45 cleanup candidates, one active branch, and four manual-review branches; no deletion is authorized.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
 - Community-sourced sample sounds are integrated and licensed, but Metin's final original dice/checker recordings, volume controls, and device-level listening review are not complete.
@@ -72,6 +73,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 16. **Completed — [#47](https://github.com/MetinGames/Long-Narde/issues/47):** preserved move-by-move Undo while aligning multi-die move counts, reverse-transition metadata, action buttons, and the persisted post-Undo state.
 17. **Completed — [#49](https://github.com/MetinGames/Long-Narde/issues/49):** kept the inset 6–7/18–19 triangle shapes clear of the centre hinge while restoring full-size checkers, original slot centres, and matching animation anchors.
 18. **Completed — [#51](https://github.com/MetinGames/Long-Narde/issues/51):** delivered a persistent White (Ivory)/Black start-screen choice, opposite bot color, renderer-wide checker mapping, and unfinished-match continuity without changing rule authority or movement direction.
+19. **Completed — [#41](https://github.com/MetinGames/Long-Narde/issues/41):** replaced the fixed local bot turn deadline with a persistent Off / 30 / 60 / 90 second pre-match choice; disabled mode creates no timeout penalty and unfinished matches restore their saved duration.
 
 Completed in this synchronization cycle:
 
@@ -88,6 +90,7 @@ Completed in this synchronization cycle:
 - [#14](https://github.com/MetinGames/Long-Narde/issues/14) visual theme gallery delivered with reusable renderer/UI tokens, persistent synchronized selection, enhanced-contrast text/focus gates, responsive keyboard/touch behavior, PWA coverage, and a dedicated visual baseline.
 - [#44](https://github.com/MetinGames/Long-Narde/issues/44), [#45](https://github.com/MetinGames/Long-Narde/issues/45), [#46](https://github.com/MetinGames/Long-Narde/issues/46), [#47](https://github.com/MetinGames/Long-Narde/issues/47), and [#49](https://github.com/MetinGames/Long-Narde/issues/49) reached `main` through [#48](https://github.com/MetinGames/Long-Narde/pull/48) and [#50](https://github.com/MetinGames/Long-Narde/pull/50), covering match resume, Mars, checker motion, Undo consistency, and stable hinge-adjacent checker geometry.
 - [#51](https://github.com/MetinGames/Long-Narde/issues/51) adds the persistent pre-match checker-color choice, opposite bot appearance, resume continuity, and cross-browser visual coverage through [#52](https://github.com/MetinGames/Long-Narde/pull/52).
+- [#41](https://github.com/MetinGames/Long-Narde/issues/41) now includes the persistent local bot turn-timer choice, explicit disabled state, and unfinished-match timer continuity.
 
 ## Phase 0 — Product exit gate met; maintenance continues
 

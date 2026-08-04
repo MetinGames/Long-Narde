@@ -51,7 +51,8 @@ test('yarim mac surumlu olarak kaydedilir ve ayni kurallı duruma doner', () => 
         totalMoves: 1,
         difficulty: 'champion',
         autoBearOffEnabled: true,
-        humanCheckerColor: 'black'
+        humanCheckerColor: 'black',
+        turnTimerSeconds: 90
     });
     assert.ok(saved);
     assert.ok(storage.getItem(ONGOING_MATCH_STORAGE_KEY));
@@ -71,6 +72,7 @@ test('yarim mac surumlu olarak kaydedilir ve ayni kurallı duruma doner', () => 
     assert.equal(loaded.difficulty, 'champion');
     assert.equal(loaded.autoBearOffEnabled, true);
     assert.equal(loaded.humanCheckerColor, 'black');
+    assert.equal(loaded.turnTimerSeconds, 90);
 });
 
 test('bozuk pul korunumlu kayit reddedilir ve depodan temizlenir', () => {
@@ -141,11 +143,13 @@ test('bitmis gibi gorunen aktif kayit ve hamle metadatasi eksik kayit reddedilir
 
     const legacyWithoutColor = structuredClone(base);
     delete legacyWithoutColor.humanCheckerColor;
+    delete legacyWithoutColor.turnTimerSeconds;
     storage.setItem(
         ONGOING_MATCH_STORAGE_KEY,
         JSON.stringify(legacyWithoutColor)
     );
     assert.equal(store.load().humanCheckerColor, 'white');
+    assert.equal(store.load().turnTimerSeconds, 30);
 });
 
 test('localStorage hatalari oyun akisina yansitilmaz', () => {

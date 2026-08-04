@@ -33,6 +33,14 @@ class FakeClassList {
         return false;
     }
 
+    add(name) {
+        this.set.add(name);
+    }
+
+    remove(name) {
+        this.set.delete(name);
+    }
+
     contains(name) {
         return this.set.has(name);
     }
@@ -189,6 +197,40 @@ test('onay düğmesi erişilebilir disabled bilgisiyle senkronlanır', () => {
             'false'
         );
     } finally {
+        restore();
+    }
+});
+
+test('Kapalı sayaç açıkça gösterilir ve süre seçilince yeniden etkinleşir', () => {
+    const elements = {
+        'action-buttons': createElement(),
+        'undo-button': createElement(),
+        'confirm-button': createElement(),
+        'timer-container': createElement(),
+        'timer-countdown': createElement()
+    };
+    const restore = installMockDocument(elements);
+    const previousLanguage = getLanguage();
+
+    try {
+        setLanguage('tr');
+        const ui = new UIManager();
+
+        ui.updateTimerDisabled();
+        assert.equal(elements['timer-countdown'].textContent, 'Kapalı');
+        assert.equal(
+            elements['timer-container'].classList.contains('is-disabled'),
+            true
+        );
+
+        ui.updateTimerText(60);
+        assert.equal(elements['timer-countdown'].textContent, '60 sn');
+        assert.equal(
+            elements['timer-container'].classList.contains('is-disabled'),
+            false
+        );
+    } finally {
+        setLanguage(previousLanguage);
         restore();
     }
 });
