@@ -78,6 +78,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 20. **Completed — [#55](https://github.com/MetinGames/Long-Narde/issues/55):** locked the existing six-point-prime restriction across both player directions, first/last windows, the physical 24 → 1 wrap, opponent boundary positions, source-stack simulation, invalid reasons, and legal-move enumeration without changing rule behavior.
 21. **Completed — [#57](https://github.com/MetinGames/Long-Narde/issues/57):** added an off-by-default automatic turn-confirm preference with a visible two-second Undo grace period, immediate manual Confirm, stale-callback cancellation, final legality revalidation, unfinished-match continuity, and a compact shared helper surface.
 22. **In progress — [#12](https://github.com/MetinGames/Long-Narde/issues/12):** added accessible persistent mute and master-volume controls, live Web Audio gain updates, TR/EN/RU labels, mobile styling, and PWA precache coverage. Original recordings and physical phone/desktop listening validation remain open.
+23. **Completed in PR #60 — [#59](https://github.com/MetinGames/Long-Narde/issues/59):** successful Undo now plays one normal checker-placement sound after the reverse animation lands; blocked or unsuccessful Undo remains silent and the existing mute preference is respected.
 
 Completed in this synchronization cycle:
 

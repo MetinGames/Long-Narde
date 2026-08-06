@@ -1739,6 +1739,7 @@ function bindEvents() {
             runtimeState.clearSelectedSlotId();
             persistOngoingMatch();
             await playAppliedCheckerTransition(reverseTransition);
+            sound.playPiecePlace({ isCollect: false });
             applyPostUndoLayout({ game, ui });
             setStatus(t('status.undo'));
         }

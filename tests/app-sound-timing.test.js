@@ -42,7 +42,7 @@ test('insan hamlesinde pul sesi, basarili uygulama sonrasinda ve renderdan once 
     assert.ok(soundIdx < animationIdx);
 });
 
-test('pul sesi turn confirm akisina birakilmaz ve undo akisinda calmiyor', () => {
+test('turn confirm sessiz kalir, basarili undo sesi ters animasyon bittikten sonra calar', () => {
     const source = readAppSource();
 
     const bindSection = getSection(
@@ -62,6 +62,18 @@ test('pul sesi turn confirm akisina birakilmaz ve undo akisinda calmiyor', () =>
 
     const undoTail = bindSection.slice(undoIdx, bindSection.indexOf("ui.confirmButton?.addEventListener('click', () => {", undoIdx));
     assert.equal(/playPiecePlaceForMove\(/.test(undoTail), false);
+    assert.equal((undoTail.match(/sound\.playPiecePlace\(/g) || []).length, 1);
+
+    const undoApplyIdx = undoTail.indexOf('game.undoLastMove()');
+    const undoAnimationIdx = undoTail.indexOf(
+        'await playAppliedCheckerTransition(reverseTransition);'
+    );
+    const undoSoundIdx = undoTail.indexOf(
+        'sound.playPiecePlace({ isCollect: false });'
+    );
+    assert.ok(undoApplyIdx >= 0);
+    assert.ok(undoAnimationIdx > undoApplyIdx);
+    assert.ok(undoSoundIdx > undoAnimationIdx);
 });
 
 test('hamle akislarinda pul sesi her bir uygulama noktasi icin tek kez cagrilir', () => {
