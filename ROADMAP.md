@@ -95,7 +95,7 @@ Waiting on one item must not idle the project. Work continues on the highest-val
 22. **In progress — [#12](https://github.com/MetinGames/Long-Narde/issues/12):** added accessible persistent mute and master-volume controls, live Web Audio gain updates, TR/EN/RU labels, mobile styling, and PWA precache coverage. Original recordings and physical phone/desktop listening validation remain open.
 23. **Completed in PR #60 — [#59](https://github.com/MetinGames/Long-Narde/issues/59):** successful Undo now plays one normal checker-placement sound after the reverse animation lands; blocked or unsuccessful Undo remains silent and the existing mute preference is respected.
 24. **Completed in PR #62 — [#61](https://github.com/MetinGames/Long-Narde/issues/61):** replaced fixed bot step timing with a deterministic visible-complexity pacing profile so simple turns stay brisk while doubles, multi-step turns, collections, and reduced-motion transitions remain readable.
-25. **In progress — [#41](https://github.com/MetinGames/Long-Narde/issues/41):** replace arbitrary Easy/Medium move scores with short-horizon evaluation and controlled suboptimal selection while preserving legal-move authority and clear tactical priorities.
+25. **Implemented in PR #63 — [#41](https://github.com/MetinGames/Long-Narde/issues/41) bot-naturalness subtask:** replaced arbitrary Easy/Medium move scores with short-horizon evaluation and controlled suboptimal selection while preserving legal-move authority and clear tactical priorities.
 
 Completed in this synchronization cycle:
 
