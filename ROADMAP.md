@@ -54,6 +54,21 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Advertising-safe responsive zones and Yandex-specific layout behavior have not been designed or tested.
 - There is no store package, backend, account system, online room, chat, ranking, or moderation layer.
 
+## Dependency and approval gates
+
+Waiting on one item must not idle the project. Work continues on the highest-value independent Issue while the dependency remains visible here.
+
+| Class | Item | Needed from Metin | Parallel action |
+|---|---|---|---|
+| Evidence pending | [#12](https://github.com/MetinGames/Long-Narde/issues/12) original dice/checker audio | Clean source recordings and final device listening feedback | Keep mute, volume, preload, timing, provenance, and synthetic regression coverage green |
+| Evidence pending | [#13](https://github.com/MetinGames/Long-Narde/issues/13) physical device release gate | Corrected-build screenshots/recordings from representative iPhone, Android, and tablet devices | Keep Playwright geometry, touch, overflow, safe-area, and accessibility checks green |
+| Evidence pending | [#11](https://github.com/MetinGames/Long-Narde/issues/11) real-match Champion refinement | New real match positions only when a concrete weakness is observed | Continue deterministic fixtures, profiling, benchmarks, and rule-preserving strategy work |
+| Explicit approval gate | [#20](https://github.com/MetinGames/Long-Narde/issues/20) hosted private table | Provider, EU region, minimal data map, retention, spend ceiling, and trial approval | Preserve the provider-neutral contract and synthetic local preview; do not collect real-player data |
+| Explicit approval gate | Branch cleanup | Exact deletion approval for the verified cleanup set | Preserve the branch inventory; do not delete branches |
+| Explicit approval gate | Public/store release | Release target, store submission, disclosures, and any spend | Prepare testable web/PWA/package assets without submitting externally |
+| Explicit approval gate | Rules, brand, privacy, monetization | Product-owner decision for any material change | Research and document options without silently changing the approved contract |
+| No approval needed | [#8](https://github.com/MetinGames/Long-Narde/issues/8), [#41](https://github.com/MetinGames/Long-Narde/issues/41), local quality and maintenance | None within the accepted scope | Proceed through small tested changes and synchronized Issues/ROADMAP updates |
+
 ## Active 14-day worklist — 2026-08-03 to 2026-08-16
 
 1. **Research completed — [#19](https://github.com/MetinGames/Long-Narde/issues/19):** compared Supabase, Firebase, and Cloudflare Durable Objects across authority, privacy, cost, regional latency, limits, export, and lock-in. Supabase is the preferred synthetic-trial candidate; no project, spend, personal data, or provider commitment is authorized.
