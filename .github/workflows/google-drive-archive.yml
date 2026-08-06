@@ -1,0 +1,74 @@
+name: Google Drive Archive
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "15 1 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: google-drive-archive-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    env:
+      DRIVE_FOLDER_ID: 1OGRZ5m_-VPuNWiD4NmaGImf38Ri_NIQZ
+      GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build timestamped archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          TS="$(date -u +'%Y-%m-%dT%H-%M-%SZ')"
+          SHORT_SHA="${GITHUB_SHA::7}"
+          ARCHIVE="Long-Narde_${TS}_${SHORT_SHA}.zip"
+          git archive --format=zip --output="$ARCHIVE" HEAD
+          sha256sum "$ARCHIVE" > "$ARCHIVE.sha256"
+          printf '%s\n' "$ARCHIVE" > archive-name.txt
+
+      - name: Keep temporary GitHub artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Long-Narde-${{ github.run_number }}-${{ github.sha }}
+          path: |
+            *.zip
+            *.sha256
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Install rclone
+        if: env.GDRIVE_CREDENTIALS != ''
+        shell: bash
+        run: curl https://rclone.org/install.sh | sudo bash
+
+      - name: Upload archive to Google Drive
+        if: env.GDRIVE_CREDENTIALS != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "$GDRIVE_CREDENTIALS" > "$RUNNER_TEMP/gdrive-service-account.json"
+          cat > "$RUNNER_TEMP/rclone.conf" <<EOF
+          [gdrive]
+          type = drive
+          scope = drive
+          service_account_file = $RUNNER_TEMP/gdrive-service-account.json
+          root_folder_id = $DRIVE_FOLDER_ID
+          EOF
+          ARCHIVE="$(cat archive-name.txt)"
+          rclone copy "$ARCHIVE" gdrive: --config "$RUNNER_TEMP/rclone.conf" --checksum --drive-chunk-size 64M
+          rclone copy "$ARCHIVE.sha256" gdrive: --config "$RUNNER_TEMP/rclone.conf" --checksum
+
+      - name: Explain inactive Drive upload
+        if: env.GDRIVE_CREDENTIALS == ''
+        run: echo "Drive upload skipped. Add repository secret GDRIVE_SERVICE_ACCOUNT_JSON to activate it."
