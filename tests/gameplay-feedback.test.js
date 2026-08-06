@@ -4,11 +4,12 @@ import assert from 'node:assert/strict';
 import { RestartButtonLock } from '../engine/restartButtonLock.js';
 import {
     applyBotMoveFeedback,
-    BOT_MOVE_STEP_DELAY_MS,
+    BOT_MOVE_PACING_MS,
     clearBotMoveFeedback,
     endBotMoveFeedback,
     resetBotMoveFeedback,
-    startBotMoveFeedback
+    startBotMoveFeedback,
+    getBotMoveStepDelay
 } from '../engine/botMoveFeedback.js';
 
 function createButton() {
@@ -246,5 +247,15 @@ test('bot hamle geri bildirimi yardimcilari renderer metotlarini dogru cagirir',
 
     const clearCalls = calls.filter(item => item.type === 'clear').length;
     assert.equal(clearCalls, 4);
-    assert.equal(BOT_MOVE_STEP_DELAY_MS, 700);
+    assert.equal(BOT_MOVE_PACING_MS.standard, 760);
+});
+
+test('bot tempo profili gorunur tur karmasikligina gore deterministik gecikme secer', () => {
+    assert.equal(getBotMoveStepDelay({ remainingMoveRights: 1 }), 650);
+    assert.equal(getBotMoveStepDelay({ remainingMoveRights: 2 }), 760);
+    assert.equal(getBotMoveStepDelay({ remainingMoveRights: 4 }), 900);
+    assert.equal(getBotMoveStepDelay({ remainingMoveRights: 1, isDouble: true }), 900);
+    assert.equal(getBotMoveStepDelay({ remainingMoveRights: 1, afterCollect: true }), 730);
+    assert.equal(getBotMoveStepDelay({ remainingMoveRights: 1, reducedMotion: true }), 760);
+    assert.equal(getBotMoveStepDelay({ remainingMoveRights: 4, afterCollect: true }), 980);
 });

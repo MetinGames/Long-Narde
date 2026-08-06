@@ -42,7 +42,7 @@ test('zar animasyonu tamamlaninca yasal dizi yoksa otomatik pas startHumanTimer 
     assert.notEqual(startTimerIdx, -1);
 
     const botScheduleIdx = section.indexOf(
-        'scheduleBotMoveCallback(BOT_MOVE_STEP_DELAY_MS);',
+        'scheduleBotMoveCallback(getCurrentBotMoveStepDelay());',
         rollIdx
     );
     assert.notEqual(botScheduleIdx, -1);

@@ -41,8 +41,8 @@ import {
 } from './engine/victoryMoment.js';
 import {
     applyBotMoveFeedback,
-    BOT_MOVE_STEP_DELAY_MS,
     endBotMoveFeedback,
+    getBotMoveStepDelay,
     resetBotMoveFeedback,
     startBotMoveFeedback
 } from './engine/botMoveFeedback.js';
@@ -311,6 +311,18 @@ function scheduleBotMoveCallback(delay = 550) {
     return botCallbackController.scheduleNext(runBotMove, delay);
 }
 
+function getCurrentBotMoveStepDelay({ afterCollect = false } = {}) {
+    const diceValues = game.dice?.values || [];
+    return getBotMoveStepDelay({
+        remainingMoveRights: game.availableMoves.length,
+        isDouble:
+            diceValues.length === 2 &&
+            diceValues[0] === diceValues[1],
+        afterCollect,
+        reducedMotion: prefersReducedMotion()
+    });
+}
+
 function persistOngoingMatch() {
     if (
         runtimeState.isInitialStartPending() ||
@@ -440,7 +452,7 @@ function resumeSavedMatch() {
     } else {
         ui.setBotTurnLayout();
         setStatus(t('status.matchResumedBotTurn'), { force: true });
-        scheduleBotMoveCallback(BOT_MOVE_STEP_DELAY_MS);
+        scheduleBotMoveCallback(getCurrentBotMoveStepDelay());
     }
 
     return true;
@@ -936,7 +948,7 @@ function startAutomaticDiceRoll() {
                 }),
                 { force: true }
             );
-            scheduleBotMoveCallback(BOT_MOVE_STEP_DELAY_MS);
+            scheduleBotMoveCallback(getCurrentBotMoveStepDelay());
         }
     });
 }
@@ -1000,7 +1012,9 @@ async function runBotMove() {
         return;
     }
 
-    scheduleBotMoveCallback(BOT_MOVE_STEP_DELAY_MS);
+    scheduleBotMoveCallback(getCurrentBotMoveStepDelay({
+        afterCollect: move.target === 25
+    }));
 }
 
 function showGameOver(winner, messageKey = null) {
