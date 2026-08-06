@@ -1,6 +1,8 @@
 // engine/sound.js
 
 export const SOUND_PREFERENCE_KEY = 'narde-sound-enabled';
+export const SOUND_VOLUME_PREFERENCE_KEY = 'nardora.sound-volume.v1';
+export const DEFAULT_SOUND_VOLUME = 1;
 
 const EVENT_COOLDOWNS_MS = {
     dice: 120,
@@ -115,6 +117,31 @@ function writeEnabledPreference(storage, enabled) {
     }
 }
 
+export function normalizeSoundVolume(value) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return DEFAULT_SOUND_VOLUME;
+    return Math.min(1, Math.max(0, numeric));
+}
+
+function readVolumePreference(storage) {
+    if (!storage) return DEFAULT_SOUND_VOLUME;
+    try {
+        const value = storage.getItem(SOUND_VOLUME_PREFERENCE_KEY);
+        return value === null ? DEFAULT_SOUND_VOLUME : normalizeSoundVolume(value);
+    } catch (_error) {
+        return DEFAULT_SOUND_VOLUME;
+    }
+}
+
+function writeVolumePreference(storage, volume) {
+    if (!storage) return;
+    try {
+        storage.setItem(SOUND_VOLUME_PREFERENCE_KEY, String(volume));
+    } catch (_error) {
+        // Storage errors are non-fatal for gameplay.
+    }
+}
+
 function getNowMs() {
     if (typeof performance !== 'undefined' && performance.now) {
         return performance.now();
@@ -139,6 +166,7 @@ export class SoundManager {
             options.recordedBufferLoader || null;
 
         this.enabled = readEnabledPreference(this.storage);
+        this.volume = readVolumePreference(this.storage);
         this.gameStarted = false;
         this.audioContext = null;
         this.masterGain = null;
@@ -154,6 +182,25 @@ export class SoundManager {
 
     isEnabled() {
         return this.enabled;
+    }
+
+    getVolume() {
+        return this.volume;
+    }
+
+    setVolume(volume) {
+        this.volume = normalizeSoundVolume(volume);
+        writeVolumePreference(this.storage, this.volume);
+        this.applyMasterVolume();
+        return this.volume;
+    }
+
+    applyMasterVolume() {
+        if (!this.masterGain) return;
+        const gain = OUTPUT_PROFILE.masterGain * this.volume;
+        if (this.masterGain.gain) {
+            this.masterGain.gain.value = gain;
+        }
     }
 
     async activateFromUserGesture() {
@@ -483,7 +530,7 @@ export class SoundManager {
     createAudioGraph() {
         const context = this.audioContextFactory();
         const gainNode = context.createGain();
-        gainNode.gain.value = OUTPUT_PROFILE.masterGain;
+        gainNode.gain.value = OUTPUT_PROFILE.masterGain * this.volume;
 
         let outputNode = context.destination;
         if (typeof context.createDynamicsCompressor === 'function') {

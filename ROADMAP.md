@@ -1,6 +1,6 @@
 # Nardora Roadmap
 
-Last synchronized: **2026-08-04**
+Last synchronized: **2026-08-06**
 
 Nardora is the player-facing brand. The repository and existing GitHub Pages URL may remain `Long-Narde` to avoid breaking links.
 
@@ -49,7 +49,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - `app.js` is 1,801 lines; `engine/renderer.js` is 1,405 lines and `style.css` is 3,504 lines. `index.html` and `engine/i18n.js` have also crossed the 1,000-line split-candidate threshold. Automatic-confirm state and helper presentation live in focused JS/CSS files; further extraction remains evidence-driven.
 - The repository has 50 non-main remote branches. The verified [branch inventory](docs/BRANCH_INVENTORY.md) classifies 45 cleanup candidates, one active branch, and four manual-review branches; no deletion is authorized.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
-- Community-sourced sample sounds are integrated and licensed, but Metin's final original dice/checker recordings, volume controls, and device-level listening review are not complete.
+- Community-sourced sample sounds are integrated and licensed. Persistent mute and master-volume controls are implemented locally with safe blocked-storage/audio fallbacks; Metin's final original dice/checker recordings and device-level listening review remain open in [#12](https://github.com/MetinGames/Long-Narde/issues/12).
 - Friend Match and Online have honest entry points, local identity, a provider-neutral contract, and a player-facing same-device lifecycle preview, but no network adapter, approved account model, hosted backend, or playable online table.
 - Advertising-safe responsive zones and Yandex-specific layout behavior have not been designed or tested.
 - There is no store package, backend, account system, online room, chat, ranking, or moderation layer.
@@ -77,6 +77,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 19. **Completed — [#41](https://github.com/MetinGames/Long-Narde/issues/41):** replaced the fixed local bot turn deadline with a persistent Off / 30 / 60 / 90 second pre-match choice; disabled mode creates no timeout penalty and unfinished matches restore their saved duration.
 20. **Completed — [#55](https://github.com/MetinGames/Long-Narde/issues/55):** locked the existing six-point-prime restriction across both player directions, first/last windows, the physical 24 → 1 wrap, opponent boundary positions, source-stack simulation, invalid reasons, and legal-move enumeration without changing rule behavior.
 21. **Completed — [#57](https://github.com/MetinGames/Long-Narde/issues/57):** added an off-by-default automatic turn-confirm preference with a visible two-second Undo grace period, immediate manual Confirm, stale-callback cancellation, final legality revalidation, unfinished-match continuity, and a compact shared helper surface.
+22. **In progress — [#12](https://github.com/MetinGames/Long-Narde/issues/12):** added accessible persistent mute and master-volume controls, live Web Audio gain updates, TR/EN/RU labels, mobile styling, and PWA precache coverage. Original recordings and physical phone/desktop listening validation remain open.
 
 Completed in this synchronization cycle:
 
