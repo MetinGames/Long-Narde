@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 
 import {
     SoundManager,
-    SOUND_PREFERENCE_KEY
+    SOUND_PREFERENCE_KEY,
+    SOUND_VOLUME_PREFERENCE_KEY,
+    DEFAULT_SOUND_VOLUME,
+    normalizeSoundVolume
 } from '../engine/sound.js';
 
 class FakeStorage {
@@ -181,6 +184,23 @@ test('ses tercihini localStorage icinde saklar', async () => {
 
     await manager.setEnabled(true);
     assert.equal(storage.getItem(SOUND_PREFERENCE_KEY), '1');
+});
+
+test('ses seviyesi normalize edilir, saklanir ve canli master gain uzerine uygulanir', async () => {
+    const storage = new FakeStorage({ [SOUND_VOLUME_PREFERENCE_KEY]: '0.4' });
+    const context = new FakeAudioContext();
+    const manager = new SoundManager({ storage, audioContextFactory: () => context });
+
+    assert.equal(manager.getVolume(), 0.4);
+    await manager.ensureContextFromUserGesture();
+    assert.equal(context.gainNodes[0].gain.value, 0.68 * 0.4);
+
+    assert.equal(manager.setVolume(0.9), 0.9);
+    assert.equal(storage.getItem(SOUND_VOLUME_PREFERENCE_KEY), '0.9');
+    assert.equal(context.gainNodes[0].gain.value, 0.68 * 0.9);
+    assert.equal(normalizeSoundVolume(-2), 0);
+    assert.equal(normalizeSoundVolume(4), 1);
+    assert.equal(normalizeSoundVolume('not-a-number'), DEFAULT_SOUND_VOLUME);
 });
 
 test('baslangic ekranindan once ses calmaz ve kapaliyken sessiz kalir', async () => {

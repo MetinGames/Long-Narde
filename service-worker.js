@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v22-2026-08-04';
+const CACHE_VERSION = 'v23-2026-08-06';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -10,6 +10,7 @@ const PRECACHE_PATHS = [
     './ongoing-match.css',
     './checker-color-picker.css',
     './game-helpers.css',
+    './sound-controls.css',
     './real-device-polish.css',
     './manifest.webmanifest',
     './app.js',
@@ -62,6 +63,7 @@ const PRECACHE_PATHS = [
     './engine/restartButtonLock.js',
     './engine/runtimeDiagnostics.js',
     './engine/sound.js',
+    './engine/soundPreferenceController.js',
     './engine/startModeController.js',
     './engine/themeManagerController.js',
     './engine/themes.js',

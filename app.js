@@ -53,6 +53,7 @@ import { createBotCallbackController } from './engine/botCallbackController.js';
 import { createFullscreenController } from './engine/fullscreenController.js';
 import { applyBotDifficultySelection } from './engine/botDifficultyController.js';
 import { SoundManager } from './engine/sound.js';
+import { createSoundPreferenceController } from './engine/soundPreferenceController.js';
 import {
     createAutoBearOffFlow,
     isAutoBearOffEligible
@@ -1524,6 +1525,14 @@ function bindEvents() {
     document.addEventListener('pointerdown', primeAudioContext, { once: true });
     document.addEventListener('keydown', primeAudioContext, { once: true });
 
+    const soundPreferenceController = createSoundPreferenceController({
+        sound,
+        muteButton: document.getElementById('sound-mute-toggle'),
+        volumeInput: document.getElementById('sound-volume'),
+        translate: t
+    });
+    soundPreferenceController.start();
+
     const difficultySelectors = [
         difficultySelect,
         startDifficultySelect
@@ -1669,6 +1678,7 @@ function bindEvents() {
             pointNumberController?.refreshForLanguage();
             mobileThemeLabelController?.refresh();
             themeManagerController?.refreshForLanguage();
+            soundPreferenceController.refresh();
             refreshTurnTimerDisplay();
             updateScreen();
             updateAutoBearOffControl();
@@ -1729,6 +1739,7 @@ function bindEvents() {
             runtimeState.clearSelectedSlotId();
             persistOngoingMatch();
             await playAppliedCheckerTransition(reverseTransition);
+            sound.playPiecePlace({ isCollect: false });
             applyPostUndoLayout({ game, ui });
             setStatus(t('status.undo'));
         }
