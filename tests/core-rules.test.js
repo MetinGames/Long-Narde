@@ -725,7 +725,7 @@ test('botun yasal hamlesi yoksa karar üretmez', () => {
     assert.equal(bot.makeDecision(game), null);
 });
 
-test('kolay botun rastgele puanı denetlenebilir', () => {
+test('kolay bot kısa görüş puanını rastgele bozmadan hesaplar', () => {
     const game = prepareGame({
         player: 2,
         dice: [3],
@@ -733,12 +733,73 @@ test('kolay botun rastgele puanı denetlenebilir', () => {
             { slot: 14, count: 2, owner: 2 }
         ]
     });
-    const bot = new NardeBot(2, 'easy', () => 0.25);
+    let randomCalls = 0;
+    const bot = new NardeBot(2, 'easy', () => {
+        randomCalls++;
+        return 0.25;
+    });
 
     assert.equal(
         bot.evaluateMove(14, 17, game, false, 3),
-        25
+        1.5
     );
+    assert.equal(randomCalls, 0);
+});
+
+test('kolay bot makul ilk üç hamle içinde kontrollü hata yapar', () => {
+    const bot = new NardeBot(2, 'easy', () => 0.99);
+    const moves = [
+        { id: 'best', score: 100 },
+        { id: 'second', score: 85 },
+        { id: 'third', score: 72 },
+        { id: 'implausible', score: 69 }
+    ];
+
+    assert.equal(bot.selectControlledMove(moves).id, 'third');
+});
+
+test('orta bot yalnız en iyiye yakın ikinci hamleyi seçebilir', () => {
+    const bot = new NardeBot(2, 'medium', () => 0.99);
+    const moves = [
+        { id: 'best', score: 100 },
+        { id: 'close', score: 94 },
+        { id: 'too-far', score: 91 }
+    ];
+
+    assert.equal(bot.selectControlledMove(moves).id, 'close');
+});
+
+test('orta bot yakın alternatif yoksa açık ara en iyi hamleyi korur', () => {
+    let randomCalls = 0;
+    const bot = new NardeBot(2, 'medium', () => {
+        randomCalls++;
+        return 0.99;
+    });
+    const moves = [
+        { id: 'best', score: 100 },
+        { id: 'too-far', score: 91 }
+    ];
+
+    assert.equal(bot.selectControlledMove(moves).id, 'best');
+    assert.equal(randomCalls, 0);
+});
+
+test('orta bot karar başına rastgeleliği yalnız kısa listede kullanır', () => {
+    const game = prepareGame({
+        player: 2,
+        dice: [3, 5],
+        pieces: [
+            { slot: 13, count: 15, owner: 2 }
+        ]
+    });
+    let randomCalls = 0;
+    const bot = new NardeBot(2, 'medium', () => {
+        randomCalls++;
+        return 0;
+    });
+
+    assert.ok(bot.makeDecision(game));
+    assert.equal(randomCalls, 1);
 });
 
 test('orta bot kendi pullarını birleştiren hamleye ek puan verir', () => {

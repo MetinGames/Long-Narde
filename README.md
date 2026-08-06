@@ -73,7 +73,7 @@ Long Narde in this repository follows the long narde rules implemented in the co
 
 ## Bot difficulty levels
 
-The code exposes four difficulty labels in the UI: Easy, Medium, Master, and Champion. Champion evaluates complete legal move sequences deterministically and is regression-tested for dice-use, prime, bearing-off, callback-safety, and performance constraints. It receives no hidden rule or dice advantage.
+The code exposes four difficulty labels in the UI: Easy, Medium, Master, and Champion. Easy and Medium score only the immediate legal move, then make a controlled weighted choice inside a narrow plausible shortlist; they no longer assign arbitrary random scores that can promote clearly inferior moves. Master keeps its stronger positional evaluation. Champion evaluates complete legal move sequences deterministically and is regression-tested for dice-use, prime, bearing-off, callback-safety, and performance constraints. No level receives a hidden rule or dice advantage.
 
 ## Timer and timeout behaviour
 
