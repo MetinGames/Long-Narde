@@ -1,10 +1,10 @@
 [
-  { "number": 8, "priority": "p1", "status": "in-progress", "phase": "Phase 0" },
-  { "number": 11, "priority": "p1", "status": "in-progress", "phase": "Phase 1", "externalGate": true },
+  { "number": 8, "priority": "p1", "status": "blocked", "phase": "Phase 0", "externalGate": true },
+  { "number": 11, "priority": "p1", "status": "blocked", "phase": "Phase 1", "externalGate": true },
   { "number": 12, "priority": "p1", "status": "blocked", "phase": "Phase 1", "externalGate": true },
   { "number": 13, "priority": "p1", "status": "blocked", "phase": "Phase 1", "externalGate": true },
   { "number": 20, "priority": "p1", "status": "blocked", "phase": "Hosted alpha", "externalGate": true },
-  { "number": 41, "priority": "p2", "status": "in-progress", "phase": "Research" },
+  { "number": 41, "priority": "p2", "status": "blocked", "phase": "Research", "externalGate": true },
   { "number": 67, "priority": "p2", "status": "blocked", "phase": "Phase 2", "externalGate": true },
   { "number": 68, "priority": "p1", "status": "blocked", "phase": "Phase 1", "externalGate": true }
 ]

@@ -30,3 +30,9 @@ seed labels, then apply ready/in-progress/blocked and external-gate labels to
 the current Issues. A GitHub Project can then group by status and filter by
 priority/phase. Project creation and milestone dates remain owner-facing GitHub
 settings and are not claimed complete by repository code alone.
+
+When every executable engineering child is complete, keep the parent Issue open
+only for a specifically named external gate. Mark both the Issue and
+`active-issues.json` as `blocked`/`externalGate`; do not leave an owner setting,
+physical-device check, recording, provider approval, or real-player observation
+misrepresented as active coding work.
