@@ -19,7 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DRIVE_FOLDER_ID: 1OGRZ5m_-VPuNWiD4NmaGImf38Ri_NIQZ
-      GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+      DRIVE_SHARED_DRIVE_ID: ${{ vars.DRIVE_SHARED_DRIVE_ID }}
+      GDRIVE_RCLONE_CONFIG: ${{ secrets.GDRIVE_RCLONE_CONFIG }}
+      GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
       PROJECT_NAME: Long-Narde
 
     steps:
@@ -51,28 +53,68 @@ jobs:
           retention-days: 30
           if-no-files-found: error
       - name: Install rclone
-        if: env.GDRIVE_CREDENTIALS != ''
+        if: >-
+          env.GDRIVE_RCLONE_CONFIG != '' ||
+          env.GDRIVE_SERVICE_ACCOUNT_JSON != ''
         run: curl https://rclone.org/install.sh | sudo bash
-      - name: Upload and verify archive in Google Drive
-        if: env.GDRIVE_CREDENTIALS != ''
+      - name: Configure Google Drive remote
+        if: >-
+          env.GDRIVE_RCLONE_CONFIG != '' ||
+          env.GDRIVE_SERVICE_ACCOUNT_JSON != ''
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s' "$GDRIVE_CREDENTIALS" > "$RUNNER_TEMP/gdrive-service-account.json"
-          chmod 600 "$RUNNER_TEMP/gdrive-service-account.json"
-          cat > "$RUNNER_TEMP/rclone.conf" <<EOF
+          CONFIG_PATH="$RUNNER_TEMP/rclone.conf"
+
+          if [[ -n "$GDRIVE_RCLONE_CONFIG" ]]; then
+            printf '%s' "$GDRIVE_RCLONE_CONFIG" > "$CONFIG_PATH"
+            if ! grep -Eq '^\[gdrive\][[:space:]]*$' "$CONFIG_PATH"; then
+              echo "::error::GDRIVE_RCLONE_CONFIG must contain a [gdrive] remote."
+              exit 1
+            fi
+          else
+            if [[ -z "$DRIVE_SHARED_DRIVE_ID" ]]; then
+              echo "::error::Google service accounts have no My Drive storage quota. Configure GDRIVE_RCLONE_CONFIG for user OAuth, or set DRIVE_SHARED_DRIVE_ID for a Shared Drive."
+              exit 1
+            fi
+
+            SERVICE_ACCOUNT_PATH="$RUNNER_TEMP/gdrive-service-account.json"
+            printf '%s' "$GDRIVE_SERVICE_ACCOUNT_JSON" > "$SERVICE_ACCOUNT_PATH"
+            chmod 600 "$SERVICE_ACCOUNT_PATH"
+            cat > "$CONFIG_PATH" <<EOF
           [gdrive]
           type = drive
           scope = drive
-          service_account_file = $RUNNER_TEMP/gdrive-service-account.json
+          service_account_file = $SERVICE_ACCOUNT_PATH
           root_folder_id = $DRIVE_FOLDER_ID
+          team_drive = $DRIVE_SHARED_DRIVE_ID
           EOF
+          fi
+
+          chmod 600 "$CONFIG_PATH"
+          printf '%s\n' "$CONFIG_PATH" > rclone-config-path.txt
+      - name: Upload and verify archive in Google Drive
+        if: >-
+          env.GDRIVE_RCLONE_CONFIG != '' ||
+          env.GDRIVE_SERVICE_ACCOUNT_JSON != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          CONFIG_PATH="$(cat rclone-config-path.txt)"
           ARCHIVE="$(cat archive-name.txt)"
           MANIFEST="$(cat manifest-name.txt)"
-          rclone copyto "$ARCHIVE" "gdrive:$ARCHIVE" --config "$RUNNER_TEMP/rclone.conf" --checksum --drive-chunk-size 64M
-          rclone copyto "$ARCHIVE.sha256" "gdrive:$ARCHIVE.sha256" --config "$RUNNER_TEMP/rclone.conf" --checksum
-          rclone copyto "$MANIFEST" "gdrive:$MANIFEST" --config "$RUNNER_TEMP/rclone.conf" --checksum
-          rclone lsf gdrive: --config "$RUNNER_TEMP/rclone.conf" | grep -Fx "$ARCHIVE"
+          rclone copyto "$ARCHIVE" "gdrive:$ARCHIVE" --config "$CONFIG_PATH" --checksum --drive-chunk-size 64M
+          rclone copyto "$ARCHIVE.sha256" "gdrive:$ARCHIVE.sha256" --config "$CONFIG_PATH" --checksum
+          rclone copyto "$MANIFEST" "gdrive:$MANIFEST" --config "$CONFIG_PATH" --checksum
+
+          REMOTE_FILES="$(rclone lsf gdrive: --config "$CONFIG_PATH" --files-only)"
+          for FILE in "$ARCHIVE" "$ARCHIVE.sha256" "$MANIFEST"; do
+            grep -Fx "$FILE" <<< "$REMOTE_FILES"
+          done
       - name: Explain inactive Drive upload
-        if: env.GDRIVE_CREDENTIALS == ''
-        run: echo "Drive upload skipped. Add repository secret GDRIVE_SERVICE_ACCOUNT_JSON to activate it."
+        if: >-
+          env.GDRIVE_RCLONE_CONFIG == '' &&
+          env.GDRIVE_SERVICE_ACCOUNT_JSON == ''
+        run: >-
+          echo "Drive upload skipped. Add GDRIVE_RCLONE_CONFIG for user OAuth,
+          or pair GDRIVE_SERVICE_ACCOUNT_JSON with a Shared Drive ID."

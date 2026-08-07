@@ -42,7 +42,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **416 Node tests passing as of 2026-08-07** for the bot/research delivery. The 75-case Playwright browser/device matrix includes save-refresh-resume, automatic-confirm Undo/manual-confirm races, and high-value visual journeys; CI remains the release gate for installed browser execution.
+- **419 Node tests passing as of 2026-08-07** across the bot/research and archive-authentication deliveries. The 75-case Playwright browser/device matrix includes save-refresh-resume, automatic-confirm Undo/manual-confirm races, and high-value visual journeys; CI remains the release gate for installed browser execution.
 
 ## Current gaps and risks
 
@@ -50,6 +50,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - The repository has 50 non-main remote branches. The verified [branch inventory](docs/BRANCH_INVENTORY.md) classifies 45 cleanup candidates, one active branch, and four manual-review branches; no deletion is authorized.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
 - Community-sourced sample sounds are integrated and licensed. Persistent mute and master-volume controls are implemented locally with safe blocked-storage/audio fallbacks; Metin's final original dice/checker recordings and device-level listening review remain open in [#12](https://github.com/MetinGames/Long-Narde/issues/12).
+- Every `main` push produces a checksum-backed 30-day GitHub archive artifact. Durable Google Drive upload now supports user OAuth or a service account inside a Shared Drive; the repository still needs one of those valid credential routes before the Drive copy can succeed.
 - Friend Match and Online have honest entry points, local identity, a provider-neutral contract, and a player-facing same-device lifecycle preview, but no network adapter, approved account model, hosted backend, or playable online table.
 - Advertising-safe responsive zones and Yandex-specific layout behavior have not been designed or tested.
 - There is no store package, backend, account system, online room, chat, ranking, or moderation layer.
@@ -63,6 +64,7 @@ Waiting on one item must not idle the project. Work continues on the highest-val
 | Evidence pending | [#12](https://github.com/MetinGames/Long-Narde/issues/12) original dice/checker audio | Clean source recordings and final device listening feedback | Keep mute, volume, preload, timing, provenance, and synthetic regression coverage green |
 | Evidence pending | [#13](https://github.com/MetinGames/Long-Narde/issues/13) physical device release gate | Corrected-build screenshots/recordings from representative iPhone, Android, and tablet devices | Keep Playwright geometry, touch, overflow, safe-area, and accessibility checks green |
 | Evidence pending | [#11](https://github.com/MetinGames/Long-Narde/issues/11) real-match Champion refinement | New real match positions only when a concrete weakness is observed | Continue deterministic fixtures, profiling, benchmarks, and rule-preserving strategy work |
+| Credential pending | Durable Google Drive archive | `GDRIVE_RCLONE_CONFIG` for user OAuth, or a Shared Drive ID plus service-account membership | Keep the checksum, manifest, exact-name verification, and 30-day GitHub artifact recovery path green |
 | Explicit approval gate | [#20](https://github.com/MetinGames/Long-Narde/issues/20) hosted private table | Provider, EU region, minimal data map, retention, spend ceiling, and trial approval | Preserve the provider-neutral contract and synthetic local preview; do not collect real-player data |
 | Explicit approval gate | Branch cleanup | Exact deletion approval for the verified cleanup set | Preserve the branch inventory; do not delete branches |
 | Explicit approval gate | Public/store release | Release target, store submission, disclosures, and any spend | Prepare testable web/PWA/package assets without submitting externally |
