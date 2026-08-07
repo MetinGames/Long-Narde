@@ -52,5 +52,5 @@ test('hosted boundary records synthetic provider evidence without enabling onlin
     assert.match(boundary, /revisions 1–9/);
     assert.match(boundary, /returned to zero rows/);
     assert.match(boundary, /Friend Match and Online disabled/);
-    assert.match(boundary, /does not decide the production region/);
+    assert.match(boundary, /does not\s+decide the production region/);
 });
