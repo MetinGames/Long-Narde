@@ -540,7 +540,7 @@ body.is-start-screen-open {
     }
 
     #start-launch-panel {
-        align-content: start;
+        align-content: center;
         gap: 5px;
         padding: 7px;
     }
@@ -697,7 +697,7 @@ body.is-start-screen-open {
 
     #start-launch-panel {
         display: grid;
-        align-content: start;
+        align-content: center;
         gap: 7px;
         padding: 8px;
         overflow-y: auto;
@@ -864,6 +864,7 @@ body.is-start-screen-open {
     }
 
     #start-launch-panel {
+        align-content: start;
         gap: 4px;
         padding: 5px;
         border-radius: 13px;
