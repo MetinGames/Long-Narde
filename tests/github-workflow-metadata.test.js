@@ -32,15 +32,13 @@ test('issue metadata automation is least-privilege and synchronizes lifecycle', 
     assert.match(source, /priority:p\$\{priority\}/);
 });
 
-test('active issue catalog preserves external gates and bounded #41 children', async () => {
+test('active issue catalog contains only named external gates after engineering closeout', async () => {
     const issues = JSON.parse(await readFile(new URL('.github/active-issues.json', root)));
     const byNumber = new Map(issues.map(issue => [issue.number, issue]));
-    assert.equal(byNumber.get(11).externalGate, true);
-    assert.equal(byNumber.get(12).externalGate, true);
-    assert.equal(byNumber.get(13).externalGate, true);
-    assert.equal(byNumber.get(20).externalGate, true);
-    assert.deepEqual([67, 68].map(number => byNumber.get(number).status), [
-        'blocked', 'blocked'
-    ]);
+    assert.deepEqual([...byNumber.keys()], [8, 11, 12, 13, 20, 41, 67, 68]);
+    issues.forEach(issue => {
+        assert.equal(issue.status, 'blocked', `#${issue.number} must be blocked`);
+        assert.equal(issue.externalGate, true, `#${issue.number} must name an external gate`);
+    });
     assert.equal(byNumber.has(69), false);
 });
