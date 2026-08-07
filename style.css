@@ -485,6 +485,7 @@ button.start-mode-card:not(:disabled):focus-visible,
 }
 
 .feedback-start-button {
+    min-height: 44px;
     background: rgba(64, 32, 21, 0.8);
     color: #f6e0b5;
     border: 1px solid rgba(219, 169, 80, 0.45);
