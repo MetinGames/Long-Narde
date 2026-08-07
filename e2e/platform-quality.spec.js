@@ -35,10 +35,22 @@ test('WebKit and mobile shells keep controls named, contained, and touch-sized',
                 element.textContent?.trim();
             return !label;
         }).map(element => element.id || element.tagName);
+        const isInsideScrollableContainer = element => {
+            let ancestor = element.parentElement;
+            while (ancestor) {
+                const style = getComputedStyle(ancestor);
+                const scrollsVertically = ['auto', 'scroll'].includes(style.overflowY) &&
+                    ancestor.scrollHeight > ancestor.clientHeight + 1;
+                if (scrollsVertically) return true;
+                ancestor = ancestor.parentElement;
+            }
+            return false;
+        };
         const clipped = interactive.filter(element => {
             const rect = element.getBoundingClientRect();
-            return rect.left < -1 || rect.top < -1 ||
+            const crossesViewport = rect.left < -1 || rect.top < -1 ||
                 rect.right > innerWidth + 1 || rect.bottom > innerHeight + 1;
+            return crossesViewport && !isInsideScrollableContainer(element);
         }).map(element => element.id || element.tagName);
         return {
             unnamed,
