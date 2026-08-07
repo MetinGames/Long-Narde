@@ -278,29 +278,28 @@
                 </div>
                 <p id="checker-color-detail" data-i18n="checkerColor.detail">Bot karşı rengi alır; kurallar ve oyun yönü değişmez.</p>
             </fieldset>
-            <div id="ongoing-match-entry">
-                <button
-                    id="continue-match-button"
-                    class="start-mode-card start-mode-card-resume"
-                    data-mode="continue-match"
-                    type="button"
-                    hidden
-                    aria-hidden="true"
-                >
-                    <span class="start-mode-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" focusable="false">
-                            <path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6" />
-                            <path d="M12 8v4l2.8 1.8" />
-                        </svg>
-                    </span>
-                    <span class="start-mode-copy">
-                        <strong data-i18n="mode.continueMatch">Maça Devam Et</strong>
-                        <span data-i18n="mode.continueMatchDetail">Bu cihazda kaydedilen yarım maça dönün.</span>
-                    </span>
-                </button>
-            </div>
             <div id="start-mode-menu" role="group" aria-labelledby="start-mode-menu-title">
-                <h3 id="start-mode-menu-title" data-i18n="mode.title">Oyun Modları</h3>
+                <div id="start-mode-menu-heading">
+                    <h3 id="start-mode-menu-title" data-i18n="mode.title">Oyun Modları</h3>
+                    <div id="ongoing-match-entry">
+                        <button
+                            id="continue-match-button"
+                            data-mode="continue-match"
+                            type="button"
+                            hidden
+                            aria-hidden="true"
+                        >
+                            <span class="start-resume-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6" />
+                                    <path d="M12 8v4l2.8 1.8" />
+                                </svg>
+                            </span>
+                            <strong data-i18n="mode.continueMatch">Maça Devam Et</strong>
+                            <span class="visually-hidden" data-i18n="mode.continueMatchDetail">Bu cihazda kaydedilen yarım maça dönün.</span>
+                        </button>
+                    </div>
+                </div>
                 <div id="start-mode-grid">
                     <button
                         id="start-button"
@@ -421,12 +420,12 @@
                 <button
                     id="start-theme-manager-button"
                     class="secondary-start-button"
-                    data-i18n="theme.managerOpen"
+                    data-i18n="theme.managerMenu"
                     data-i18n-aria-label="theme.managerOpen"
                     type="button"
                     aria-haspopup="dialog"
                     aria-label="Tema galerisini aç"
-                >Tema Galerisini Aç</button>
+                >Tema</button>
             </div>
             <div id="friend-preview-entry">
                 <button

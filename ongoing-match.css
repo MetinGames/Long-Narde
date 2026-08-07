@@ -1,5 +1,5 @@
 #ongoing-match-entry {
-    margin: 0 0 12px;
+    flex: 0 0 auto;
 }
 
 #ongoing-match-entry:has(#continue-match-button[hidden]) {
@@ -11,23 +11,53 @@
 }
 
 #continue-match-button {
-    min-height: 78px;
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 7px 12px;
+    border: 1px solid rgba(125, 220, 167, 0.56);
+    border-radius: 11px;
     border-color: rgba(125, 220, 167, 0.72);
     background: linear-gradient(145deg, #285e46 0%, #183a2c 100%);
     color: #f1fff7;
-    box-shadow: 0 11px 22px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(222, 255, 235, 0.18);
+    font: inherit;
+    font-size: 0.82rem;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(222, 255, 235, 0.14);
 }
 
-#continue-match-button .start-mode-icon {
+#continue-match-button:hover,
+#continue-match-button:focus-visible {
+    border-color: rgba(163, 239, 197, 0.86);
+    outline: 2px solid rgba(163, 239, 197, 0.46);
+    outline-offset: 2px;
+}
+
+#continue-match-button .start-resume-icon {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    border-radius: 8px;
     background: rgba(218, 255, 233, 0.13);
 }
 
-#continue-match-button .start-mode-copy > span {
-    color: rgba(235, 255, 243, 0.8);
+#continue-match-button .start-resume-icon svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 @media (max-width: 560px) {
     #continue-match-button {
-        min-height: 66px;
+        width: 100%;
     }
 }

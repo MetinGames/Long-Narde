@@ -448,6 +448,7 @@ test('social mode entry is honest and localized in all supported languages', asy
 
     i18n.setLanguage('tr');
     assert.equal(i18n.t('mode.continueMatch'), 'Maça Devam Et');
+    assert.equal(i18n.t('theme.managerMenu'), 'Tema');
     assert.equal(i18n.t('checkerColor.white'), 'Beyaz (Fildişi)');
     assert.equal(i18n.t('mode.quickPlay'), 'Hızlı Oyun');
     assert.equal(i18n.t('mode.friendMatch'), 'Arkadaş Maçı');
@@ -455,6 +456,7 @@ test('social mode entry is honest and localized in all supported languages', asy
 
     i18n.setLanguage('en');
     assert.equal(i18n.t('mode.continueMatch'), 'Continue Match');
+    assert.equal(i18n.t('theme.managerMenu'), 'Theme');
     assert.equal(i18n.t('checkerColor.title'), 'Your Checker Color');
     assert.equal(i18n.t('mode.botMatch'), 'Bot Match');
     assert.equal(i18n.t('mode.onlineDetail'), 'Safe accounts and online play are in development.');
@@ -462,6 +464,7 @@ test('social mode entry is honest and localized in all supported languages', asy
 
     i18n.setLanguage('ru');
     assert.equal(i18n.t('mode.continueMatch'), 'Продолжить матч');
+    assert.equal(i18n.t('theme.managerMenu'), 'Тема');
     assert.equal(i18n.t('checkerColor.black'), 'Чёрные');
     assert.equal(i18n.t('mode.quickPlay'), 'Быстрая игра');
     assert.equal(i18n.t('mode.friendMatchDetail'), 'Далее — приватные столы и ссылки-приглашения.');

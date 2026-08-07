@@ -107,6 +107,9 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(themeCss.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Theme manager low-landscape layout missing');
     assert.ok(themeCss.includes('max-height: calc(100dvh - 20px)'), 'Theme manager dynamic viewport guard missing');
     assert.match(ongoingMatchCss, /#ongoing-match-entry:has\(#continue-match-button\[hidden\]\)\s*\{[^}]*display:\s*none;/, 'Hidden Continue Match entry must not leave visual-baseline spacing');
+    assert.match(ongoingMatchCss, /#continue-match-button\s*\{[^}]*min-height:\s*44px;/, 'Continue Match must preserve a 44px touch target');
+    assert.match(css, /\.secondary-start-button\s*\{[^}]*min-height:\s*44px;/, 'Start-screen secondary actions must preserve a 44px touch target');
+    assert.ok(css.includes('#start-mode-menu-heading'), 'Compact mode heading and resume row style missing');
     assert.ok(checkerColorCss.includes('#checker-color-picker'), 'Checker color picker style missing');
     assert.ok(checkerColorCss.includes('.checker-color-option:has(input:focus-visible)'), 'Checker color keyboard focus style missing');
     assert.ok(checkerColorCss.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Checker color portrait layout missing');
@@ -122,6 +125,7 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="friend-match-button"'), 'Friend match button missing');
     assert.ok(html.includes('id="online-match-button"'), 'Online match button missing');
     assert.ok(html.includes('id="start-mode-grid"'), 'Start mode grid missing');
+    assert.ok(html.includes('id="start-mode-menu-heading"'), 'Start mode heading and resume row missing');
     assert.ok(html.includes('id="start-bot-difficulty"'), 'Start difficulty select missing');
     assert.ok(html.includes('id="start-turn-timer"'), 'Start turn-timer select missing');
     assert.equal((html.match(/<option value="(?:0|30|60|90)"(?: selected)?>/g) || []).length, 4, 'Exactly four turn-timer choices should be available');
@@ -185,6 +189,7 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('id="auto-turn-confirm-status"'), 'Auto-confirm live status missing');
     assert.ok(html.includes('id="theme-manager-button"'), 'In-game theme manager entry missing');
     assert.ok(html.includes('id="start-theme-manager-button"'), 'Start-screen theme manager entry missing');
+    assert.ok(/id="start-theme-manager-button"[\s\S]*?data-i18n="theme\.managerMenu"/i.test(html), 'Start-screen theme manager should use the compact localized label');
     assert.ok(html.includes('id="theme-manager-modal"'), 'Theme manager modal missing');
     assert.ok(/id="theme-manager-modal"[^>]*aria-modal="true"/i.test(html), 'Theme manager aria-modal missing');
     assert.equal((html.match(/data-theme-option=/g) || []).length, 2, 'Exactly two supported theme previews should be rendered');

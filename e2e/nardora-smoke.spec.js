@@ -378,6 +378,7 @@ test('unfinished local match is offered and resumes after refresh', async ({
     );
 
     const runtimeErrors = captureRuntimeErrors(page);
+    await page.setViewportSize({ width: 1280, height: 720 });
     await openReadyStartScreen(page);
 
     const continueButton = page.locator('#continue-match-button');
@@ -402,9 +403,37 @@ test('unfinished local match is offered and resumes after refresh', async ({
     await expect(page.locator('#start-screen')).toBeVisible();
     await expect(continueButton).toBeVisible();
     await expect(continueButton).toContainText('Continue Match');
+    await expect(page.locator('#start-theme-manager-button')).toHaveText('Theme');
     await expect(
         page.locator('input[name="checker-color"][value="black"]')
     ).toBeChecked();
+
+    const layout = await page.evaluate(() => {
+        const startBox = document.querySelector('#start-screen-box');
+        const title = document.querySelector('#start-mode-menu-title');
+        const continueMatch = document.querySelector('#continue-match-button');
+        const actionButtons = [...document.querySelectorAll('#start-screen-actions .secondary-start-button')];
+        const titleBox = title.getBoundingClientRect();
+        const continueBox = continueMatch.getBoundingClientRect();
+        return {
+            overflow: startBox.scrollHeight - startBox.clientHeight,
+            titleCenter: titleBox.top + titleBox.height / 2,
+            continueCenter: continueBox.top + continueBox.height / 2,
+            continueHeight: continueBox.height,
+            actionHeights: actionButtons.map(button =>
+                button.getBoundingClientRect().height
+            )
+        };
+    });
+    expect(layout.overflow).toBeLessThanOrEqual(1);
+    expect(Math.abs(layout.titleCenter - layout.continueCenter)).toBeLessThanOrEqual(2);
+    expect(layout.continueHeight).toBeGreaterThanOrEqual(44);
+    expect(layout.continueHeight).toBeLessThanOrEqual(48);
+    expect(layout.actionHeights).toHaveLength(3);
+    for (const height of layout.actionHeights) {
+        expect(height).toBeGreaterThanOrEqual(44);
+        expect(height).toBeLessThanOrEqual(48);
+    }
 
     await continueButton.click();
     await expect(page.locator('#start-screen')).toBeHidden();
