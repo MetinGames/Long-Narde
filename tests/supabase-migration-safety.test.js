@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import {
     assertSupabaseMigrationSafe,
@@ -38,4 +39,18 @@ test('managed schema matching tolerates quoted names and multiline DDL', () => {
     );
     assert.equal(findings.length, 1);
     assert.equal(findings[0].schema, 'realtime');
+});
+
+
+test('hosted boundary records synthetic provider evidence without enabling online play', () => {
+    const boundary = readFileSync(
+        new URL('../docs/SUPABASE_HOSTED_BOUNDARY.md', import.meta.url),
+        'utf8'
+    );
+
+    assert.match(boundary, /realtime\.send\(jsonb,text,text,boolean\)/);
+    assert.match(boundary, /revisions 1–9/);
+    assert.match(boundary, /returned to zero rows/);
+    assert.match(boundary, /Friend Match and Online disabled/);
+    assert.match(boundary, /does not decide the production region/);
 });
