@@ -26,8 +26,12 @@ test('WebKit and mobile shells keep controls named, contained, and touch-sized',
             return style.display !== 'none' && style.visibility !== 'hidden';
         });
         const unnamed = interactive.filter(element => {
+            const associatedLabel = Array.from(element.labels || [])
+                .map(label => label.textContent?.trim())
+                .find(Boolean);
             const label = element.getAttribute('aria-label') ||
                 element.getAttribute('title') ||
+                associatedLabel ||
                 element.textContent?.trim();
             return !label;
         }).map(element => element.id || element.tagName);
