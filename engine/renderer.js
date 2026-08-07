@@ -28,6 +28,11 @@ import {
     canvasMatchesGeometry,
     getCanvasGeometry
 } from './canvasGeometry.js';
+import {
+    RendererInvalidationMetrics,
+    createRendererRenderSignature,
+    isRendererMetricsEnabled
+} from './rendererInvalidationMetrics.js';
 
 function getNowMs() {
     return (
@@ -74,8 +79,38 @@ export class Renderer {
         this.botMoveHighlightState = null;
         this.pointNumbersVisible = false;
         this.humanCheckerColor = CHECKER_COLOR.WHITE;
+        this.renderMetricScenario = 'startup';
+        this.activeRenderMetricScenario = null;
+        this.renderMetrics = new RendererInvalidationMetrics({
+            enabled: isRendererMetricsEnabled(
+                typeof window === 'undefined' ? null : window
+            )
+        });
 
         this.prepareCanvas();
+        this.exposeRenderMetrics();
+    }
+
+    exposeRenderMetrics() {
+        if (
+            !this.renderMetrics.enabled ||
+            typeof window === 'undefined'
+        ) {
+            return;
+        }
+
+        window.__NARDORA_RENDER_METRICS__ = Object.freeze({
+            snapshot: () => this.renderMetrics.snapshot(),
+            reset: () => this.renderMetrics.reset()
+        });
+    }
+
+    setRenderMetricScenario(scenario) {
+        this.renderMetricScenario = String(scenario || 'state');
+    }
+
+    getRenderMetricsSnapshot() {
+        return this.renderMetrics.snapshot();
     }
 
     setHumanCheckerColor(color) {
@@ -404,6 +439,9 @@ export class Renderer {
     }
 
     rebuildStaticBoard() {
+        this.renderMetrics?.recordStaticBoardRebuild(
+            this.activeRenderMetricScenario || 'state'
+        );
         const canvas = document.createElement('canvas');
         const geometry = getCanvasGeometry({
             logicalWidth: this.boardWidth,
@@ -496,6 +534,34 @@ export class Renderer {
         }
 
         this.syncCanvasGeometry();
+
+        const metricScenario = this.renderMetricScenario || 'state';
+        this.renderMetricScenario = 'state';
+        this.activeRenderMetricScenario = metricScenario;
+        if (this.renderMetrics?.enabled) {
+            this.renderMetrics.recordRender({
+                scenario: metricScenario,
+                signature: createRendererRenderSignature({
+                    game,
+                    selectedSlotId,
+                    themeId: this.theme?.id,
+                    pointNumbersVisible: this.pointNumbersVisible,
+                    humanCheckerColor: this.humanCheckerColor,
+                    pixelRatio: this.pixelRatio,
+                    checkerMoveAnimationState:
+                        this.checkerMoveAnimationState,
+                    victoryMomentState: this.victoryMomentState,
+                    botMoveHighlightState: this.botMoveHighlightState
+                }),
+                animationActive: Boolean(
+                    this.checkerMoveAnimationState ||
+                    this.victoryMomentState
+                ),
+                staticBoardDirty:
+                    this.staticBoardDirty ||
+                    !this.staticBoardCanvas
+            });
+        }
 
         this.calculateHighlights(game, selectedSlotId);
 
@@ -640,6 +706,7 @@ export class Renderer {
             this.setDieUsed(this.die2Text, false);
             this.updateDoubleMoveRights(0, false);
         }
+        this.activeRenderMetricScenario = null;
     }
 
     setDieUsed(element, isUsed) {

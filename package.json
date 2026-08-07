@@ -16,6 +16,7 @@
     "native:add:android": "npm run build:native-web && npx --yes @capacitor/cli@8.5.0 add android",
     "native:add:ios": "npm run build:native-web && npx --yes @capacitor/cli@8.5.0 add ios",
     "native:sync": "npm run build:native-web && npx --yes @capacitor/cli@8.5.0 sync",
+    "renderer:profile": "node scripts/renderer-invalidation-profile.mjs",
     "roadmap:check": "node scripts/roadmap-sync-check.mjs",
     "supabase:safety": "node scripts/supabase-migration-safety.mjs",
     "sync:main": "node scripts/sync-main.mjs",
