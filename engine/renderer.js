@@ -24,6 +24,10 @@ import {
     getOppositeCheckerColor,
     normalizeCheckerColor
 } from './checkerColorPreference.js';
+import {
+    canvasMatchesGeometry,
+    getCanvasGeometry
+} from './canvasGeometry.js';
 
 function getNowMs() {
     return (
@@ -121,18 +125,17 @@ export class Renderer {
     prepareCanvas() {
         if (!this.canvas) return;
 
-        this.pixelRatio = Math.min(
-            window.devicePixelRatio || 1,
-            2
-        );
-        this.canvas.width =
-            this.boardWidth * this.pixelRatio;
-        this.canvas.height =
-            this.boardHeight * this.pixelRatio;
+        const geometry = this.getCanvasGeometry();
+        this.pixelRatio = geometry.pixelRatio;
+        this.canvas.width = geometry.backingWidth;
+        this.canvas.height = geometry.backingHeight;
         this.canvas.style.aspectRatio =
             `${this.boardWidth} / ${this.boardHeight}`;
-        this.canvas.dataset.logicalWidth = this.boardWidth;
-        this.canvas.dataset.logicalHeight = this.boardHeight;
+        this.canvas.dataset.logicalWidth = geometry.logicalWidth;
+        this.canvas.dataset.logicalHeight = geometry.logicalHeight;
+        this.canvas.dataset.pixelRatio = geometry.pixelRatio;
+        this.canvas.dataset.backingWidth = geometry.backingWidth;
+        this.canvas.dataset.backingHeight = geometry.backingHeight;
 
         this.ctx = this.canvas.getContext('2d');
         this.ctx.setTransform(
@@ -146,6 +149,30 @@ export class Renderer {
         this.ctx.imageSmoothingEnabled = true;
         this.ctx.imageSmoothingQuality = 'high';
         this.staticBoardDirty = true;
+    }
+
+    getCanvasGeometry() {
+        return getCanvasGeometry({
+            logicalWidth: this.boardWidth,
+            logicalHeight: this.boardHeight,
+            pixelRatio:
+                typeof window === 'undefined'
+                    ? 1
+                    : window.devicePixelRatio
+        });
+    }
+
+    syncCanvasGeometry() {
+        const geometry = this.getCanvasGeometry();
+        if (
+            this.pixelRatio === geometry.pixelRatio &&
+            canvasMatchesGeometry(this.canvas, geometry)
+        ) {
+            return false;
+        }
+
+        this.prepareCanvas();
+        return true;
     }
 
     async initialize() {
@@ -378,8 +405,13 @@ export class Renderer {
 
     rebuildStaticBoard() {
         const canvas = document.createElement('canvas');
-        canvas.width = this.boardWidth * this.pixelRatio;
-        canvas.height = this.boardHeight * this.pixelRatio;
+        const geometry = getCanvasGeometry({
+            logicalWidth: this.boardWidth,
+            logicalHeight: this.boardHeight,
+            pixelRatio: this.pixelRatio
+        });
+        canvas.width = geometry.backingWidth;
+        canvas.height = geometry.backingHeight;
 
         const backgroundContext = canvas.getContext('2d');
         backgroundContext.setTransform(
@@ -462,6 +494,8 @@ export class Renderer {
             if (!this.canvas) return;
             this.prepareCanvas();
         }
+
+        this.syncCanvasGeometry();
 
         this.calculateHighlights(game, selectedSlotId);
 

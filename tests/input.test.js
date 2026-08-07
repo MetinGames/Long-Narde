@@ -50,6 +50,44 @@ test('ekran koordinatını mantıksal canvas ölçüsüne çevirir', () => {
     );
 });
 
+test('canvas backing DPR 1/2/3 iken aynı dokunuş aynı mantıksal koordinatı verir', () => {
+    for (const pixelRatio of [1, 2, 3]) {
+        const canvas = new FakeCanvas({
+            left: 12,
+            top: 18,
+            width: 400,
+            height: 300
+        });
+        canvas.width = 800 * pixelRatio;
+        canvas.height = 600 * pixelRatio;
+
+        assert.deepEqual(
+            getCanvasCoordinates(canvas, {
+                clientX: 212,
+                clientY: 168
+            }),
+            { x: 400, y: 300 }
+        );
+    }
+});
+
+test('sıfır boyutlu canvas koordinat üretmez', () => {
+    const canvas = new FakeCanvas({
+        left: 0,
+        top: 0,
+        width: 0,
+        height: 0
+    });
+
+    assert.equal(
+        getCanvasCoordinates(canvas, {
+            clientX: 10,
+            clientY: 10
+        }),
+        null
+    );
+});
+
 test('kısa pointer dokunuşunu yalnız bir kez işler', () => {
     globalThis.window = { PointerEvent: class {} };
 

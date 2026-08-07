@@ -4,18 +4,25 @@ import {
     BOARD_LAYOUT,
     getSlotFromCoordinates
 } from './layout.js';
+import { mapClientPointToLogicalCoordinates } from './canvasGeometry.js';
 
 const TAP_MOVE_TOLERANCE = 12;
 
-export function getCanvasCoordinates(canvas, event) {
+export function getCanvasCoordinates(
+    canvas,
+    event,
+    layout = BOARD_LAYOUT
+) {
     const rect = canvas.getBoundingClientRect();
 
-    return {
-        x: (event.clientX - rect.left) *
-            (BOARD_LAYOUT.width / rect.width),
-        y: (event.clientY - rect.top) *
-            (BOARD_LAYOUT.height / rect.height)
-    };
+    return mapClientPointToLogicalCoordinates(
+        event,
+        rect,
+        {
+            width: layout.width,
+            height: layout.height
+        }
+    );
 }
 
 export function bindCanvasInput(
@@ -37,12 +44,17 @@ export function bindCanvasInput(
             return;
         }
 
-        const { x, y } =
-            getCanvasCoordinates(canvas, event);
         const activeLayout =
             typeof layout === 'function'
                 ? layout()
                 : layout;
+        const coordinates = getCanvasCoordinates(
+            canvas,
+            event,
+            activeLayout
+        );
+        if (!coordinates) return;
+        const { x, y } = coordinates;
         const slotId =
             getSlotFromCoordinates(x, y, activeLayout);
 

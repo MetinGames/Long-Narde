@@ -513,9 +513,18 @@ test('orta kasnak yanındaki dört pul yığını tam hane genişliğiyle çizil
             clearRect() {},
             drawImage() {}
         },
-        canvas: {},
+        canvas: {
+            width: 800,
+            height: 600,
+            dataset: {
+                logicalWidth: '800',
+                logicalHeight: '600',
+                pixelRatio: '1'
+            }
+        },
         boardWidth: 800,
         boardHeight: 600,
+        pixelRatio: 1,
         borderSize: 20,
         trayWidth: 55,
         slotHeight: 220,
@@ -581,9 +590,18 @@ test('bot hamle vurgusu statik tahta çizildikten sonra ve pullardan önce gör�
                 calls.push('board');
             }
         },
-        canvas: {},
+        canvas: {
+            width: 800,
+            height: 600,
+            dataset: {
+                logicalWidth: '800',
+                logicalHeight: '600',
+                pixelRatio: '1'
+            }
+        },
         boardWidth: 800,
         boardHeight: 600,
+        pixelRatio: 1,
         borderSize: 20,
         trayWidth: 55,
         slotHeight: 220,
