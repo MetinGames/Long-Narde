@@ -21,7 +21,7 @@ body.is-start-screen-open {
         max(10px, env(safe-area-inset-right))
         max(10px, env(safe-area-inset-bottom))
         max(10px, env(safe-area-inset-left));
-    overflow: auto;
+    overflow: hidden;
     background-color: #120a05;
     background-image: url('./assets/boards/nardora-start-board-preview.webp');
     background-position: center;
@@ -40,14 +40,15 @@ body.is-start-screen-open {
     position: relative;
     isolation: isolate;
     width: min(100%, 1460px);
-    min-height: calc(100dvh - 20px);
-    max-height: none;
+    height: calc(100dvh - 20px);
+    min-height: 0;
+    max-height: calc(100dvh - 20px);
     display: grid;
     grid-template-rows: auto minmax(0, 1fr) auto;
     gap: clamp(12px, 1.7vh, 20px);
     margin: auto;
     padding: clamp(16px, 2vw, 28px);
-    overflow: visible;
+    overflow: hidden;
     border: 1px solid rgba(213, 164, 71, 0.3);
     border-radius: 28px;
     background: rgba(18, 10, 5, 0.9);
@@ -499,14 +500,141 @@ body.is-start-screen-open {
     }
 }
 
+/* Keep the board dominant while making every launch action visible on
+   common 720p laptops and short landscape browser windows. */
+@media (min-width: 761px) and (max-height: 820px) {
+    #start-screen {
+        padding: 6px;
+    }
+
+    #start-screen-box {
+        height: calc(100dvh - 12px);
+        max-height: calc(100dvh - 12px);
+        gap: 6px;
+        padding: 10px 12px;
+        border-radius: 18px;
+    }
+
+    #start-lobby-header {
+        padding-inline: 2px;
+    }
+
+    #start-screen-box #start-lobby-header h2 {
+        font-size: clamp(1.45rem, 2.5vw, 1.85rem);
+    }
+
+    #start-screen-description {
+        margin-top: 2px;
+        font-size: 0.76rem;
+        line-height: 1.2;
+    }
+
+    #start-lobby-layout {
+        grid-template-columns: minmax(0, 1.55fr) minmax(360px, 0.75fr);
+        gap: 10px;
+    }
+
+    #start-board-showcase,
+    #start-launch-panel {
+        border-radius: 16px;
+    }
+
+    #start-launch-panel {
+        align-content: start;
+        gap: 5px;
+        padding: 7px;
+    }
+
+    #start-mode-menu,
+    #start-mode-grid {
+        gap: 5px;
+    }
+
+    #continue-match-button {
+        min-height: 44px;
+        padding-block: 4px;
+    }
+
+    #start-screen .start-mode-card-primary {
+        min-height: 56px;
+    }
+
+    #start-screen button.start-mode-card {
+        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 8px;
+        padding: 7px 9px;
+    }
+
+    #start-screen .start-mode-icon,
+    #start-screen .start-mode-card-action .start-mode-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    #start-screen .start-mode-card-action {
+        min-height: 46px;
+        grid-template-columns: 36px minmax(0, 1fr);
+        padding: 5px 8px;
+    }
+
+    #start-screen #start-mode-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #start-screen #start-mode-grid > .start-mode-card-primary,
+    #start-screen #start-mode-grid > .start-mode-card-bot,
+    #start-screen #start-mode-grid > #start-match-settings {
+        grid-column: 1 / -1;
+    }
+
+    #start-screen #start-mode-grid > .start-mode-card-unavailable {
+        grid-column: auto;
+    }
+
+    #start-match-settings {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #start-language-container,
+    #start-screen #checker-color-picker,
+    #start-screen .start-mode-config-field {
+        min-height: 44px;
+        grid-template-columns: 58px minmax(0, 1fr);
+        padding: 2px 5px;
+    }
+
+    #start-screen #start-bot-difficulty,
+    #start-screen #start-turn-timer,
+    #start-language-select,
+    #start-screen .checker-color-option {
+        min-height: 40px;
+    }
+
+    #start-screen .start-mode-card-unavailable,
+    #start-screen #friend-preview-entry .secondary-start-button,
+    #start-screen-actions .secondary-start-button {
+        min-height: 44px;
+    }
+
+    #start-screen .start-mode-card-unavailable {
+        padding: 5px 8px;
+    }
+
+    #start-screen .start-mode-card-unavailable .start-mode-copy > span {
+        display: none;
+    }
+}
+
 @media (max-width: 760px) {
     body.is-start-screen-open {
-        overflow-y: auto;
+        overflow: hidden;
     }
 
     #start-screen {
-        align-items: flex-start;
+        height: 100dvh;
+        align-items: stretch;
         padding: 0;
+        overflow: hidden;
         background-image: none;
     }
 
@@ -516,15 +644,19 @@ body.is-start-screen-open {
 
     #start-screen-box {
         width: 100%;
-        min-height: 100dvh;
-        display: block;
+        height: 100dvh;
+        min-height: 0;
+        max-height: 100dvh;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        gap: 8px;
         margin: 0;
         padding:
             max(10px, env(safe-area-inset-top))
             max(10px, env(safe-area-inset-right))
             max(12px, env(safe-area-inset-bottom))
             max(10px, env(safe-area-inset-left));
-        overflow: visible;
+        overflow: hidden;
         border: 0;
         border-radius: 0;
         background: #160c06;
@@ -545,9 +677,12 @@ body.is-start-screen-open {
     }
 
     #start-lobby-layout {
+        min-height: 0;
         display: grid;
         grid-template-columns: 1fr;
+        grid-template-rows: auto minmax(0, 1fr);
         gap: 8px;
+        overflow: hidden;
     }
 
     #start-board-showcase {
@@ -561,9 +696,12 @@ body.is-start-screen-open {
     }
 
     #start-launch-panel {
-        display: block;
+        display: grid;
+        align-content: start;
+        gap: 7px;
         padding: 8px;
-        overflow: visible;
+        overflow-y: auto;
+        overscroll-behavior: contain;
         border-radius: 16px;
     }
 
@@ -672,7 +810,7 @@ body.is-start-screen-open {
 
     #start-screen-actions {
         width: 100%;
-        margin-top: 8px;
+        margin-top: 0;
         border-radius: 13px;
     }
 
@@ -685,6 +823,138 @@ body.is-start-screen-open {
     #start-screen #feedback-button-row {
         position: static;
         margin-top: 6px;
+    }
+}
+
+/* On short portrait screens, reduce rows rather than shrinking touch targets.
+   The panel can still scroll internally when browser chrome or text scaling
+   removes additional height, but the document itself remains contained. */
+@media (max-width: 760px) and (max-height: 760px) and (orientation: portrait) {
+    #start-screen-box {
+        gap: 4px;
+        padding:
+            max(4px, env(safe-area-inset-top))
+            max(5px, env(safe-area-inset-right))
+            max(5px, env(safe-area-inset-bottom))
+            max(5px, env(safe-area-inset-left));
+    }
+
+    #start-lobby-header {
+        padding: 0 2px;
+    }
+
+    #start-screen-box #start-lobby-header h2 {
+        font-size: clamp(1.18rem, 5.5vw, 1.45rem);
+        line-height: 1;
+    }
+
+    #start-screen-description {
+        display: none;
+    }
+
+    #start-lobby-layout {
+        grid-template-rows: 92px minmax(0, 1fr);
+        gap: 5px;
+    }
+
+    #start-board-showcase {
+        height: auto;
+        min-height: 0;
+        border-radius: 12px;
+    }
+
+    #start-launch-panel {
+        gap: 4px;
+        padding: 5px;
+        border-radius: 13px;
+    }
+
+    #ongoing-match-entry,
+    #start-mode-menu,
+    #start-mode-grid,
+    #start-screen #friend-preview-entry {
+        margin-bottom: 4px;
+    }
+
+    #start-mode-menu,
+    #start-mode-grid {
+        gap: 4px;
+    }
+
+    #continue-match-button {
+        min-height: 44px;
+        padding-block: 4px;
+    }
+
+    #start-screen #start-mode-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #start-screen #start-mode-grid > .start-mode-card-primary,
+    #start-screen #start-mode-grid > .start-mode-card-bot,
+    #start-screen #start-mode-grid > #start-match-settings {
+        grid-column: 1 / -1;
+    }
+
+    #start-screen #start-mode-grid > .start-mode-card-unavailable {
+        grid-column: auto;
+    }
+
+    #start-screen .start-mode-card-primary {
+        min-height: 50px;
+    }
+
+    #start-screen .start-mode-card-action {
+        min-height: 44px;
+    }
+
+    #start-match-settings {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #start-language-container,
+    #start-screen #checker-color-picker,
+    #start-screen .start-mode-config-field {
+        min-height: 44px;
+        grid-template-columns: 50px minmax(0, 1fr);
+        padding: 0 3px;
+    }
+
+    #start-screen #checker-color-picker {
+        border-top: 0;
+    }
+
+    #start-screen #start-bot-difficulty,
+    #start-screen #start-turn-timer,
+    #start-language-select,
+    #start-screen .checker-color-option {
+        min-height: 44px;
+    }
+
+    #start-screen .checker-color-option > span:last-child {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    #start-screen .start-mode-card-unavailable,
+    #start-screen #friend-preview-entry .secondary-start-button,
+    #start-screen-actions .secondary-start-button {
+        min-height: 44px;
+    }
+
+    #start-screen .start-mode-card-unavailable {
+        padding: 4px 6px;
+    }
+
+    #start-screen #friend-preview-entry .secondary-start-button {
+        padding-block: 4px;
     }
 }
 

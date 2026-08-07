@@ -251,8 +251,8 @@ test('start flow, language synchronization, and canvas readiness', async ({
                 : null
         };
     });
-    expect(hoverPresentation.actionOutline).toBe('none');
-    expect(hoverPresentation.cardOutline).toBe('solid');
+    expect(hoverPresentation.actionOutline).toBe('solid');
+    expect(hoverPresentation.cardOutline).toBe('none');
     await expect(friendMatch).toBeDisabled();
     await expect(friendMatch).toHaveAttribute('aria-disabled', 'true');
     await expect(onlineMatch).toBeDisabled();
@@ -410,15 +410,17 @@ test('unfinished local match is offered and resumes after refresh', async ({
 
     const layout = await page.evaluate(() => {
         const startBox = document.querySelector('#start-screen-box');
-        const title = document.querySelector('#start-mode-menu-title');
+        const launchPanel = document.querySelector('#start-launch-panel');
         const continueMatch = document.querySelector('#continue-match-button');
         const actionButtons = [...document.querySelectorAll('#start-screen-actions .secondary-start-button')];
-        const titleBox = title.getBoundingClientRect();
+        const panelBox = launchPanel.getBoundingClientRect();
         const continueBox = continueMatch.getBoundingClientRect();
         return {
             overflow: startBox.scrollHeight - startBox.clientHeight,
-            titleCenter: titleBox.top + titleBox.height / 2,
-            continueCenter: continueBox.top + continueBox.height / 2,
+            panelTop: panelBox.top,
+            panelBottom: panelBox.bottom,
+            continueTop: continueBox.top,
+            continueBottom: continueBox.bottom,
             continueHeight: continueBox.height,
             actionHeights: actionButtons.map(button =>
                 button.getBoundingClientRect().height
@@ -426,7 +428,8 @@ test('unfinished local match is offered and resumes after refresh', async ({
         };
     });
     expect(layout.overflow).toBeLessThanOrEqual(1);
-    expect(Math.abs(layout.titleCenter - layout.continueCenter)).toBeLessThanOrEqual(2);
+    expect(layout.continueTop).toBeGreaterThanOrEqual(layout.panelTop - 1);
+    expect(layout.continueBottom).toBeLessThanOrEqual(layout.panelBottom + 1);
     expect(layout.continueHeight).toBeGreaterThanOrEqual(44);
     expect(layout.continueHeight).toBeLessThanOrEqual(48);
     expect(layout.actionHeights).toHaveLength(3);
