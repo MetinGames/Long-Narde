@@ -6,11 +6,13 @@ const STANDARD_DIE_FACES = 6;
 const CONTROLLED_MOVE_PROFILES = Object.freeze({
     easy: Object.freeze({
         scoreWindow: 30,
-        rankWeights: Object.freeze([0.55, 0.3, 0.15])
+        maxCandidates: 3,
+        temperature: 22
     }),
     medium: Object.freeze({
         scoreWindow: 8,
-        rankWeights: Object.freeze([0.8, 0.2])
+        maxCandidates: 2,
+        temperature: 4
     })
 });
 
@@ -125,13 +127,14 @@ export class NardeBot {
             .filter(move =>
                 bestScore - move.score <= profile.scoreWindow
             )
-            .slice(0, profile.rankWeights.length);
+            .slice(0, profile.maxCandidates);
 
         if (candidates.length < 2) return candidates[0];
 
-        const weights = profile.rankWeights.slice(
-            0,
-            candidates.length
+        const weights = candidates.map(
+            move => Math.exp(
+                (move.score - bestScore) / profile.temperature
+            )
         );
         const totalWeight = weights.reduce(
             (sum, weight) => sum + weight,

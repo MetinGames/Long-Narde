@@ -1,6 +1,6 @@
 # Nardora Decision Log
 
-Last reviewed: **2026-08-04**
+Last reviewed: **2026-08-07**
 
 This log records durable decisions and their reasoning. New entries are appended. If a decision changes, retain the original and mark it superseded by the new entry.
 
@@ -204,6 +204,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Reason:** Ending a completed turn is a repetitive tap rather than a strategic choice, but immediate automation would make accidental moves harder to recover and stale callbacks could cross turn boundaries.
 **Consequences:** The confirm control visibly marks the grace period, the condition is revalidated at callback time, and unfinished-match snapshots restore the match's setting. No-legal-move auto-pass keeps its separate rule-safe path. Future server-authoritative online play does not inherit this local preference automatically.
 **Review trigger:** Player testing shows two seconds is too short or slow, timed-turn data shows a fairness problem, Undo discoverability falls, or online/multi-human play requires a different confirmation authority.
+
+### D-029 — Easy and Medium use bounded score-aware variation
+
+**Date:** 2026-08-07
+**Status:** Accepted
+**Decision:** Easy and Medium rank only legal immediate moves, exclude candidates outside their existing narrow score windows, and select inside the bounded shortlist with a temperature-controlled softmax. Equal scores receive equal probability. Master and Champion keep their existing strength and determinism boundaries.
+**Reason:** Fixed rank weights made an equally scored move more likely solely because stable enumeration placed it first. Score-aware probability preserves natural variation without promoting clearly inferior moves or changing rule authority.
+**Consequences:** Tests inject deterministic random values, cover equal-score fairness and score-sensitive thresholds, and keep the no-alternative best move deterministic. The change is a bot-choice policy, not a dice, scoring, or Long Narde rule change.
+**Review trigger:** Seeded distribution measurements show a persistent tactical regression, players cannot distinguish Easy from Medium, or a future behavior-profile experiment needs a separately approved probability model.
 
 ## Open decisions
 

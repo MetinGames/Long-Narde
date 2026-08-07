@@ -758,6 +758,48 @@ test('kolay bot makul ilk üç hamle içinde kontrollü hata yapar', () => {
     assert.equal(bot.selectControlledMove(moves).id, 'third');
 });
 
+test('eşit puanlı kolay bot hamleleri sabit sıra önyargısı olmadan seçilir', () => {
+    const moves = [
+        { id: 'first', score: 100 },
+        { id: 'second', score: 100 },
+        { id: 'third', score: 100 }
+    ];
+
+    assert.equal(
+        new NardeBot(2, 'easy', () => 0.1)
+            .selectControlledMove(moves).id,
+        'first'
+    );
+    assert.equal(
+        new NardeBot(2, 'easy', () => 0.5)
+            .selectControlledMove(moves).id,
+        'second'
+    );
+    assert.equal(
+        new NardeBot(2, 'easy', () => 0.9)
+            .selectControlledMove(moves).id,
+        'third'
+    );
+});
+
+test('softmax seçimi yakın hamleye puan farkına göre daha az olasılık verir', () => {
+    const moves = [
+        { id: 'best', score: 100 },
+        { id: 'close', score: 96 }
+    ];
+
+    assert.equal(
+        new NardeBot(2, 'medium', () => 0.72)
+            .selectControlledMove(moves).id,
+        'best'
+    );
+    assert.equal(
+        new NardeBot(2, 'medium', () => 0.75)
+            .selectControlledMove(moves).id,
+        'close'
+    );
+});
+
 test('orta bot yalnız en iyiye yakın ikinci hamleyi seçebilir', () => {
     const bot = new NardeBot(2, 'medium', () => 0.99);
     const moves = [

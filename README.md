@@ -73,7 +73,7 @@ Long Narde in this repository follows the long narde rules implemented in the co
 
 ## Bot difficulty levels
 
-The code exposes four difficulty labels in the UI: Easy, Medium, Master, and Champion. Easy and Medium score only the immediate legal move, then make a controlled weighted choice inside a narrow plausible shortlist; they no longer assign arbitrary random scores that can promote clearly inferior moves. Master keeps its stronger positional evaluation. Champion evaluates complete legal move sequences deterministically and is regression-tested for dice-use, prime, bearing-off, callback-safety, and performance constraints. No level receives a hidden rule or dice advantage.
+The code exposes four difficulty labels in the UI: Easy, Medium, Master, and Champion. Easy and Medium score only the immediate legal move, then make a temperature-controlled softmax choice inside a narrow plausible shortlist; equal scores receive equal probability and clearly inferior moves stay outside the shortlist. Master keeps its stronger positional evaluation. Champion evaluates complete legal move sequences deterministically and is regression-tested for dice-use, prime, bearing-off, callback-safety, and performance constraints. No level receives a hidden rule or dice advantage.
 
 ## Timer and timeout behaviour
 
@@ -247,6 +247,7 @@ The current UI includes aria labels, aria-live status updates, modal dialog sema
 - [LOCAL_PLAYER_PROFILE.md](docs/LOCAL_PLAYER_PROFILE.md): local identity schema, built-in avatars, progression migration, reset behavior, and private-table projection.
 - [DECISION_LOG.md](docs/DECISION_LOG.md): durable product and architecture decisions with unresolved decisions kept visible.
 - [ROADMAP.md](ROADMAP.md): verified phases, dates, current gaps, and research-backed open items.
+- [ISSUE_41_RESEARCH.md](docs/ISSUE_41_RESEARCH.md): completed product/technical research decisions and the remaining real-player, physical-device, privacy, and hosted-service evidence gates.
 - [TOOLING_STRATEGY.md](docs/TOOLING_STRATEGY.md): phased plugin, service, program and data-access decisions.
 
 ## Asset provenance
