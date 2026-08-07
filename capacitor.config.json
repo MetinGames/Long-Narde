@@ -1,0 +1,15 @@
+{
+  "appId": "com.metingames.nardora",
+  "appName": "Nardora",
+  "webDir": "dist",
+  "loggingBehavior": "debug",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#3b2415"
+  },
+  "ios": {
+    "backgroundColor": "#3b2415",
+    "contentInset": "always",
+    "allowsLinkPreview": false
+  }
+}

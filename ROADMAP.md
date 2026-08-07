@@ -52,8 +52,8 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Community-sourced sample sounds are integrated and licensed. Persistent mute and master-volume controls are implemented locally with safe blocked-storage/audio fallbacks; Metin's final original dice/checker recordings and device-level listening review remain open in [#12](https://github.com/MetinGames/Long-Narde/issues/12).
 - Every `main` push produces a checksum-backed 30-day GitHub archive artifact. Durable Google Drive upload now supports user OAuth or a service account inside a Shared Drive; the repository still needs one of those valid credential routes before the Drive copy can succeed.
 - Friend Match and Online have honest entry points, local identity, a provider-neutral contract, and a player-facing same-device lifecycle preview, but no network adapter, approved account model, hosted backend, or playable online table.
-- Advertising-safe responsive zones and Yandex-specific layout behavior have not been designed or tested.
-- There is no store package, backend, account system, online room, chat, ranking, or moderation layer.
+- A capability-gated Yandex SDK adapter now owns ready/gameplay/ad lifecycle and blocks the complete game surface during fullscreen ads; platform debug-panel and real ad-placement validation remain external release gates.
+- Capacitor configuration, a reproducible native web bundle, asset/store-copy/privacy drafts, and explicit Android/iOS handoff gates exist. There is still no signed store package, backend, account system, online room, chat, ranking, or moderation layer.
 
 ## Dependency and approval gates
 
@@ -100,6 +100,9 @@ Waiting on one item must not idle the project. Work continues on the highest-val
 25. **Implemented in PR #63 and refined in this delivery — [#41](https://github.com/MetinGames/Long-Narde/issues/41) bot-naturalness subtasks:** replaced arbitrary Easy/Medium move scores with short-horizon evaluation and bounded suboptimal selection, then replaced fixed rank weights with score-aware softmax so equal scores have equal probability while clearly inferior moves stay excluded.
 26. **Research completed — [#41](https://github.com/MetinGames/Long-Narde/issues/41):** documented the separate 3/5/7 series boundary, classic-backgammon mini-intro test, bot profile/identity experiments, Web Worker rejection evidence, Yandex adapter map, Sentry and privacy-analytics gates, language-market queue, online authority, and provably-fair trade-offs in [Issue #41 research decisions](docs/ISSUE_41_RESEARCH.md). Physical-device, real-player, original-audio, native-Russian, and hosted-provider evidence remains explicitly open.
 27. **Completed — [#26](https://github.com/MetinGames/Long-Narde/issues/26):** replaced the plain start-screen feedback entry with a deterministic Nardora helper that routes bug reports, feedback, and the existing guide; it is minimized by default, persists only its local UI state, supports keyboard/Escape and reduced motion, and never claims to be live AI or human support.
+28. **Ready — [#67](https://github.com/MetinGames/Long-Narde/issues/67):** add an optional, default-off haptic capability adapter with no-op/error regressions before physical-device feel validation.
+29. **Ready — [#68](https://github.com/MetinGames/Long-Narde/issues/68):** lock DPR 1/2/3 Canvas backing-store and touch-coordinate geometry before any Retina-specific renderer correction.
+30. **Ready — [#69](https://github.com/MetinGames/Long-Narde/issues/69):** measure static rebuild, render, animation, and idle-frame invalidation before considering render-on-demand architecture.
 
 Completed in this synchronization cycle:
 
@@ -128,7 +131,7 @@ Target: **2026-08-14**
 
 - **Done:** Complete the player-facing Nardora migration without changing the repository or GitHub Pages URL.
 - **Done:** Establish and run the Issue/ROADMAP synchronization workflow; recurring weekly review continues under the documented operating loop.
-- **Queued:** Configure the unified GitHub Project view, milestones, and workflow metadata in [#8](https://github.com/MetinGames/Long-Narde/issues/8); the approved priority Phase 1 backlog now exists as Issues.
+- **In progress:** [#8](https://github.com/MetinGames/Long-Narde/issues/8) now has canonical priority/status/type labels, structured Issue templates, automatic opened/closed metadata, a checked active-Issue catalog, and documented ROADMAP/Issue/Project ownership. Creating the repository Project and choosing milestone dates remain owner-facing GitHub settings.
 - **Done:** Inventory all 50 non-main branches in [#6](https://github.com/MetinGames/Long-Narde/issues/6); preserve one active and four manual-review branches, and remove none of the 45 exact cleanup candidates without Metin's explicit deletion approval.
 - **Done:** Complete the focused [#4](https://github.com/MetinGames/Long-Narde/issues/4) checkpoint: resume and mobile-theme event ownership are idempotent, removable and test-backed.
 - **Done:** Playwright CI covers Chromium, Firefox, WebKit, iPhone 16e portrait, iPhone 17 Pro Max landscape, fullscreen/focus fallback, orientation transitions, and stable high-value visual baselines.

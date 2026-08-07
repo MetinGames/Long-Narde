@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="game-helpers.css">
     <link rel="stylesheet" href="helper-mascot.css">
     <link rel="stylesheet" href="sound-controls.css">
+    <link rel="stylesheet" href="friend-match-preview.css">
     <link rel="stylesheet" href="real-device-polish.css">
     <link rel="stylesheet" href="assets/branding/nardora-splash.css">
 </head>
@@ -191,7 +192,14 @@
 
         <!-- HTML5 Canvas Tavla Tahtası ve Orta Çıta Buttonları -->
         <div id="board-wrapper">
-            <canvas id="game-canvas" width="800" height="600"></canvas>
+            <canvas
+                id="game-canvas"
+                width="800"
+                height="600"
+                role="img"
+                data-i18n-aria-label="ui.boardLabel"
+                aria-label="Uzun Narde oyun tahtası"
+            ></canvas>
             
             <!-- İlk hamleden sonra kısa süreli görünen tahta kontrolleri -->
             <div id="action-buttons" aria-hidden="true">
@@ -1090,7 +1098,7 @@
     </div>
 
     <!-- Oyunu Başlatan Ana Script -->
-    <script type="module">import { mountNardoraSplash } from "./engine/nardoraSplash.js"; mountNardoraSplash();</script>
+    <script type="module" src="./engine/startup.js"></script>
     <script type="module" src="app.js"></script>
     <script type="module" src="./engine/pwa.js"></script>
 </body>

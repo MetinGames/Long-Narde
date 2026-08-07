@@ -1,0 +1,34 @@
+name: Evidence before implementation
+description: Profile or research a decision without pre-committing to a rewrite
+title: "[P2] Measure "
+labels:
+  - status:triage
+  - type:research
+body:
+  - type:textarea
+    id: question
+    attributes:
+      label: Decision question
+      description: What choice will this evidence make possible?
+    validations:
+      required: true
+  - type:textarea
+    id: current
+    attributes:
+      label: Current evidence
+    validations:
+      required: true
+  - type:textarea
+    id: method
+    attributes:
+      label: Repeatable method and budget
+      description: Define fixtures, measurements, thresholds, and output format.
+    validations:
+      required: true
+  - type:textarea
+    id: stop
+    attributes:
+      label: Stop condition
+      description: State when the suggested implementation will deliberately not proceed.
+    validations:
+      required: true

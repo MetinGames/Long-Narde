@@ -1,0 +1,41 @@
+name: Bounded implementation
+description: Small, test-backed product or engineering delivery
+title: "[P2] "
+labels:
+  - status:triage
+  - type:implementation
+body:
+  - type:textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: State the user-visible or operational outcome.
+    validations:
+      required: true
+  - type:dropdown
+    id: phase
+    attributes:
+      label: Target phase
+      options: [Phase 0, Phase 1, Phase 2, Phase 3, Backlog]
+    validations:
+      required: true
+  - type:textarea
+    id: scope
+    attributes:
+      label: Scope and exclusions
+      description: Keep the change bounded; name what will not change.
+    validations:
+      required: true
+  - type:textarea
+    id: tests
+    attributes:
+      label: Acceptance and tests
+      description: List deterministic, browser, device, security, or evidence gates.
+    validations:
+      required: true
+  - type:checkboxes
+    id: gates
+    attributes:
+      label: External gates
+      options:
+        - label: This issue requires owner, physical-device, provider, legal, or store input to close.

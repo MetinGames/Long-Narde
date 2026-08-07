@@ -2,6 +2,7 @@ import { NardeBot } from '../engine/bot.js';
 import {
     DEFAULT_CHAMPION_BENCHMARK_SEEDS,
     EXTENDED_CHAMPION_BENCHMARK_SEEDS,
+    CHAMPION_LOSS_EVIDENCE_SEEDS,
     formatChampionBenchmarkMarkdown,
     runChampionBenchmark
 } from './lib/championBenchmark.mjs';
@@ -48,17 +49,26 @@ function parseArguments(argumentsList) {
         }
 
         if (argument === '--extended') {
-            if (seedSelection === 'custom') {
-                throw new Error('--extended cannot be combined with --seeds');
+            if (seedSelection !== 'default') {
+                throw new Error('--extended cannot be combined with another seed set');
             }
             options.seeds = [...EXTENDED_CHAMPION_BENCHMARK_SEEDS];
             seedSelection = 'extended';
             continue;
         }
 
+        if (argument === '--loss-evidence') {
+            if (seedSelection !== 'default') {
+                throw new Error('--loss-evidence cannot be combined with another seed set');
+            }
+            options.seeds = [...CHAMPION_LOSS_EVIDENCE_SEEDS];
+            seedSelection = 'loss-evidence';
+            continue;
+        }
+
         if (argument === '--seeds') {
-            if (seedSelection === 'extended') {
-                throw new Error('--seeds cannot be combined with --extended');
+            if (seedSelection !== 'default') {
+                throw new Error('--seeds cannot be combined with another seed set');
             }
             const value = argumentsList[index + 1];
             if (!value) throw new Error('--seeds requires a value');
@@ -89,6 +99,7 @@ function printHelp() {
         'Options:',
         '  --seeds 1103,2207    Deterministic paired-match seeds',
         '  --extended           Fixed 16-seed, 32-match evidence sample',
+        '  --loss-evidence      Replay versioned loss seeds on both sides',
         '  --max-turns 240       Maximum turns per match',
         '  --legacy-strategy     Disable opponent-aware Champion scoring',
         '  --json                Print machine-readable JSON',

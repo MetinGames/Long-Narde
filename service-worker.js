@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v26-2026-08-07';
+const CACHE_VERSION = 'v27-2026-08-07';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -12,6 +12,7 @@ const PRECACHE_PATHS = [
     './game-helpers.css',
     './helper-mascot.css',
     './sound-controls.css',
+    './friend-match-preview.css',
     './real-device-polish.css',
     './manifest.webmanifest',
     './app.js',
@@ -54,6 +55,7 @@ const PRECACHE_PATHS = [
     './engine/nardoraSplash.js',
     './engine/noLegalMoveAutoPass.js',
     './engine/ongoingMatch.js',
+    './engine/platformBootstrap.js',
     './engine/ruleExplanations.js',
     './engine/playerIdentity.js',
     './engine/playerStats.js',
@@ -62,18 +64,22 @@ const PRECACHE_PATHS = [
     './engine/privateTableProtocol.js',
     './engine/pwa.js',
     './engine/renderer.js',
+    './engine/rendererThemePreference.js',
     './engine/restartButtonLock.js',
     './engine/runtimeDiagnostics.js',
     './engine/sound.js',
     './engine/soundPreferenceController.js',
+    './engine/startup.js',
     './engine/startModeController.js',
     './engine/themeManagerController.js',
     './engine/themes.js',
     './engine/timeoutController.js',
+    './engine/translations.js',
     './engine/turnTimerPreference.js',
     './engine/uiManager.js',
     './engine/undoActionButtons.js',
-    './engine/victoryMoment.js'
+    './engine/victoryMoment.js',
+    './engine/yandexGamesBridge.js'
 ];
 
 const scopedUrl = path => new URL(path, self.registration.scope).href;

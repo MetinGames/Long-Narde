@@ -405,6 +405,12 @@ Long Narde rules, and Master behavior are unchanged.
 The fixed 16-seed/32-match sample deliberately keeps the loss rather than
 tuning it away:
 
+The versioned loss-evidence replay is available separately as
+`npm run bot:loss-evidence`. It runs seed `14303` with Champion on both sides,
+uses a 160-turn bound, and locks the current `cd389e42` (P1 loss, 7/15 borne
+off) and `aeca676b` (P2 win) traces. New player-observed losses are appended to
+this set; an unfavorable seed is never removed to improve a headline rate.
+
 | Strategy | Champion | Master | Draws | Champion avg | P95 | Maximum |
 |---|---:|---:|---:|---:|---:|---:|
 | Symmetric opponent-aware baseline | 31 | 1 | 0 | 8.45 ms | 22.24 ms | 906.85 ms |
