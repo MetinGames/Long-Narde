@@ -248,6 +248,7 @@ The current UI includes aria labels, aria-live status updates, modal dialog sema
 - [DECISION_LOG.md](docs/DECISION_LOG.md): durable product and architecture decisions with unresolved decisions kept visible.
 - [ROADMAP.md](ROADMAP.md): verified phases, dates, current gaps, and research-backed open items.
 - [ISSUE_41_RESEARCH.md](docs/ISSUE_41_RESEARCH.md): completed product/technical research decisions and the remaining real-player, physical-device, privacy, and hosted-service evidence gates.
+- [GOOGLE_DRIVE_ARCHIVE.md](docs/GOOGLE_DRIVE_ARCHIVE.md): durable archive authentication routes, verification, and 30-day recovery behavior.
 - [TOOLING_STRATEGY.md](docs/TOOLING_STRATEGY.md): phased plugin, service, program and data-access decisions.
 
 ## Asset provenance
