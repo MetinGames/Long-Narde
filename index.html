@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="ongoing-match.css">
     <link rel="stylesheet" href="checker-color-picker.css">
     <link rel="stylesheet" href="game-helpers.css">
+    <link rel="stylesheet" href="helper-mascot.css">
     <link rel="stylesheet" href="sound-controls.css">
     <link rel="stylesheet" href="real-device-polish.css">
     <link rel="stylesheet" href="assets/branding/nardora-splash.css">
@@ -415,14 +416,73 @@
                 <p id="friend-preview-entry-note" data-i18n="friendPreview.entryNote">Bu cihazda iki oyunculu durum simülasyonu — çevrimiçi değildir.</p>
             </div>
             <div id="feedback-button-row">
-                <button
-                    id="feedback-button"
-                    class="feedback-start-button"
-                    data-i18n="ui.feedbackButton"
-                    data-i18n-aria-label="ui.feedbackButton"
-                    type="button"
-                    aria-label="Görüş Bildir"
-                >Görüş Bildir</button>
+                <aside
+                    id="helper-mascot"
+                    data-state="minimized"
+                    data-i18n-aria-label="helper.regionLabel"
+                    aria-label="Nardora yardımcısı"
+                    hidden
+                >
+                    <button
+                        id="helper-mascot-toggle"
+                        class="feedback-start-button"
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls="helper-mascot-panel"
+                        data-i18n-aria-label="helper.openLabel"
+                        aria-label="Nardora yardımcısını aç"
+                    >
+                        <span class="helper-mascot-face" aria-hidden="true">
+                            <span class="helper-mascot-eye"></span>
+                            <span class="helper-mascot-eye"></span>
+                            <span class="helper-mascot-smile"></span>
+                        </span>
+                        <span class="helper-mascot-open-label" data-i18n="helper.open">Görüş Bildir</span>
+                        <span class="helper-mascot-close-label" data-i18n="helper.minimize">Yardımcıyı Küçült</span>
+                    </button>
+
+                    <section
+                        id="helper-mascot-panel"
+                        aria-hidden="true"
+                        aria-labelledby="helper-mascot-title"
+                        hidden
+                    >
+                        <header class="helper-mascot-header">
+                            <div>
+                                <span class="helper-mascot-eyebrow" data-i18n="helper.eyebrow">NARDORA YARDIMCISI</span>
+                                <h3 id="helper-mascot-title" data-i18n="helper.title">Nasıl yardımcı olabilirim?</h3>
+                            </div>
+                            <button
+                                id="helper-mascot-minimize"
+                                type="button"
+                                data-i18n-aria-label="helper.minimize"
+                                aria-label="Yardımcıyı küçült"
+                            >−</button>
+                        </header>
+
+                        <p class="helper-mascot-note" data-i18n="helper.disclosure">Bu, sabit seçenekleri sunan bir oyun yardımcısıdır; canlı destek veya yapay zekâ değildir.</p>
+
+                        <div class="helper-mascot-actions" role="group" data-i18n-aria-label="helper.actionsLabel" aria-label="Yardım seçenekleri">
+                            <a
+                                id="helper-mascot-bug-link"
+                                href="https://github.com/MetinGames/Long-Narde/issues/new?template=bug_report.yml"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                data-i18n="helper.reportBug"
+                            >Hata Bildir</a>
+                            <button
+                                id="helper-mascot-feedback-button"
+                                type="button"
+                                data-i18n="helper.sendFeedback"
+                            >Görüş Gönder</button>
+                            <button
+                                id="helper-mascot-guide-button"
+                                type="button"
+                                data-i18n="helper.howToPlay"
+                            >Nasıl Oynanır?</button>
+                        </div>
+                    </section>
+                </aside>
             </div>
         </div>
 

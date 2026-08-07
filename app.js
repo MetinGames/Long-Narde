@@ -24,6 +24,7 @@ import {
     createFirstMatchTutorialController
 } from './engine/firstMatchTutorial.js';
 import { FeedbackModal } from './engine/feedbackModal.js';
+import { HelperMascotController } from './engine/helperMascotController.js';
 import {
     MatchStatsRecorder,
     PlayerStatsStore
@@ -113,6 +114,7 @@ let howToPlayGuide = null;
 let firstMatchTutorialController = null;
 let playerStatsModal = null;
 let feedbackModal = null;
+let helperMascotController = null;
 let restartButtonLock = null;
 let languageSelectors = null;
 let fullscreenController = null;
@@ -1332,7 +1334,7 @@ function bindEvents() {
     const onlineMatchButton =
         document.getElementById('online-match-button');
     const feedbackButton =
-        document.getElementById('feedback-button');
+        document.getElementById('helper-mascot-feedback-button');
     const feedbackModalElement =
         document.getElementById('feedback-modal');
     const feedbackCloseButton =
@@ -1521,9 +1523,22 @@ function bindEvents() {
 
     feedbackModal = new FeedbackModal({
         modal: feedbackModalElement,
-        openButton: feedbackButton,
+        openButton: null,
         closeButtons: [feedbackCloseButton]
     });
+
+    helperMascotController = new HelperMascotController({
+        root: document.getElementById('helper-mascot'),
+        toggleButton: document.getElementById('helper-mascot-toggle'),
+        panel: document.getElementById('helper-mascot-panel'),
+        minimizeButton: document.getElementById('helper-mascot-minimize'),
+        bugLink: document.getElementById('helper-mascot-bug-link'),
+        feedbackButton,
+        guideButton: document.getElementById('helper-mascot-guide-button'),
+        onOpenFeedback: trigger => feedbackModal?.open(trigger),
+        onOpenGuide: trigger => howToPlayGuide?.open(trigger),
+        translate: key => t(key)
+    }).start();
 
     const diagnosticsCopyButton =
         document.getElementById('feedback-diagnostics-copy-button');
@@ -1686,6 +1701,7 @@ function bindEvents() {
         selectors: [languageSelect, startLanguageSelect],
         onLanguageApplied: () => {
             howToPlayGuide?.refreshForLanguage();
+            helperMascotController?.refreshForLanguage();
             playerStatsModal?.refreshForLanguage();
             friendMatchPreviewController?.refreshForLanguage();
             fullscreenController?.refreshLabels();

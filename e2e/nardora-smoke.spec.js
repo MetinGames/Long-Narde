@@ -469,7 +469,14 @@ test('start-screen dialogs open and close without starting a match', async ({
     await page.locator('#stats-close-button').click();
     await expect(page.locator('#player-stats-modal')).toBeHidden();
 
-    await page.locator('#feedback-button').click();
+    await page.locator('#helper-mascot-toggle').click();
+    await expect(page.locator('#helper-mascot-panel')).toBeVisible();
+    await expect(page.locator('#helper-mascot-bug-link')).toHaveAttribute(
+        'href',
+        /bug_report\.yml/
+    );
+    await page.locator('#helper-mascot-feedback-button').click();
+    await expect(page.locator('#helper-mascot-panel')).toBeHidden();
     await expect(page.locator('#feedback-modal')).toBeVisible();
     await expect(page.locator('#feedback-bug-link')).toHaveAttribute(
         'href',
@@ -477,6 +484,12 @@ test('start-screen dialogs open and close without starting a match', async ({
     );
     await page.locator('#feedback-close-button').click();
     await expect(page.locator('#feedback-modal')).toBeHidden();
+
+    await page.locator('#helper-mascot-toggle').click();
+    await page.locator('#helper-mascot-guide-button').click();
+    await expect(page.locator('#how-to-play-modal')).toBeVisible();
+    await expect(page.locator('#helper-mascot-panel')).toBeHidden();
+    await page.locator('#guide-close-button').click();
 
     await page.reload();
     await expect(page.locator('#start-screen')).toBeVisible();

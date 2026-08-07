@@ -412,6 +412,29 @@ test('how-to-play guide keys are localized in all supported languages', async ()
     restoreGlobalProperty('navigator', originalNavigator);
 });
 
+test('helper mascot actions and honest disclosure are localized', async () => {
+    const savedStorage = new FakeStorage({ 'narde-language': 'en' });
+    const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
+    const originalNavigator = defineGlobalProperty('navigator', {
+        language: 'en-US',
+        languages: ['en-US']
+    });
+
+    const modulePath = new URL('../engine/i18n.js?cache=' + Date.now(), import.meta.url);
+    const i18n = await import(modulePath.href);
+
+    for (const language of ['tr', 'en', 'ru']) {
+        i18n.setLanguage(language);
+        assert.notEqual(i18n.t('helper.reportBug'), 'helper.reportBug');
+        assert.notEqual(i18n.t('helper.sendFeedback'), 'helper.sendFeedback');
+        assert.notEqual(i18n.t('helper.howToPlay'), 'helper.howToPlay');
+        assert.match(i18n.t('helper.disclosure'), /(yapay zekâ|AI|ИИ)/i);
+    }
+
+    restoreGlobalProperty('localStorage', originalLocalStorage);
+    restoreGlobalProperty('navigator', originalNavigator);
+});
+
 test('social mode entry is honest and localized in all supported languages', async () => {
     const savedStorage = new FakeStorage({ 'narde-language': 'en' });
     const originalLocalStorage = defineGlobalProperty('localStorage', savedStorage);
