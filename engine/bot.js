@@ -3,6 +3,16 @@
 const CHAMPION_REPLY_FINALIST_LIMIT = 12;
 const CHAMPION_OPPONENT_THREAT_SCALE = 0.15;
 const STANDARD_DIE_FACES = 6;
+const CONTROLLED_MOVE_PROFILES = Object.freeze({
+    easy: Object.freeze({
+        scoreWindow: 30,
+        rankWeights: Object.freeze([0.55, 0.3, 0.15])
+    }),
+    medium: Object.freeze({
+        scoreWindow: 8,
+        rankWeights: Object.freeze([0.8, 0.2])
+    })
+});
 
 export class NardeBot {
     constructor(
@@ -95,7 +105,53 @@ export class NardeBot {
         if (legalMoves.length === 0) return null;
 
         legalMoves.sort((a, b) => b.score - a.score);
+
+        if (CONTROLLED_MOVE_PROFILES[this.difficulty]) {
+            return this.selectControlledMove(legalMoves);
+        }
+
         return legalMoves[0];
+    }
+
+    selectControlledMove(rankedMoves) {
+        const profile = CONTROLLED_MOVE_PROFILES[this.difficulty];
+
+        if (!profile || rankedMoves.length < 2) {
+            return rankedMoves[0] || null;
+        }
+
+        const bestScore = rankedMoves[0].score;
+        const candidates = rankedMoves
+            .filter(move =>
+                bestScore - move.score <= profile.scoreWindow
+            )
+            .slice(0, profile.rankWeights.length);
+
+        if (candidates.length < 2) return candidates[0];
+
+        const weights = profile.rankWeights.slice(
+            0,
+            candidates.length
+        );
+        const totalWeight = weights.reduce(
+            (sum, weight) => sum + weight,
+            0
+        );
+        const randomValue = Math.min(
+            Math.max(Number(this.random()) || 0, 0),
+            1
+        );
+        const targetWeight = randomValue * totalWeight;
+        let cumulativeWeight = 0;
+
+        for (let index = 0; index < candidates.length; index++) {
+            cumulativeWeight += weights[index];
+            if (targetWeight < cumulativeWeight) {
+                return candidates[index];
+            }
+        }
+
+        return candidates[candidates.length - 1];
     }
 
     resetPlannedTurn() {
@@ -709,10 +765,6 @@ export class NardeBot {
     ) {
         if (isBearOff) return 10000;
 
-        if (this.difficulty === 'easy') {
-            return this.random() * 100;
-        }
-
         let score = diceValue * 0.5;
         const target = game.board.slots[to];
 
@@ -732,9 +784,9 @@ export class NardeBot {
             score += 20;
         }
 
-        score += this.random() * 2;
-
         if (this.difficulty === 'hard') {
+            score += this.random() * 2;
+
             if (this.playerNumber === 1 && to >= 19) {
                 score += 15;
             }
