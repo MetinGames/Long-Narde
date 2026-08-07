@@ -362,10 +362,13 @@ function refreshContinueMatchEntry(snapshot = ongoingMatchStore.load()) {
     return isAvailable;
 }
 
-async function playAppliedCheckerTransition(capture) {
+async function playAppliedCheckerTransition(
+    capture,
+    { scenario = 'move' } = {}
+) {
     const transition = completeCheckerTransition(capture, game);
     if (!transition) {
-        updateScreen();
+        updateScreen(scenario);
         return false;
     }
 
@@ -376,19 +379,19 @@ async function playAppliedCheckerTransition(capture) {
         ...transition,
         liftPx: profile.liftPx
     });
-    updateScreen();
+    updateScreen(scenario);
 
     try {
         await animateForDuration(profile.durationMs, progress => {
             if (!runtimeState.isSessionTokenCurrent(sessionToken)) return;
             renderer.setCheckerMoveAnimationProgress(progress);
-            updateScreen();
+            updateScreen(scenario);
         });
     } finally {
         if (runtimeState.isSessionTokenCurrent(sessionToken)) {
             renderer.clearCheckerMoveAnimation();
             isCheckerMoveAnimating = false;
-            updateScreen();
+            updateScreen(scenario);
         }
     }
 
@@ -438,7 +441,7 @@ function resumeSavedMatch() {
         if (selector) selector.value = bot.difficulty;
     }
 
-    updateScreen();
+    updateScreen('resume');
     refreshTurnTimerDisplay();
     persistOngoingMatch();
 
@@ -531,7 +534,7 @@ function startGame() {
     timeoutController.resetAll();
     resetAutoBearOffForNewGame();
 
-    updateScreen();
+    updateScreen('start');
     ui.setHumanTurnLayout();
     refreshTurnTimerDisplay();
     setStatus(t('status.starting'), { force: true });
@@ -551,7 +554,7 @@ function initializeBeforeStart() {
     timeoutController.resetAll();
     resetAutoBearOffForNewGame();
 
-    updateScreen();
+    updateScreen('start-screen');
     ui.setHumanTurnLayout();
     refreshTurnTimerDisplay();
     setStatus(t('status.readyToStart'), { force: true });
@@ -559,8 +562,9 @@ function initializeBeforeStart() {
     showStartScreen();
 }
 
-function updateScreen() {
+function updateScreen(renderScenario = 'state') {
     syncActionButtonStates();
+    renderer.setRenderMetricScenario?.(renderScenario);
     renderer.render(game, runtimeState.getSelectedSlotId());
     updateAutoBearOffControl();
     updateAutoTurnConfirmControl();
@@ -931,7 +935,7 @@ function startAutomaticDiceRoll() {
             return;
         }
 
-        updateScreen();
+        updateScreen('roll');
 
         if (rollingPlayer === 1) {
             ui.setHumanPlayingLayout();
@@ -1005,7 +1009,9 @@ async function runBotMove() {
     });
     const winner = game.checkWinCondition();
     persistOngoingMatch();
-    await playAppliedCheckerTransition(transition);
+    await playAppliedCheckerTransition(transition, {
+        scenario: 'bot-turn'
+    });
 
     if (winner !== 0) {
         await playVictoryMomentIfEligible({
@@ -1142,11 +1148,11 @@ async function playVictoryMomentIfEligible({ winner, targetId }) {
 
     await animateForDuration(profile.durationMs, progress => {
         renderer.setVictoryMomentProgress(progress);
-        updateScreen();
+        updateScreen('victory');
     });
 
     renderer.clearVictoryMoment();
-    updateScreen();
+    updateScreen('victory');
 }
 
 function restartGame() {
@@ -1689,7 +1695,7 @@ function bindEvents() {
         onThemeChange: (themeId, themeName) => {
             renderer.setTheme(themeId);
             mobileThemeLabelController?.refresh();
-            updateScreen();
+            updateScreen('theme');
             setStatus(
                 t('status.themeChanged', { theme: themeName }),
                 { force: true }
@@ -1712,7 +1718,7 @@ function bindEvents() {
             themeManagerController?.refreshForLanguage();
             soundPreferenceController.refresh();
             refreshTurnTimerDisplay();
-            updateScreen();
+            updateScreen('language');
             updateAutoBearOffControl();
             updateAutoTurnConfirmControl();
         },
@@ -1737,7 +1743,7 @@ function bindEvents() {
         translate: key => t(key),
         runtimeDiagnostics,
         onLayoutChange: () => {
-            updateScreen();
+            updateScreen('resize');
         }
     });
 

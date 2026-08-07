@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v28-2026-08-07';
+const CACHE_VERSION = 'v29-2026-08-07';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -65,6 +65,7 @@ const PRECACHE_PATHS = [
     './engine/privateTableProtocol.js',
     './engine/pwa.js',
     './engine/renderer.js',
+    './engine/rendererInvalidationMetrics.js',
     './engine/rendererThemePreference.js',
     './engine/restartButtonLock.js',
     './engine/runtimeDiagnostics.js',
