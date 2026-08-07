@@ -42,11 +42,11 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **419 Node tests passing as of 2026-08-07** across the bot/research and archive-authentication deliveries. The 75-case Playwright browser/device matrix includes save-refresh-resume, automatic-confirm Undo/manual-confirm races, and high-value visual journeys; CI remains the release gate for installed browser execution.
+- **423 Node tests passing as of 2026-08-07** across the bot/research, archive-authentication, and helper-mascot deliveries. The 75-case Playwright browser/device matrix includes save-refresh-resume, automatic-confirm Undo/manual-confirm races, and high-value visual journeys; CI remains the release gate for installed browser execution.
 
 ## Current gaps and risks
 
-- `app.js` is 1,801 lines; `engine/renderer.js` is 1,405 lines and `style.css` is 3,504 lines. `index.html` and `engine/i18n.js` have also crossed the 1,000-line split-candidate threshold. Automatic-confirm state and helper presentation live in focused JS/CSS files; further extraction remains evidence-driven.
+- `app.js` is 1,840 lines; `engine/renderer.js` is 1,405 lines and `style.css` is 3,504 lines. `index.html` and `engine/i18n.js` have also crossed the 1,000-line split-candidate threshold. Automatic-confirm and mascot-helper state/presentation live in focused JS/CSS files; further extraction remains evidence-driven.
 - The repository has 50 non-main remote branches. The verified [branch inventory](docs/BRANCH_INVENTORY.md) classifies 45 cleanup candidates, one active branch, and four manual-review branches; no deletion is authorized.
 - Phase 0 and priority Phase 1 work now exists as measurable GitHub Issues; the unified Project view and milestones remain queued in [#8](https://github.com/MetinGames/Long-Narde/issues/8).
 - Community-sourced sample sounds are integrated and licensed. Persistent mute and master-volume controls are implemented locally with safe blocked-storage/audio fallbacks; Metin's final original dice/checker recordings and device-level listening review remain open in [#12](https://github.com/MetinGames/Long-Narde/issues/12).
@@ -99,6 +99,7 @@ Waiting on one item must not idle the project. Work continues on the highest-val
 24. **Completed in PR #62 — [#61](https://github.com/MetinGames/Long-Narde/issues/61):** replaced fixed bot step timing with a deterministic visible-complexity pacing profile so simple turns stay brisk while doubles, multi-step turns, collections, and reduced-motion transitions remain readable.
 25. **Implemented in PR #63 and refined in this delivery — [#41](https://github.com/MetinGames/Long-Narde/issues/41) bot-naturalness subtasks:** replaced arbitrary Easy/Medium move scores with short-horizon evaluation and bounded suboptimal selection, then replaced fixed rank weights with score-aware softmax so equal scores have equal probability while clearly inferior moves stay excluded.
 26. **Research completed — [#41](https://github.com/MetinGames/Long-Narde/issues/41):** documented the separate 3/5/7 series boundary, classic-backgammon mini-intro test, bot profile/identity experiments, Web Worker rejection evidence, Yandex adapter map, Sentry and privacy-analytics gates, language-market queue, online authority, and provably-fair trade-offs in [Issue #41 research decisions](docs/ISSUE_41_RESEARCH.md). Physical-device, real-player, original-audio, native-Russian, and hosted-provider evidence remains explicitly open.
+27. **Completed — [#26](https://github.com/MetinGames/Long-Narde/issues/26):** replaced the plain start-screen feedback entry with a deterministic Nardora helper that routes bug reports, feedback, and the existing guide; it is minimized by default, persists only its local UI state, supports keyboard/Escape and reduced motion, and never claims to be live AI or human support.
 
 Completed in this synchronization cycle:
 
@@ -119,6 +120,7 @@ Completed in this synchronization cycle:
 - [PR #54](https://github.com/MetinGames/Long-Narde/pull/54) adds the persistent local bot turn-timer choice, explicit disabled state, and unfinished-match timer continuity. GitHub Issue [#41](https://github.com/MetinGames/Long-Narde/issues/41) remains the separate external-AI improvement inventory.
 - [#55](https://github.com/MetinGames/Long-Narde/issues/55) adds deterministic six-point-prime edge fixtures for both directions, route boundaries, source-stack simulation, and rule-reason/move-list consistency without changing Long Narde legality.
 - [#57](https://github.com/MetinGames/Long-Narde/issues/57) adds optional automatic turn confirmation without weakening mandatory dice use or move-by-move Undo, and keeps the default helper card visually compact.
+- [#26](https://github.com/MetinGames/Long-Narde/issues/26) adds the localized, accessible, locally persistent Nardora helper without analytics, remote data, or browser-side AI.
 
 ## Phase 0 — Product exit gate met; maintenance continues
 
@@ -172,6 +174,7 @@ Target: **2026-09-30**
 - **Done:** added optional, device-persistent automatic turn confirmation with a two-second Undo grace period, immediate manual confirmation, lifecycle cancellation, and final legality revalidation ([#57](https://github.com/MetinGames/Long-Narde/issues/57)).
 - **Done:** Built a contextual **Rule Explanation System** that explains common blocked, mandatory, bearing-off, prime and automatic-pass states from engine-owned reasons ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
 - **Done:** Added a dismissible and reopenable **Interactive First-Match Tutorial** using the existing localized guide, with a local-only versioned seen flag and keyboard/touch/small-screen coverage ([#9](https://github.com/MetinGames/Long-Narde/issues/9)).
+- **Done:** Replaced the plain feedback entry with a minimizable deterministic **Nardora Helper** that exposes bug report, feedback, and how-to-play actions while preserving honest non-AI copy and local-only state ([#26](https://github.com/MetinGames/Long-Narde/issues/26)).
 - **Done:** Built the visual theme-management screen in [#14](https://github.com/MetinGames/Long-Narde/issues/14), preserving the approved Anadolu and walnut families while adding persistent selection, reusable contrast-aware tokens, responsive access, and visual regression coverage.
 - **In progress:** recheck the corrected compact iPhone Safari layout on hardware, then validate touch targets, safe areas, overflow, and accessibility on Android and tablet ([#13](https://github.com/MetinGames/Long-Narde/issues/13)).
 - **Done:** Added maintainability guardrails and staged large-file plans without turning refactoring into an open-ended substitute for player value ([#25](https://github.com/MetinGames/Long-Narde/issues/25)).

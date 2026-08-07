@@ -27,6 +27,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
         path.join(root, 'game-helpers.css'),
         'utf8'
     );
+    const helperMascotCss = fs.readFileSync(
+        path.join(root, 'helper-mascot.css'),
+        'utf8'
+    );
     assert.ok(css.includes('@media (max-width: 900px) and (orientation: landscape)'), 'Missing landscape mobile media query');
     assert.ok(css.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Missing portrait mobile media query');
     assert.ok(css.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Missing low landscape mobile media query');
@@ -52,7 +56,9 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(css.includes('background-color: #fff8ec'), 'Light option background color missing');
     assert.ok(css.includes('color: #2b1a0e'), 'Dark option text color missing');
     assert.ok(css.includes('#feedback-button-row'), 'Feedback button row style missing');
-    assert.ok(css.includes('#feedback-button'), 'Feedback button style missing');
+    assert.ok(helperMascotCss.includes('#helper-mascot-toggle'), 'Helper mascot toggle style missing');
+    assert.ok(helperMascotCss.includes('.helper-mascot-actions'), 'Helper mascot actions style missing');
+    assert.ok(helperMascotCss.includes('prefers-reduced-motion: reduce'), 'Helper mascot reduced-motion guard missing');
     assert.ok(css.includes('#feedback-modal-card'), 'Feedback modal style missing');
     assert.ok(css.includes('#feedback-modal-links a'), 'Feedback modal link style missing');
     assert.ok(css.includes('#friend-preview-entry'), 'Local friend preview entry style missing');
@@ -134,7 +140,12 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(/name="checker-color"[\s\S]*?value="black"/i.test(html), 'Black checker color choice missing');
     assert.ok(/id="start-language-select"[^>]*data-i18n-aria-label="ui.language"/i.test(html), 'Start language select i18n aria label missing');
     assert.ok(/id="start-language-label"[^>]*for="start-language-select"/i.test(html), 'Start language visible label missing');
-    assert.ok(html.includes('id="feedback-button"'), 'Feedback button missing');
+    assert.ok(html.includes('id="helper-mascot"'), 'Helper mascot missing');
+    assert.ok(html.includes('id="helper-mascot-toggle"'), 'Helper mascot toggle missing');
+    assert.ok(html.includes('id="helper-mascot-feedback-button"'), 'Helper feedback action missing');
+    assert.ok(html.includes('id="helper-mascot-guide-button"'), 'Helper guide action missing');
+    assert.ok(/id="helper-mascot-bug-link"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/i.test(html), 'Helper bug action target/rel missing');
+    assert.ok(/id="helper-mascot-toggle"[^>]*aria-expanded="false"[^>]*aria-controls="helper-mascot-panel"/i.test(html), 'Helper toggle disclosure state missing');
     assert.ok(html.includes('id="feedback-modal"'), 'Feedback modal missing');
     assert.ok(html.includes('id="feedback-bug-link"'), 'Feedback bug link missing');
     assert.ok(html.includes('id="feedback-feature-link"'), 'Feedback feature link missing');
@@ -176,6 +187,7 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('theme-manager.css'), 'Theme manager stylesheet link missing');
     assert.ok(html.includes('checker-color-picker.css'), 'Checker color picker stylesheet link missing');
     assert.ok(html.includes('game-helpers.css'), 'Game-helper stylesheet link missing');
+    assert.ok(html.includes('helper-mascot.css'), 'Helper mascot stylesheet link missing');
     assert.ok(html.includes('real-device-polish.css'), 'Real-device polish stylesheet link missing');
     assert.equal((html.match(/value="champion"/g) || []).length, 2, 'Champion difficulty should exist in both synchronized selectors');
     assert.ok(/<option value="champion" data-i18n="difficulty\.champion">Şampiyon<\/option>/i.test(html), 'Champion difficulty option missing expected value/i18n pairing');

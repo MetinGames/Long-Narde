@@ -10,7 +10,7 @@ Long Narde is a static, installable browser-based long narde game with a local h
 
 ## Current status
 
-The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, offers Continue Match when a valid unfinished local game exists, exposes the bot difficulty and checker-color choice before play, and keeps the real Friend Match and Online entries visibly unavailable. A separate **Local Table Preview** demonstrates the private-table lifecycle on one device without claiming that networking or online play exists. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes responsive Canvas checker movement, move-consistent Undo, normal/Mars result classification, a local profile with 15 built-in avatars, achievements, difficulty-based statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, multiple feedback helpers, and a tested in-memory private-table protocol foundation.
+The current repository contains a playable local single-player game against a bot. The start screen pauses gameplay until the user chooses Quick Play or Bot Match, offers Continue Match when a valid unfinished local game exists, exposes the bot difficulty and checker-color choice before play, and keeps the real Friend Match and Online entries visibly unavailable. A separate **Local Table Preview** demonstrates the private-table lifecycle on one device without claiming that networking or online play exists. Language selection is available both on the start screen and in the side panel, and both controls stay synchronized through the shared i18n/localStorage flow. The current implementation also includes responsive Canvas checker movement, move-consistent Undo, normal/Mars result classification, a local profile with 15 built-in avatars, achievements, difficulty-based statistics, a how-to-play modal, restart protection, Champion difficulty, optional Quick Bear-Off, automatic no-legal-move passing, sampled dice/checker audio, a deterministic Nardora helper for bug reports/feedback/learning, and a tested in-memory private-table protocol foundation.
 
 This project is not documented here as having online multiplayer, user accounts, cloud sync, ranked matchmaking, or a backend service.
 
@@ -22,7 +22,7 @@ This project is not documented here as having online multiplayer, user accounts,
 - Normal one-point and Mars two-point result classification; timeout remains separate.
 - Start-screen White (Ivory)/Black checker choice with the bot assigned the opposite visual color, without changing engine player identity or rules.
 - Honest mode-entry screen with working Quick Play/Bot Match choices, synchronized difficulty, disabled Friend Match/Online entries, and an explicitly local same-device table-flow preview.
-- Start-screen language, how-to-play, profile/progression, and feedback entry points.
+- Start-screen language, how-to-play, profile/progression, and a minimizable Nardora helper with bug-report, feedback, and learning actions.
 - Shared Turkish, English, and Russian interface support.
 - Turn timer and timeout handling.
 - Versioned local identity with a resettable nickname and 15 built-in avatars.
@@ -154,6 +154,7 @@ Verified engine modules currently present:
 - `engine/playerStatsModal.js`
 - `engine/privateTableProtocol.js`
 - `engine/pwa.js`
+- `engine/helperMascotController.js`
 - `engine/renderer.js`
 - `engine/restartButtonLock.js`
 - `engine/startModeController.js`
@@ -171,6 +172,7 @@ Verified test files currently present:
 - `tests/gameplay-feedback.test.js`
 - `tests/friend-match-preview-controller.test.js`
 - `tests/how-to-play-guide.test.js`
+- `tests/helper-mascot-controller.test.js`
 - `tests/i18n.test.js`
 - `tests/input-feedback-integration.test.js`
 - `tests/input.test.js`
@@ -228,7 +230,7 @@ The app uses the same i18n system for the start screen and the side panel. Langu
 
 ## Accessibility
 
-The current UI includes aria labels, aria-live status updates, modal dialog semantics, keyboard navigation and focus containment inside the how-to-play, profile/progression, and local table preview dialogs, visible focus states, and touch-sized avatar controls. The mode menu is an explicitly labelled group; unavailable social modes use native disabled buttons and visible status badges. The start-screen language and difficulty controls use visible labels and native select elements so they remain keyboard-friendly.
+The current UI includes aria labels, aria-live status updates, modal dialog semantics, keyboard navigation and focus containment inside the how-to-play, profile/progression, and local table preview dialogs, visible focus states, and touch-sized avatar controls. The deterministic Nardora helper is keyboard-accessible, minimized by default, locally remembers its state, honors reduced motion, and explicitly says it is not live support or AI. The mode menu is an explicitly labelled group; unavailable social modes use native disabled buttons and visible status badges. The start-screen language and difficulty controls use visible labels and native select elements so they remain keyboard-friendly.
 
 ## Known limitations
 
