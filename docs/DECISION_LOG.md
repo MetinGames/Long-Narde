@@ -214,6 +214,15 @@ This log records durable decisions and their reasoning. New entries are appended
 **Consequences:** Tests inject deterministic random values, cover equal-score fairness and score-sensitive thresholds, and keep the no-alternative best move deterministic. The change is a bot-choice policy, not a dice, scoring, or Long Narde rule change.
 **Review trigger:** Seeded distribution measurements show a persistent tactical regression, players cannot distinguish Easy from Medium, or a future behavior-profile experiment needs a separately approved probability model.
 
+### D-030 — The start lobby is board-first and action-led
+
+**Date:** 2026-08-07
+**Status:** Accepted
+**Decision:** The start lobby presents the Long Narde board as the dominant product image and keeps one gold primary action. Continue Match is a single-line row, Bot Match is secondary, language/color/difficulty/time are compact settings, unavailable social modes are visually quiet, and How to Play/Profile/Theme share one restrained utility bar. Existing control IDs, local preferences, game authority, localization and mode availability do not change.
+**Reason:** The previous all-card composition made every surface compete for attention, consumed too much height on laptops and iPhone Safari, and hid the game's strongest visual asset. A board-first hierarchy makes the product immediately recognizable while preserving the Anadolu walnut-and-gold character.
+**Consequences:** Desktop and landscape layouts keep the board and launch panel adjacent; portrait stacks a compact board preview above the actions. Every phone interaction remains at least 44 px, reduced-motion behavior remains intact, the new board asset is precached, and physical Chrome/iPhone visual validation remains a release gate rather than an inferred pass.
+**Review trigger:** Real-device evidence shows overflow, unreadable settings, weak task completion, insufficient contrast, or the online/social entry flow needs a materially different launch hierarchy.
+
 ## Open decisions
 
 1. **Monetization:** premium purchase, ads, cosmetic purchases, subscription or hybrid.

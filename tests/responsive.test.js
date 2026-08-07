@@ -35,6 +35,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
         path.join(root, 'friend-match-preview.css'),
         'utf8'
     );
+    const startLobbyCss = fs.readFileSync(
+        path.join(root, 'start-lobby.css'),
+        'utf8'
+    );
     assert.ok(css.includes('@media (max-width: 900px) and (orientation: landscape)'), 'Missing landscape mobile media query');
     assert.ok(css.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Missing portrait mobile media query');
     assert.ok(css.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Missing low landscape mobile media query');
@@ -114,6 +118,14 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(checkerColorCss.includes('.checker-color-option:has(input:focus-visible)'), 'Checker color keyboard focus style missing');
     assert.ok(checkerColorCss.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Checker color portrait layout missing');
     assert.ok(checkerColorCss.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Checker color compact landscape layout missing');
+    assert.ok(startLobbyCss.includes('#start-lobby-layout'), 'Board-first start lobby layout missing');
+    assert.ok(startLobbyCss.includes('#start-board-showcase'), 'Start lobby board showcase missing');
+    assert.ok(startLobbyCss.includes('@media (max-width: 760px)'), 'Start lobby portrait compaction query missing');
+    assert.ok(startLobbyCss.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Start lobby low-landscape query missing');
+    assert.match(startLobbyCss, /#start-screen-actions \.secondary-start-button\s*\{[^}]*min-height:\s*48px;/, 'Start lobby utility actions must preserve a desktop touch target');
+    assert.match(startLobbyCss, /@media \(max-width: 760px\)[\s\S]*#start-screen-actions \.secondary-start-button\s*\{[^}]*min-height:\s*44px;/, 'Start lobby utility actions must preserve a mobile touch target');
+    assert.match(startLobbyCss, /@media \(max-height: 600px\) and \(orientation: landscape\)[\s\S]*#start-screen #start-mode-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/, 'Low-landscape start lobby should compact inactive modes into two columns');
+    assert.match(startLobbyCss, /@media \(max-height: 600px\) and \(orientation: landscape\)[\s\S]*#start-match-settings\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/, 'Low-landscape start settings should use a compact two-column grid');
 });
 
 test('index.html contains rotate notice element, start screen, and restart button', () => {
@@ -198,6 +210,10 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('game-helpers.css'), 'Game-helper stylesheet link missing');
     assert.ok(html.includes('helper-mascot.css'), 'Helper mascot stylesheet link missing');
     assert.ok(html.includes('real-device-polish.css'), 'Real-device polish stylesheet link missing');
+    assert.ok(html.includes('start-lobby.css'), 'Board-first start lobby stylesheet link missing');
+    assert.ok(html.includes('id="start-lobby-layout"'), 'Board-first start lobby structure missing');
+    assert.ok(html.includes('id="start-board-showcase"'), 'Start lobby board showcase missing');
+    assert.ok(html.includes('./assets/boards/nardora-start-board-preview.webp'), 'Start lobby board preview asset missing');
     assert.equal((html.match(/value="champion"/g) || []).length, 2, 'Champion difficulty should exist in both synchronized selectors');
     assert.ok(/<option value="champion" data-i18n="difficulty\.champion">Şampiyon<\/option>/i.test(html), 'Champion difficulty option missing expected value/i18n pairing');
     assert.equal((html.match(/<option value="medium" data-i18n="difficulty\.medium" selected>Orta<\/option>/gi) || []).length, 2, 'Medium difficulty should remain the default in both selectors');
