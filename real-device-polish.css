@@ -21,12 +21,13 @@
 
 #fullscreen-container {
     display: grid;
-    grid-template-columns: repeat(2, minmax(44px, 1fr));
+    grid-template-columns: repeat(3, minmax(44px, 1fr));
     gap: 8px;
 }
 
 #fullscreen-toggle,
-#point-numbers-toggle {
+#point-numbers-toggle,
+#haptic-toggle {
     width: 100%;
     min-height: 42px;
     display: inline-flex;
@@ -47,7 +48,9 @@
 #fullscreen-toggle:hover,
 #fullscreen-toggle:focus-visible,
 #point-numbers-toggle:hover,
-#point-numbers-toggle:focus-visible {
+#point-numbers-toggle:focus-visible,
+#haptic-toggle:hover,
+#haptic-toggle:focus-visible {
     border-color: rgba(248, 208, 121, 0.7);
     background: linear-gradient(180deg, rgba(107, 47, 45, 0.95) 0%, rgba(70, 29, 28, 0.96) 100%);
     outline: 2px solid rgba(248, 208, 121, 0.68);
@@ -55,7 +58,8 @@
 }
 
 #fullscreen-toggle.is-active,
-#point-numbers-toggle.is-active {
+#point-numbers-toggle.is-active,
+#haptic-toggle.is-active {
     border-color: rgba(223, 203, 132, 0.68);
     background: linear-gradient(180deg, rgba(66, 84, 34, 0.96) 0%, rgba(42, 52, 24, 0.97) 100%);
 }
@@ -77,6 +81,11 @@
     font-size: 0.76rem;
     font-weight: 900;
     letter-spacing: -0.08em;
+    line-height: 1;
+}
+
+.haptic-toggle-icon {
+    font-size: 1rem;
     line-height: 1;
 }
 
@@ -460,7 +469,8 @@
     }
 
     #fullscreen-toggle,
-    #point-numbers-toggle {
+    #point-numbers-toggle,
+    #haptic-toggle {
         min-height: 36px;
         padding: 5px 8px;
     }

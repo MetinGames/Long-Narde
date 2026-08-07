@@ -56,6 +56,9 @@ import { applyBotDifficultySelection } from './engine/botDifficultyController.js
 import { SoundManager } from './engine/sound.js';
 import { createSoundPreferenceController } from './engine/soundPreferenceController.js';
 import {
+    HapticFeedbackController
+} from './engine/hapticFeedbackController.js';
+import {
     createAutoBearOffFlow,
     isAutoBearOffEligible
 } from './engine/autoBearOff.js';
@@ -128,6 +131,7 @@ let checkerColorPreferenceController = null;
 let turnTimerPreferenceController = null;
 let autoTurnConfirmPreferenceController = null;
 let friendMatchPreviewController = null;
+let hapticFeedbackController = null;
 let autoBearOffEnabled = false;
 let autoBearOffContainer = null;
 let autoBearOffToggle = null;
@@ -197,6 +201,10 @@ const autoBearOffFlow = createAutoBearOffFlow({
             moveId,
             isCollect: move.target === 25
         });
+        hapticFeedbackController?.trigger(
+            move.target === 25 ? 'collect' : 'move',
+            { eventId: `${runtimeState.captureSessionToken()}:${moveId}` }
+        );
         const winner = game.checkWinCondition();
         persistOngoingMatch();
         await playAppliedCheckerTransition(transition);
@@ -1284,6 +1292,10 @@ async function handleSlotClick(slotId) {
             moveId,
             isCollect: slotId === 25
         });
+        hapticFeedbackController?.trigger(
+            slotId === 25 ? 'collect' : 'move',
+            { eventId: `${runtimeState.captureSessionToken()}:${moveId}` }
+        );
         const winner = game.checkWinCondition();
         persistOngoingMatch();
         await playAppliedCheckerTransition(transition);
@@ -1570,6 +1582,12 @@ function bindEvents() {
     });
     soundPreferenceController.start();
 
+    hapticFeedbackController = new HapticFeedbackController({
+        button: document.getElementById('haptic-toggle'),
+        translate: key => t(key)
+    });
+    hapticFeedbackController.start();
+
     const difficultySelectors = [
         difficultySelect,
         startDifficultySelect
@@ -1717,6 +1735,7 @@ function bindEvents() {
             mobileThemeLabelController?.refresh();
             themeManagerController?.refreshForLanguage();
             soundPreferenceController.refresh();
+            hapticFeedbackController?.refreshForLanguage();
             refreshTurnTimerDisplay();
             updateScreen('language');
             updateAutoBearOffControl();
@@ -1760,6 +1779,7 @@ function bindEvents() {
     ui.undoButton?.addEventListener('click', async () => {
         autoTurnConfirmFlow.stop('undo');
         const move = game.moveHistory.at(-1)?.move || null;
+        const moveId = runtimeState.getTotalMoveCounter();
         const reverseTransition = move
             ? captureCheckerTransition(game, {
                 fromSlot: move.targetSlot,
@@ -1778,6 +1798,9 @@ function bindEvents() {
             persistOngoingMatch();
             await playAppliedCheckerTransition(reverseTransition);
             sound.playPiecePlace({ isCollect: false });
+            hapticFeedbackController?.trigger('undo', {
+                eventId: `${runtimeState.captureSessionToken()}:${moveId}`
+            });
             applyPostUndoLayout({ game, ui });
             setStatus(t('status.undo'));
         }

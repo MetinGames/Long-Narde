@@ -42,7 +42,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **423 Node tests passing as of 2026-08-07** across the bot/research, archive-authentication, and helper-mascot deliveries. The 75-case Playwright browser/device matrix includes save-refresh-resume, automatic-confirm Undo/manual-confirm races, and high-value visual journeys; CI remains the release gate for installed browser execution.
+- **470 Node tests passing as of 2026-08-07** across the bot/research, renderer-evidence, haptic-safety, archive-authentication, and helper-mascot deliveries. The 75-case Playwright browser/device matrix includes save-refresh-resume, automatic-confirm Undo/manual-confirm races, accessible haptic controls, and high-value visual journeys; CI remains the release gate for installed browser execution.
 
 ## Current gaps and risks
 
@@ -100,9 +100,9 @@ Waiting on one item must not idle the project. Work continues on the highest-val
 25. **Implemented in PR #63 and refined in this delivery — [#41](https://github.com/MetinGames/Long-Narde/issues/41) bot-naturalness subtasks:** replaced arbitrary Easy/Medium move scores with short-horizon evaluation and bounded suboptimal selection, then replaced fixed rank weights with score-aware softmax so equal scores have equal probability while clearly inferior moves stay excluded.
 26. **Research completed — [#41](https://github.com/MetinGames/Long-Narde/issues/41):** documented the separate 3/5/7 series boundary, classic-backgammon mini-intro test, bot profile/identity experiments, Web Worker rejection evidence, Yandex adapter map, Sentry and privacy-analytics gates, language-market queue, online authority, and provably-fair trade-offs in [Issue #41 research decisions](docs/ISSUE_41_RESEARCH.md). Physical-device, real-player, original-audio, native-Russian, and hosted-provider evidence remains explicitly open.
 27. **Completed — [#26](https://github.com/MetinGames/Long-Narde/issues/26):** replaced the plain start-screen feedback entry with a deterministic Nardora helper that routes bug reports, feedback, and the existing guide; it is minimized by default, persists only its local UI state, supports keyboard/Escape and reduced motion, and never claims to be live AI or human support.
-28. **Ready — [#67](https://github.com/MetinGames/Long-Narde/issues/67):** add an optional, default-off haptic capability adapter with no-op/error regressions before physical-device feel validation.
-29. **Ready — [#68](https://github.com/MetinGames/Long-Narde/issues/68):** lock DPR 1/2/3 Canvas backing-store and touch-coordinate geometry before any Retina-specific renderer correction.
-30. **Ready — [#69](https://github.com/MetinGames/Long-Narde/issues/69):** measure static rebuild, render, animation, and idle-frame invalidation before considering render-on-demand architecture.
+28. **Engineering implemented; physical gate remains — [#67](https://github.com/MetinGames/Long-Narde/issues/67):** the optional haptic capability adapter is default-off, locally persisted, duplicate-safe, and a no-op on unsupported/denied APIs; physical Android/iPhone feel validation remains required.
+29. **Engineering implemented in [PR #74](https://github.com/MetinGames/Long-Narde/pull/74); physical gate remains — [#68](https://github.com/MetinGames/Long-Narde/issues/68):** DPR 1/2/3 Canvas backing-store and inverse touch geometry are locked by deterministic and mobile-browser regressions; physical Retina/Android evidence remains required.
+30. **Completed in [PR #75](https://github.com/MetinGames/Long-Narde/pull/75) — [#69](https://github.com/MetinGames/Long-Narde/issues/69):** the deterministic 39-render trace measured 2.56% idle frames and 5.13% static rebuilds, both below the documented experiment budget, so the current event-driven renderer remains in place.
 
 Completed in this synchronization cycle:
 

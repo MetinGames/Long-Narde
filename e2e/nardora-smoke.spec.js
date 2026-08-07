@@ -303,6 +303,37 @@ test('start flow, language synchronization, and canvas readiness', async ({
         localStorage.getItem('narde-point-numbers')
     )).toBe('visible');
 
+    const hapticToggle = page.locator('#haptic-toggle');
+    await expect(hapticToggle).toHaveAccessibleName(
+        'Turn haptic feedback on'
+    );
+    await expect(hapticToggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(hapticToggle).toHaveAttribute(
+        'data-haptic-supported',
+        /^(true|false)$/
+    );
+    await hapticToggle.focus();
+    await expect(hapticToggle).toBeFocused();
+    await hapticToggle.click();
+    await expect(hapticToggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(hapticToggle).toHaveAccessibleName(
+        'Turn haptic feedback off'
+    );
+    expect(await page.evaluate(() =>
+        localStorage.getItem('nardora.haptics.v1')
+    )).toBe('true');
+
+    const [displayControlsBox, hapticBox] = await Promise.all([
+        page.locator('#fullscreen-container').boundingBox(),
+        hapticToggle.boundingBox()
+    ]);
+    expect(displayControlsBox).not.toBeNull();
+    expect(hapticBox).not.toBeNull();
+    expectContained(hapticBox, displayControlsBox);
+    expect(await page.evaluate(() =>
+        document.documentElement.scrollWidth - window.innerWidth
+    )).toBeLessThanOrEqual(1);
+
     await page.locator('#auto-bearoff-help summary').click();
     const autoBearOffContainer = page.locator('#auto-bearoff-container');
     const autoBearOffHint = page.locator('#auto-bearoff-hint');
