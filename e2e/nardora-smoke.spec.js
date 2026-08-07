@@ -108,10 +108,15 @@ async function readGameLayoutGeometry(page) {
 }
 
 function expectContained(inner, outer, tolerance = 1) {
+    const innerRight = inner.right ?? inner.x + inner.width;
+    const innerBottom = inner.bottom ?? inner.y + inner.height;
+    const outerRight = outer.right ?? outer.x + outer.width;
+    const outerBottom = outer.bottom ?? outer.y + outer.height;
+
     expect(inner.x).toBeGreaterThanOrEqual(outer.x - tolerance);
     expect(inner.y).toBeGreaterThanOrEqual(outer.y - tolerance);
-    expect(inner.right).toBeLessThanOrEqual(outer.right + tolerance);
-    expect(inner.bottom).toBeLessThanOrEqual(outer.bottom + tolerance);
+    expect(innerRight).toBeLessThanOrEqual(outerRight + tolerance);
+    expect(innerBottom).toBeLessThanOrEqual(outerBottom + tolerance);
 }
 
 async function clickCanvasSlot(page, slotId) {
