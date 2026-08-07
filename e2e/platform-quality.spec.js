@@ -8,6 +8,45 @@ async function openReady(page) {
     await expect(page.locator('#nardora-splash')).toHaveCount(0, { timeout: 7_000 });
 }
 
+async function readGameGeometry(page) {
+    return page.evaluate(() => {
+        const canvas = document.getElementById('game-canvas');
+        return {
+            width: document.documentElement.scrollWidth,
+            viewport: innerWidth,
+            board: document.getElementById('board-wrapper').getBoundingClientRect().toJSON(),
+            panel: document.getElementById('info-panel').getBoundingClientRect().toJSON(),
+            canvas: {
+                css: canvas.getBoundingClientRect().toJSON(),
+                backingWidth: canvas.width,
+                backingHeight: canvas.height,
+                logicalWidth: Number(canvas.dataset.logicalWidth),
+                logicalHeight: Number(canvas.dataset.logicalHeight),
+                pixelRatio: Number(canvas.dataset.pixelRatio),
+                devicePixelRatio
+            }
+        };
+    });
+}
+
+function expectHiDPIGeometry(geometry) {
+    const expectedRatio = Math.max(
+        1,
+        Math.min(geometry.canvas.devicePixelRatio || 1, 3)
+    );
+    expect(geometry.width).toBeLessThanOrEqual(geometry.viewport + 1);
+    expect(geometry.board.width).toBeGreaterThan(0);
+    expect(geometry.panel.width).toBeGreaterThan(0);
+    expect(geometry.canvas.css.width).toBeGreaterThan(0);
+    expect(geometry.canvas.pixelRatio).toBe(expectedRatio);
+    expect(geometry.canvas.backingWidth).toBe(
+        Math.round(geometry.canvas.logicalWidth * expectedRatio)
+    );
+    expect(geometry.canvas.backingHeight).toBe(
+        Math.round(geometry.canvas.logicalHeight * expectedRatio)
+    );
+}
+
 test('WebKit and mobile shells keep controls named, contained, and touch-sized', async ({
     page
 }, testInfo) => {
@@ -78,15 +117,17 @@ test('WebKit and mobile shells keep controls named, contained, and touch-sized',
     }
     await expect(page.locator('#game-canvas')).toBeVisible();
 
-    const gameGeometry = await page.evaluate(() => ({
-        width: document.documentElement.scrollWidth,
-        viewport: innerWidth,
-        board: document.getElementById('board-wrapper').getBoundingClientRect().toJSON(),
-        panel: document.getElementById('info-panel').getBoundingClientRect().toJSON()
-    }));
-    expect(gameGeometry.width).toBeLessThanOrEqual(gameGeometry.viewport + 1);
-    expect(gameGeometry.board.width).toBeGreaterThan(0);
-    expect(gameGeometry.panel.width).toBeGreaterThan(0);
+    expectHiDPIGeometry(await readGameGeometry(page));
+
+    if (testInfo.project.name === 'desktop-webkit') {
+        for (const viewport of [
+            { width: 430, height: 932 },
+            { width: 932, height: 430 }
+        ]) {
+            await page.setViewportSize(viewport);
+            expectHiDPIGeometry(await readGameGeometry(page));
+        }
+    }
 });
 
 test('platform ad lock makes the complete game surface inert', async ({ page }) => {

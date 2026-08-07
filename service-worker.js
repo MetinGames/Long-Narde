@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v27-2026-08-07';
+const CACHE_VERSION = 'v28-2026-08-07';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -32,6 +32,7 @@ const PRECACHE_PATHS = [
     './engine/autoBearOff.js',
     './engine/autoTurnConfirm.js',
     './engine/board.js',
+    './engine/canvasGeometry.js',
     './engine/checkerMoveAnimation.js',
     './engine/checkerColorPreference.js',
     './engine/bot.js',
