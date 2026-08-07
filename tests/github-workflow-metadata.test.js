@@ -39,7 +39,8 @@ test('active issue catalog preserves external gates and bounded #41 children', a
     assert.equal(byNumber.get(12).externalGate, true);
     assert.equal(byNumber.get(13).externalGate, true);
     assert.equal(byNumber.get(20).externalGate, true);
-    assert.deepEqual([67, 68, 69].map(number => byNumber.get(number).status), [
-        'ready', 'ready', 'ready'
+    assert.deepEqual([67, 68].map(number => byNumber.get(number).status), [
+        'blocked', 'blocked'
     ]);
+    assert.equal(byNumber.has(69), false);
 });

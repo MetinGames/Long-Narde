@@ -108,10 +108,15 @@ async function readGameLayoutGeometry(page) {
 }
 
 function expectContained(inner, outer, tolerance = 1) {
+    const innerRight = inner.right ?? inner.x + inner.width;
+    const innerBottom = inner.bottom ?? inner.y + inner.height;
+    const outerRight = outer.right ?? outer.x + outer.width;
+    const outerBottom = outer.bottom ?? outer.y + outer.height;
+
     expect(inner.x).toBeGreaterThanOrEqual(outer.x - tolerance);
     expect(inner.y).toBeGreaterThanOrEqual(outer.y - tolerance);
-    expect(inner.right).toBeLessThanOrEqual(outer.right + tolerance);
-    expect(inner.bottom).toBeLessThanOrEqual(outer.bottom + tolerance);
+    expect(innerRight).toBeLessThanOrEqual(outerRight + tolerance);
+    expect(innerBottom).toBeLessThanOrEqual(outerBottom + tolerance);
 }
 
 async function clickCanvasSlot(page, slotId) {
@@ -302,6 +307,37 @@ test('start flow, language synchronization, and canvas readiness', async ({
     expect(await page.evaluate(() =>
         localStorage.getItem('narde-point-numbers')
     )).toBe('visible');
+
+    const hapticToggle = page.locator('#haptic-toggle');
+    await expect(hapticToggle).toHaveAccessibleName(
+        'Turn haptic feedback on'
+    );
+    await expect(hapticToggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(hapticToggle).toHaveAttribute(
+        'data-haptic-supported',
+        /^(true|false)$/
+    );
+    await hapticToggle.focus();
+    await expect(hapticToggle).toBeFocused();
+    await hapticToggle.click();
+    await expect(hapticToggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(hapticToggle).toHaveAccessibleName(
+        'Turn haptic feedback off'
+    );
+    expect(await page.evaluate(() =>
+        localStorage.getItem('nardora.haptics.v1')
+    )).toBe('true');
+
+    const [displayControlsBox, hapticBox] = await Promise.all([
+        page.locator('#fullscreen-container').boundingBox(),
+        hapticToggle.boundingBox()
+    ]);
+    expect(displayControlsBox).not.toBeNull();
+    expect(hapticBox).not.toBeNull();
+    expectContained(hapticBox, displayControlsBox);
+    expect(await page.evaluate(() =>
+        document.documentElement.scrollWidth - window.innerWidth
+    )).toBeLessThanOrEqual(1);
 
     await page.locator('#auto-bearoff-help summary').click();
     const autoBearOffContainer = page.locator('#auto-bearoff-container');
