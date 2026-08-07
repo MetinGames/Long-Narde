@@ -1,0 +1,14 @@
+[
+  { "name": "priority:p0", "color": "b60205", "description": "Release blocker or active incident" },
+  { "name": "priority:p1", "color": "d93f0b", "description": "Current phase, high priority" },
+  { "name": "priority:p2", "color": "fbca04", "description": "Planned after current P1 work" },
+  { "name": "priority:p3", "color": "c5def5", "description": "Backlog or optional follow-up" },
+  { "name": "status:triage", "color": "ededed", "description": "Needs scope and priority review" },
+  { "name": "status:ready", "color": "0e8a16", "description": "Scoped and ready to start" },
+  { "name": "status:in-progress", "color": "1d76db", "description": "Implementation or evidence is active" },
+  { "name": "status:blocked", "color": "e99695", "description": "Waiting on a named external dependency" },
+  { "name": "status:done", "color": "6f42c1", "description": "Closed with completion evidence" },
+  { "name": "type:implementation", "color": "5319e7", "description": "Bounded product or engineering delivery" },
+  { "name": "type:research", "color": "bfdadc", "description": "Evidence task before an implementation decision" },
+  { "name": "external-gate", "color": "f9d0c4", "description": "Cannot close without physical, owner, provider, or legal input" }
+]

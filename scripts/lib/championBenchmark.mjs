@@ -24,6 +24,12 @@ export const EXTENDED_CHAMPION_BENCHMARK_SEEDS = Object.freeze([
     17609
 ]);
 
+// Versioned replay set for player-observed/fixed-sample losses. Never replace
+// a seed merely because the result is unfavorable; append new evidence.
+export const CHAMPION_LOSS_EVIDENCE_SEEDS = Object.freeze([
+    14303
+]);
+
 const UINT32_RANGE = 0x1_0000_0000;
 const TRACE_OFFSET = 0x811c9dc5;
 const TRACE_PRIME = 0x01000193;

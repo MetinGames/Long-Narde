@@ -1,7 +1,7 @@
 # Nardora Code-Health Policy and Refactor Plan
 
-Last reviewed: **2026-08-03**  
-Owner: **MetinGames + Codex**  
+Last reviewed: **2026-08-07**
+Owner: **MetinGames + Codex**
 Execution issue: [#25](https://github.com/MetinGames/Long-Narde/issues/25)
 
 ## Purpose
@@ -65,6 +65,27 @@ Baseline captured on **2026-08-03**:
 The churn column deliberately avoids an invented numeric score. Before each
 extraction, record path-specific history and the selectors/functions changed
 together. Evidence, not file length alone, determines the slice.
+
+## 2026-08-07 staged extraction checkpoint
+
+- `engine/i18n.js` now owns only language detection, persistence, formatting,
+  and DOM application; the static TR/EN/RU catalog lives in
+  `engine/translations.js` with key-parity/fallback regressions unchanged.
+- `engine/renderer.js` delegates default/validation/storage behavior to
+  `engine/rendererThemePreference.js`; Canvas drawing stays in the renderer.
+- The isolated Friend Match preview selector block moved from `style.css` to
+  `friend-match-preview.css` in identical source order and is precached.
+- The inline splash bootstrap moved from `index.html` to
+  `engine/startup.js`; platform startup is isolated behind
+  `engine/platformBootstrap.js` and `engine/yandexGamesBridge.js`.
+- `app.js` remains the orchestration owner and only consumes the new platform
+  boundary. Further splitting requires another coherent controller seam, not
+  line-count-driven movement.
+
+After this checkpoint the report records `style.css` at roughly 3,104 lines,
+`app.js` at 1,846, `renderer.js` at 1,378, and `index.html` at 1,105. The
+remaining crossings are visible follow-up signals; this delivery does not
+claim the staged refactor complete.
 
 ## `style.css` staged extraction plan
 

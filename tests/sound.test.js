@@ -6,6 +6,7 @@ import {
     SOUND_PREFERENCE_KEY,
     SOUND_VOLUME_PREFERENCE_KEY,
     DEFAULT_SOUND_VOLUME,
+    MAX_CONCURRENT_BUFFER_SOURCES,
     normalizeSoundVolume
 } from '../engine/sound.js';
 
@@ -83,6 +84,8 @@ class FakeBufferSourceNode {
         this.connections = [];
         this.started = false;
         this.startArgs = null;
+        this.onended = null;
+        this.stopped = false;
     }
 
     connect(target) {
@@ -93,6 +96,11 @@ class FakeBufferSourceNode {
         this.started = true;
         this.startArgs = { when, offset };
         this.context.bufferSourceStarts += 1;
+    }
+
+    stop() {
+        this.stopped = true;
+        this.onended?.();
     }
 }
 
@@ -587,4 +595,58 @@ test('pul sesi trim offseti leading silence bolgesini atlar', async () => {
     assert.ok(source);
     assert.ok(source.startArgs.offset >= 0.15);
     assert.ok(source.startArgs.offset <= 0.19);
+});
+
+test('Safari interrupted context yalnız kullanıcı hareketiyle güvenli biçimde devam eder', async () => {
+    const context = new FakeAudioContext();
+    context.state = 'interrupted';
+    const manager = new SoundManager({
+        storage: new FakeStorage(),
+        audioContextFactory: () => context,
+        recordedBufferLoader: () => Promise.resolve({ duration: 0.4 })
+    });
+
+    assert.equal(await manager.activateFromUserGesture(), true);
+    assert.equal(context.resumeCalls, 1);
+    assert.equal(context.state, 'running');
+});
+
+test('eşzamanlı kayıtlı sesler sınırlanır ve kapatmada kaynaklar durdurulur', async () => {
+    const context = new FakeAudioContext();
+    context.state = 'running';
+    let now = 0;
+    const manager = new SoundManager({
+        storage: new FakeStorage(),
+        audioContextFactory: () => context,
+        recordedBufferLoader: () => Promise.resolve({ duration: 0.4 }),
+        random: () => 0.5,
+        getNow: () => now
+    });
+
+    await manager.activateFromUserGesture();
+    await manager.preloadRecordedSounds();
+    for (let index = 0; index < 20; index += 1) {
+        now += 100;
+        manager.playPiecePlace();
+    }
+
+    assert.equal(context.bufferSourceNodes.length, MAX_CONCURRENT_BUFFER_SOURCES);
+    await manager.setEnabled(false);
+    assert.ok(context.bufferSourceNodes.every(source => source.stopped));
+});
+
+test('preload hata senaryosu başarılı sesleri korur ve çağıranı reddetmez', async () => {
+    const manager = new SoundManager({
+        storage: new FakeStorage(),
+        audioContextFactory: () => new FakeAudioContext(),
+        recordedBufferLoader: ({ soundKey }) => {
+            if (soundKey === 'woodHit') return Promise.reject(new Error('decode'));
+            return Promise.resolve({ duration: 0.4 });
+        }
+    });
+
+    await manager.activateFromUserGesture();
+    await assert.doesNotReject(() => manager.preloadRecordedSounds());
+    assert.ok(manager.recordedBuffers.has('diceRoll'));
+    assert.equal(manager.recordedBuffers.has('woodHit'), false);
 });

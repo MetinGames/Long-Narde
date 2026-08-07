@@ -1,0 +1,71 @@
+name: Issue metadata
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/labels.json
+      - .github/workflows/issue-metadata.yml
+  issues:
+    types: [opened, reopened, closed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const definitions = JSON.parse(fs.readFileSync('.github/labels.json', 'utf8'));
+            const { owner, repo } = context.repo;
+            const existing = await github.paginate(github.rest.issues.listLabelsForRepo, {
+              owner, repo, per_page: 100
+            });
+            const byName = new Map(existing.map(label => [label.name, label]));
+
+            for (const definition of definitions) {
+              const current = byName.get(definition.name);
+              if (!current) {
+                await github.rest.issues.createLabel({ owner, repo, ...definition });
+              } else if (
+                current.color.toLowerCase() !== definition.color.toLowerCase() ||
+                (current.description || '') !== definition.description
+              ) {
+                await github.rest.issues.updateLabel({
+                  owner, repo, name: definition.name,
+                  color: definition.color,
+                  description: definition.description
+                });
+              }
+            }
+
+            const issue = context.payload.issue;
+            if (!issue) return;
+            const statusNames = definitions
+              .map(label => label.name)
+              .filter(name => name.startsWith('status:'));
+            const currentNames = issue.labels.map(label => label.name);
+            const priority = issue.title.match(/^\[P([0-3])\]/i)?.[1];
+            const desiredStatus = context.payload.action === 'closed'
+              ? 'status:done'
+              : 'status:triage';
+
+            for (const name of currentNames) {
+              if (statusNames.includes(name) && name !== desiredStatus) {
+                await github.rest.issues.removeLabel({
+                  owner, repo, issue_number: issue.number, name
+                });
+              }
+            }
+            const additions = [desiredStatus];
+            if (priority) additions.push(`priority:p${priority}`);
+            await github.rest.issues.addLabels({
+              owner, repo, issue_number: issue.number, labels: additions
+            });

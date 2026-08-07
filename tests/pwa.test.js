@@ -163,6 +163,7 @@ test('index links PWA metadata and the service worker bootstrap', () => {
     assert.match(html, /<link rel="stylesheet" href="checker-color-picker\.css">/);
     assert.match(html, /<link rel="stylesheet" href="game-helpers\.css">/);
     assert.match(html, /<link rel="stylesheet" href="helper-mascot\.css">/);
+    assert.match(html, /<link rel="stylesheet" href="friend-match-preview\.css">/);
     assert.match(html, /<script type="module" src="\.\/engine\/pwa\.js"><\/script>/);
 });
 

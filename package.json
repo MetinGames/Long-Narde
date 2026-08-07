@@ -7,13 +7,25 @@
     "yaml": "^2.8.1"
   },
   "scripts": {
+    "build:native-web": "node scripts/build-native-web.mjs",
     "bot:benchmark": "node scripts/champion-benchmark.mjs",
+    "bot:loss-evidence": "node scripts/champion-benchmark.mjs --loss-evidence --max-turns 160",
     "bot:cache-experiment": "node scripts/champion-rule-cache-experiment.mjs",
     "bot:profile": "node scripts/champion-profile.mjs",
     "code-health:report": "node scripts/code-health-report.mjs",
+    "native:add:android": "npm run build:native-web && npx --yes @capacitor/cli@8.5.0 add android",
+    "native:add:ios": "npm run build:native-web && npx --yes @capacitor/cli@8.5.0 add ios",
+    "native:sync": "npm run build:native-web && npx --yes @capacitor/cli@8.5.0 sync",
+    "roadmap:check": "node scripts/roadmap-sync-check.mjs",
+    "supabase:safety": "node scripts/supabase-migration-safety.mjs",
     "sync:main": "node scripts/sync-main.mjs",
     "test": "node --test",
     "test:e2e": "playwright test",
     "test:e2e:list": "playwright test --list"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.0",
+    "@capacitor/core": "8.5.0",
+    "@capacitor/ios": "8.5.0"
   }
 }

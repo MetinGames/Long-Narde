@@ -8,6 +8,12 @@ import {
     getPointRenderRect
 } from './layout.js';
 import { getTheme } from './themes.js';
+import {
+    DEFAULT_THEME_ID,
+    persistThemeId,
+    readStoredThemeId,
+    resolveThemeId
+} from './rendererThemePreference.js';
 import { assets } from './assets.js';
 import {
     easeCheckerMoveProgress,
@@ -19,45 +25,12 @@ import {
     normalizeCheckerColor
 } from './checkerColorPreference.js';
 
-const DEFAULT_THEME_ID = 'anatolian';
-
 function getNowMs() {
     return (
         typeof performance !== 'undefined' && typeof performance.now === 'function'
             ? performance.now()
             : Date.now()
     );
-}
-
-function readStoredThemeId() {
-    if (typeof localStorage === 'undefined') return null;
-
-    try {
-        return localStorage.getItem('narde-theme');
-    } catch {
-        return null;
-    }
-}
-
-function persistThemeId(themeId) {
-    if (typeof localStorage === 'undefined') return;
-
-    try {
-        localStorage.setItem('narde-theme', themeId);
-    } catch {
-        // Theme still changes in memory/canvas even if persistence fails.
-    }
-}
-
-function resolveThemeId(themeId) {
-    if (typeof themeId !== 'string' || themeId.length === 0) {
-        return DEFAULT_THEME_ID;
-    }
-
-    const resolved = getTheme(themeId);
-    return resolved.id === themeId
-        ? themeId
-        : DEFAULT_THEME_ID;
 }
 
 export class Renderer {

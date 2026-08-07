@@ -139,6 +139,18 @@ server-authoritative timeout/forfeit policy; otherwise a losing participant
 can abort selectively. This operational cost is why commit-reveal remains a
 researched option rather than the first private-table implementation.
 
+## Bounded follow-up Issues (2026-08-07)
+
+Three independent technical items now have their own test-backed scope instead
+of remaining checklist fragments:
+
+- [#67](https://github.com/MetinGames/Long-Narde/issues/67): optional,
+  capability-safe haptic adapter with default-off preference and physical gate.
+- [#68](https://github.com/MetinGames/Long-Narde/issues/68): DPR 1/2/3 renderer
+  and input-mapping regressions before any HiDPI correction.
+- [#69](https://github.com/MetinGames/Long-Narde/issues/69): development-only
+  renderer invalidation measurements before render-on-demand architecture work.
+
 ## Evidence that still cannot be closed internally
 
 The following Issue #41 items require external evidence and remain open:

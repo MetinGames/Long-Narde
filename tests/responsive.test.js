@@ -31,6 +31,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
         path.join(root, 'helper-mascot.css'),
         'utf8'
     );
+    const friendPreviewCss = fs.readFileSync(
+        path.join(root, 'friend-match-preview.css'),
+        'utf8'
+    );
     assert.ok(css.includes('@media (max-width: 900px) and (orientation: landscape)'), 'Missing landscape mobile media query');
     assert.ok(css.includes('@media (max-width: 600px) and (orientation: portrait)'), 'Missing portrait mobile media query');
     assert.ok(css.includes('@media (max-height: 600px) and (orientation: landscape)'), 'Missing low landscape mobile media query');
@@ -61,10 +65,10 @@ test('style.css contains mobile media queries and canvas responsive rules', () =
     assert.ok(helperMascotCss.includes('prefers-reduced-motion: reduce'), 'Helper mascot reduced-motion guard missing');
     assert.ok(css.includes('#feedback-modal-card'), 'Feedback modal style missing');
     assert.ok(css.includes('#feedback-modal-links a'), 'Feedback modal link style missing');
-    assert.ok(css.includes('#friend-preview-entry'), 'Local friend preview entry style missing');
-    assert.ok(css.includes('#friend-preview-modal'), 'Local friend preview modal style missing');
-    assert.ok(css.includes('#friend-preview-timeline'), 'Local friend preview timeline style missing');
-    assert.ok(css.includes('#friend-preview-button:focus-visible'), 'Local friend preview keyboard focus style missing');
+    assert.ok(friendPreviewCss.includes('#friend-preview-entry'), 'Local friend preview entry style missing');
+    assert.ok(friendPreviewCss.includes('#friend-preview-modal'), 'Local friend preview modal style missing');
+    assert.ok(friendPreviewCss.includes('#friend-preview-timeline'), 'Local friend preview timeline style missing');
+    assert.ok(friendPreviewCss.includes('#friend-preview-button:focus-visible'), 'Local friend preview keyboard focus style missing');
     assert.ok(css.includes('#fullscreen-toggle'), 'Fullscreen toggle style missing');
     assert.ok(gameHelpersCss.includes('#auto-bearoff-container'), 'Auto bear-off container style missing');
     assert.ok(gameHelpersCss.includes('#auto-bearoff-toggle'), 'Auto bear-off toggle style missing');
@@ -196,5 +200,5 @@ test('index.html contains rotate notice element, start screen, and restart butto
     assert.ok(html.includes('viewport-fit=cover'), 'Viewport fit meta missing');
     assert.ok(html.includes('id="board-wrapper"'), 'Board wrapper missing for toast attachment');
     assert.ok(html.includes('assets/branding/nardora-splash.css'), 'Nardora splash stylesheet link missing');
-    assert.ok(html.includes('mountNardoraSplash'), 'Nardora splash bootstrap script missing');
+    assert.ok(html.includes('./engine/startup.js'), 'Nardora splash bootstrap module missing');
 });

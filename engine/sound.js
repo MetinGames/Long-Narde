@@ -51,6 +51,7 @@ const RECORDED_SOUND_PROFILES = {
 
 const MAX_TRACKED_MOVE_SOUNDS = 400;
 const MAX_TRACKED_ROLL_SOUNDS = 300;
+export const MAX_CONCURRENT_BUFFER_SOURCES = 8;
 
 const DICE_COMPOSITE_PROFILE = {
     secondHitDelaySeconds: 0.028,
@@ -174,6 +175,7 @@ export class SoundManager {
         this.recordedBuffers = new Map();
         this.recordedLoadPromises = new Map();
         this.recordedPreloadPromise = null;
+        this.activeBufferSources = new Set();
         this.playedPieceMoveIds = new Set();
         this.playedPieceMoveOrder = [];
         this.playedDiceRollIds = new Set();
@@ -256,7 +258,7 @@ export class SoundManager {
 
         if (
             this.audioContext &&
-            this.audioContext.state === 'suspended' &&
+            ['suspended', 'interrupted'].includes(this.audioContext.state) &&
             typeof this.audioContext.resume === 'function'
         ) {
             try {
@@ -274,6 +276,15 @@ export class SoundManager {
     }
 
     teardownContext() {
+        for (const source of this.activeBufferSources) {
+            try {
+                source.stop?.();
+            } catch {
+                // A source that already ended is safe to ignore.
+            }
+        }
+        this.activeBufferSources.clear();
+
         if (
             this.audioContext &&
             typeof this.audioContext.close === 'function' &&
@@ -650,8 +661,7 @@ export class SoundManager {
     isContextRunning() {
         return Boolean(
             this.audioContext &&
-            (this.audioContext.state === 'running' ||
-                this.audioContext.state === 'interrupted')
+            this.audioContext.state === 'running'
         );
     }
 
@@ -690,6 +700,10 @@ export class SoundManager {
             return;
         }
 
+        if (this.activeBufferSources.size >= MAX_CONCURRENT_BUFFER_SOURCES) {
+            return;
+        }
+
         const startDelaySeconds = Math.max(
             0,
             Number(options.startDelaySeconds) || 0
@@ -705,6 +719,10 @@ export class SoundManager {
         );
 
         const source = this.audioContext.createBufferSource();
+        this.activeBufferSources.add(source);
+        source.onended = () => {
+            this.activeBufferSources.delete(source);
+        };
         const gainNode = this.audioContext.createGain();
         const gainJitter = (this.random() * 2 - 1) * profile.gainJitter;
         const rateJitter = (this.random() * 2 - 1) * profile.rateJitter;

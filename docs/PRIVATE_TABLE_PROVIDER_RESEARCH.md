@@ -85,6 +85,13 @@ Scores are 1 (weak) to 5 (strong) for Nardora's current private-table slice.
 
 Supabase's 2026 changelog introduces safer explicit exposure defaults: new public tables are moving to explicit `GRANT` requirements, and schema enumeration through an anonymous key has been removed. Any trial migrations must declare grants and RLS explicitly and use current publishable/secret key guidance. See the [Supabase changelog](https://supabase.com/changelog) and [table exposure change](https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically).
 
+As of the 2026-07-17 platform change, the provider-managed `realtime` schema is
+locked against object modification. Nardora migrations must keep application
+objects in their own schema and customize channel access only through supported
+RLS policies on `realtime.messages`. The repository safety check and complete
+pre-deployment boundary are recorded in
+[SUPABASE_HOSTED_BOUNDARY.md](SUPABASE_HOSTED_BOUNDARY.md).
+
 ### 2. Cloudflare Durable Objects — technical fallback
 
 **Fit**

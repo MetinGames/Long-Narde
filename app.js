@@ -89,7 +89,9 @@ import {
     DEFAULT_TURN_TIMER_SECONDS,
     TurnTimerPreferenceController
 } from './engine/turnTimerPreference.js';
+import { bootstrapPlatform } from './engine/platformBootstrap.js';
 
+const platform = bootstrapPlatform();
 const game = new NardeGame();
 const renderer = new Renderer();
 const bot = new NardeBot(2, 'medium');
@@ -1801,6 +1803,7 @@ function bindEvents() {
 
     bindCanvasInput(canvas, {
         canInteract: () =>
+            !platform.isInputBlocked() &&
             !autoBearOffFlow.isRunning() &&
             !isCheckerMoveAnimating &&
             game.currentPlayer === 1 &&
@@ -1839,4 +1842,5 @@ window.addEventListener('DOMContentLoaded', async () => {
     firstMatchTutorialController?.openIfNeeded(
         document.getElementById('how-to-play-button')
     );
+    void platform.markGameReady();
 });

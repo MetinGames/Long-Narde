@@ -1,0 +1,31 @@
+name: Security health
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "41 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-health-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high
+      - run: npm run supabase:safety
+      - run: npm run roadmap:check
+      - run: npm test
