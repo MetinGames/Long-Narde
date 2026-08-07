@@ -1,6 +1,6 @@
 # Nardora Roadmap
 
-Last synchronized: **2026-08-06**
+Last synchronized: **2026-08-07**
 
 Nardora is the player-facing brand. The repository and existing GitHub Pages URL may remain `Long-Narde` to avoid breaking links.
 
@@ -42,7 +42,7 @@ Status key: **Done**, **In progress**, **Queued**, **Research**.
 - Provider-neutral private-table v1 contract with deterministic in-memory room, invite, presence, reconnect, authority, and safety seams.
 - Versioned, resettable on-device player identity with 15 built-in avatars, four local achievements, richer bot-difficulty statistics, and an exact private-table identity projection.
 - Honest same-device Friend Match lifecycle preview with localized room/invite/join/ready/disconnect/resume/leave/close states while the real hosted mode remains disabled.
-- **406 Node tests passing as of 2026-08-04**. The 75-case Playwright browser/device matrix includes save-refresh-resume, automatic-confirm Undo/manual-confirm races, and high-value visual journeys; local execution currently awaits a browser binary while CI remains the release gate.
+- **416 Node tests passing as of 2026-08-07** for the bot/research delivery. The 75-case Playwright browser/device matrix includes save-refresh-resume, automatic-confirm Undo/manual-confirm races, and high-value visual journeys; CI remains the release gate for installed browser execution.
 
 ## Current gaps and risks
 
@@ -95,7 +95,8 @@ Waiting on one item must not idle the project. Work continues on the highest-val
 22. **In progress — [#12](https://github.com/MetinGames/Long-Narde/issues/12):** added accessible persistent mute and master-volume controls, live Web Audio gain updates, TR/EN/RU labels, mobile styling, and PWA precache coverage. Original recordings and physical phone/desktop listening validation remain open.
 23. **Completed in PR #60 — [#59](https://github.com/MetinGames/Long-Narde/issues/59):** successful Undo now plays one normal checker-placement sound after the reverse animation lands; blocked or unsuccessful Undo remains silent and the existing mute preference is respected.
 24. **Completed in PR #62 — [#61](https://github.com/MetinGames/Long-Narde/issues/61):** replaced fixed bot step timing with a deterministic visible-complexity pacing profile so simple turns stay brisk while doubles, multi-step turns, collections, and reduced-motion transitions remain readable.
-25. **Implemented in PR #63 — [#41](https://github.com/MetinGames/Long-Narde/issues/41) bot-naturalness subtask:** replaced arbitrary Easy/Medium move scores with short-horizon evaluation and controlled suboptimal selection while preserving legal-move authority and clear tactical priorities.
+25. **Implemented in PR #63 and refined in this delivery — [#41](https://github.com/MetinGames/Long-Narde/issues/41) bot-naturalness subtasks:** replaced arbitrary Easy/Medium move scores with short-horizon evaluation and bounded suboptimal selection, then replaced fixed rank weights with score-aware softmax so equal scores have equal probability while clearly inferior moves stay excluded.
+26. **Research completed — [#41](https://github.com/MetinGames/Long-Narde/issues/41):** documented the separate 3/5/7 series boundary, classic-backgammon mini-intro test, bot profile/identity experiments, Web Worker rejection evidence, Yandex adapter map, Sentry and privacy-analytics gates, language-market queue, online authority, and provably-fair trade-offs in [Issue #41 research decisions](docs/ISSUE_41_RESEARCH.md). Physical-device, real-player, original-audio, native-Russian, and hosted-provider evidence remains explicitly open.
 
 Completed in this synchronization cycle:
 
@@ -128,7 +129,7 @@ Target: **2026-08-14**
 - **Done:** Complete the focused [#4](https://github.com/MetinGames/Long-Narde/issues/4) checkpoint: resume and mobile-theme event ownership are idempotent, removable and test-backed.
 - **Done:** Playwright CI covers Chromium, Firefox, WebKit, iPhone 16e portrait, iPhone 17 Pro Max landscape, fullscreen/focus fallback, orientation transitions, and stable high-value visual baselines.
 - **Done:** Added a small PWA foundation with app manifest, original Nardora icons, conservative versioned updates, installability metadata, and offline local bot play.
-- **Research:** Measure move-search cost, memoization effectiveness, JSON state-copy cost, Web Worker need, and audio/image preload behavior before optimizing.
+- **Research:** Move-search, memoization, JSON state-copy, Web Worker, platform, observability, analytics, and future fairness decisions are recorded in [Champion benchmark evidence](docs/CHAMPION_BENCHMARK.md) and [Issue #41 research decisions](docs/ISSUE_41_RESEARCH.md). Rendering and physical-device evidence remains open before optimization.
 
 Exit criteria:
 
@@ -229,7 +230,7 @@ These dates assume focused weekly execution, small pull requests, automated test
 - **GitHub Actions:** keep unit tests mandatory; add browser smoke tests and scheduled security checks.
 - **Playwright:** cross-browser, touch/mobile emulation, and screenshot regression coverage.
 - **Dependabot + CodeQL:** dependency and JavaScript/security scanning.
-- **Sentry or equivalent:** production JavaScript error monitoring; avoid duplicating the existing local diagnostics report.
+- **Sentry or equivalent, at the external-tester gate:** evaluate production JavaScript error monitoring only after the privacy/data map is approved; avoid duplicating the existing local diagnostics report.
 
 ### Use when external testing grows
 
