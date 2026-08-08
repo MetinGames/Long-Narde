@@ -1,6 +1,6 @@
 # Nardora Roadmap
 
-Last synchronized: **2026-08-07**
+Last synchronized: **2026-08-08**
 
 Nardora is the player-facing brand. The repository and existing GitHub Pages URL may remain `Long-Narde` to avoid breaking links.
 
@@ -14,6 +14,22 @@ Nardora is the player-facing brand. The repository and existing GitHub Pages URL
 - Review the roadmap and open feedback at least once per week.
 
 Status key: **Done**, **In progress**, **Queued**, **Research**.
+
+
+## Approved living-product release strategy
+
+Nardora will not wait for the entire multi-year roadmap before reaching players. The approved strategy is to publish a deliberately scoped, stable core and continue development through versioned updates.
+
+- **First public-quality release:** ship the strong Web/PWA game when its declared scope passes the release gate; online rooms, chat, voice, video, rankings, and clans are not blockers for this first release.
+- **Progressive distribution:** add Yandex Games, Android beta, and iOS/TestFlight through separate tested release stages instead of one all-at-once launch.
+- **Progressive social delivery:** hosted private tables first; written chat and quick emoji only after room authority and safety controls; opt-in voice later; opt-in video only after invited beta evidence shows it is mature.
+- **Honest availability:** incomplete, unsafe, or unapproved features must remain disabled, hidden, feature-gated, or clearly marked as planned. A placeholder must never be presented as working gameplay.
+- **Promotion path:** development/internal verification → invited or closed beta → physical-device, privacy, security, abuse, and operational gates → controlled public rollout.
+- **Voice/video defaults:** camera and microphone remain off by default. Mute, camera-off, leave, block, and report controls are part of the release gate, not later polish.
+- **Update cadence target — planned, not a service guarantee:** urgent fixes when required; small player-facing improvements in roughly two-week release trains; larger features in roughly one-to-two-month trains when their evidence gates pass.
+- **Roadmap meaning:** the dates below remain planning targets for capability maturity. They are not a requirement to delay the already-stable Nardora core until every later phase is complete.
+
+This strategy preserves early player value and real feedback without lowering rule correctness, mobile reliability, privacy, moderation, or release quality.
 
 ## Verified baseline — Done
 
