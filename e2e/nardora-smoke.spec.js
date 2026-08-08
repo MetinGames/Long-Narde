@@ -238,21 +238,16 @@ test('start flow, language synchronization, and canvas readiness', async ({
     await expect(startTitle).toHaveText('Welcome to Nardora');
     await expect(page.locator('#start-button')).toContainText('Quick Play');
     await expect(page.locator('#bot-match-button')).toContainText('Bot Match');
-    await page.locator('#bot-match-button').hover();
-    const hoverPresentation = await page.evaluate(() => {
+    await page.locator('#bot-match-button').focus();
+    const focusPresentation = await page.evaluate(() => {
         const action = document.getElementById('bot-match-button');
-        const card = action?.closest('.start-mode-card-bot');
         return {
             actionOutline: action
                 ? getComputedStyle(action).outlineStyle
-                : null,
-            cardOutline: card
-                ? getComputedStyle(card).outlineStyle
                 : null
         };
     });
-    expect(hoverPresentation.actionOutline).toBe('none');
-    expect(hoverPresentation.cardOutline).toBe('solid');
+    expect(focusPresentation.actionOutline).toBe('solid');
     await expect(friendMatch).toBeDisabled();
     await expect(friendMatch).toHaveAttribute('aria-disabled', 'true');
     await expect(onlineMatch).toBeDisabled();
@@ -378,6 +373,7 @@ test('unfinished local match is offered and resumes after refresh', async ({
     );
 
     const runtimeErrors = captureRuntimeErrors(page);
+    await page.setViewportSize({ width: 1280, height: 720 });
     await openReadyStartScreen(page);
 
     const continueButton = page.locator('#continue-match-button');
@@ -402,9 +398,40 @@ test('unfinished local match is offered and resumes after refresh', async ({
     await expect(page.locator('#start-screen')).toBeVisible();
     await expect(continueButton).toBeVisible();
     await expect(continueButton).toContainText('Continue Match');
+    await expect(page.locator('#start-theme-manager-button')).toHaveText('Theme');
     await expect(
         page.locator('input[name="checker-color"][value="black"]')
     ).toBeChecked();
+
+    const layout = await page.evaluate(() => {
+        const startBox = document.querySelector('#start-screen-box');
+        const launchPanel = document.querySelector('#start-launch-panel');
+        const continueMatch = document.querySelector('#continue-match-button');
+        const actionButtons = [...document.querySelectorAll('#start-screen-actions .secondary-start-button')];
+        const panelBox = launchPanel.getBoundingClientRect();
+        const continueBox = continueMatch.getBoundingClientRect();
+        return {
+            overflow: startBox.scrollHeight - startBox.clientHeight,
+            panelTop: panelBox.top,
+            panelBottom: panelBox.bottom,
+            continueTop: continueBox.top,
+            continueBottom: continueBox.bottom,
+            continueHeight: continueBox.height,
+            actionHeights: actionButtons.map(button =>
+                button.getBoundingClientRect().height
+            )
+        };
+    });
+    expect(layout.overflow).toBeLessThanOrEqual(1);
+    expect(layout.continueTop).toBeGreaterThanOrEqual(layout.panelTop - 1);
+    expect(layout.continueBottom).toBeLessThanOrEqual(layout.panelBottom + 1);
+    expect(layout.continueHeight).toBeGreaterThanOrEqual(44);
+    expect(layout.continueHeight).toBeLessThanOrEqual(48);
+    expect(layout.actionHeights).toHaveLength(3);
+    for (const height of layout.actionHeights) {
+        expect(height).toBeGreaterThanOrEqual(44);
+        expect(height).toBeLessThanOrEqual(48);
+    }
 
     await continueButton.click();
     await expect(page.locator('#start-screen')).toBeHidden();
@@ -656,8 +683,13 @@ test('local friend preview completes the same-device lifecycle honestly', async 
     expect(runtimeErrors).toEqual([]);
 });
 
-test('responsive shell stays inside the viewport', async ({ page }) => {
+test('responsive shell stays inside the viewport', async ({ page }, testInfo) => {
     const runtimeErrors = captureRuntimeErrors(page);
+    const usesShortIphoneViewport =
+        testInfo.project.name === 'iphone-16e-portrait';
+    if (usesShortIphoneViewport) {
+        await page.setViewportSize({ width: 393, height: 651 });
+    }
     await openReadyStartScreen(page);
 
     const startBox = page.locator('#start-screen-box');
@@ -675,6 +707,53 @@ test('responsive shell stays inside the viewport', async ({ page }) => {
         document.documentElement.scrollWidth - window.innerWidth
     );
     expect(horizontalOverflow).toBeLessThanOrEqual(1);
+
+    if (usesShortIphoneViewport) {
+        const compactGeometry = await page.evaluate(() => {
+            const selectors = [
+                '#start-button',
+                '#bot-match-button',
+                '#start-language-select',
+                '.checker-color-option',
+                '#start-bot-difficulty',
+                '#start-turn-timer',
+                '#friend-match-button',
+                '#online-match-button',
+                '#friend-preview-button',
+                '#how-to-play-button',
+                '#player-stats-button',
+                '#start-theme-manager-button',
+                '#helper-mascot-toggle'
+            ];
+            const elements = selectors.flatMap(selector =>
+                [...document.querySelectorAll(selector)]
+            ).filter(element => element.getClientRects().length > 0);
+            const panel = document.querySelector('#start-launch-panel');
+            return {
+                viewportHeight: window.innerHeight,
+                panelOverflow: panel.scrollHeight - panel.clientHeight,
+                targets: elements.map(element => {
+                    const rect = element.getBoundingClientRect();
+                    return {
+                        selector: element.id || element.className,
+                        top: rect.top,
+                        bottom: rect.bottom,
+                        height: rect.height
+                    };
+                })
+            };
+        });
+
+        expect(compactGeometry.panelOverflow).toBeLessThanOrEqual(1);
+        expect(compactGeometry.targets.length).toBeGreaterThanOrEqual(13);
+        for (const target of compactGeometry.targets) {
+            expect(target.height, target.selector).toBeGreaterThanOrEqual(44);
+            expect(target.top, target.selector).toBeGreaterThanOrEqual(-1);
+            expect(target.bottom, target.selector).toBeLessThanOrEqual(
+                compactGeometry.viewportHeight + 1
+            );
+        }
+    }
     expect(runtimeErrors).toEqual([]);
 });
 

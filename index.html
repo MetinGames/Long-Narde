@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="sound-controls.css">
     <link rel="stylesheet" href="friend-match-preview.css">
     <link rel="stylesheet" href="real-device-polish.css">
+    <link rel="stylesheet" href="start-lobby.css">
     <link rel="stylesheet" href="assets/branding/nardora-splash.css">
 </head>
 <body>
@@ -236,170 +237,192 @@
     <!-- YENİ: Başlangıç ekranı, oyuncu hazır olana kadar oyunu duraklatır -->
     <div id="start-screen" style="display: none;" aria-hidden="true">
         <div id="start-screen-box">
-            <h2 data-i18n="ui.startTitle">Nardora'ya Hoş Geldiniz</h2>
-            <p id="start-screen-description" data-i18n="ui.startDescription">Şimdi bota karşı oynayın. Arkadaş ve çevrimiçi masalar hazırlanıyor.</p>
-            <div id="start-language-container">
-                <label id="start-language-label" for="start-language-select">
-                    <span aria-hidden="true">🌐</span>
-                    <span data-i18n="ui.language">Dil:</span>
-                </label>
-                <select
-                    id="start-language-select"
-                    data-i18n-aria-label="ui.language"
-                    aria-label="Dil"
-                >
-                    <option value="tr" data-i18n="language.tr">Türkçe</option>
-                    <option value="en" data-i18n="language.en">English</option>
-                    <option value="ru" data-i18n="language.ru">Русский</option>
-                </select>
-            </div>
-            <fieldset id="checker-color-picker">
-                <legend data-i18n="checkerColor.title">Pul Renginiz</legend>
-                <div class="checker-color-options">
-                    <label class="checker-color-option">
-                        <input
-                            type="radio"
-                            name="checker-color"
-                            value="white"
-                            checked
-                        >
-                        <span class="checker-color-swatch checker-color-swatch-white" aria-hidden="true"></span>
-                        <span data-i18n="checkerColor.white">Beyaz (Fildişi)</span>
-                    </label>
-                    <label class="checker-color-option">
-                        <input
-                            type="radio"
-                            name="checker-color"
-                            value="black"
-                        >
-                        <span class="checker-color-swatch checker-color-swatch-black" aria-hidden="true"></span>
-                        <span data-i18n="checkerColor.black">Siyah</span>
-                    </label>
+            <header id="start-lobby-header">
+                <div>
+                    <h2 data-i18n="ui.startTitle">Nardora'ya Hoş Geldiniz</h2>
+                    <p id="start-screen-description" data-i18n="ui.startDescription">Şimdi bota karşı oynayın. Arkadaş ve çevrimiçi masalar hazırlanıyor.</p>
                 </div>
-                <p id="checker-color-detail" data-i18n="checkerColor.detail">Bot karşı rengi alır; kurallar ve oyun yönü değişmez.</p>
-            </fieldset>
-            <div id="ongoing-match-entry">
-                <button
-                    id="continue-match-button"
-                    class="start-mode-card start-mode-card-resume"
-                    data-mode="continue-match"
-                    type="button"
-                    hidden
-                    aria-hidden="true"
-                >
-                    <span class="start-mode-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" focusable="false">
-                            <path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6" />
-                            <path d="M12 8v4l2.8 1.8" />
-                        </svg>
-                    </span>
-                    <span class="start-mode-copy">
-                        <strong data-i18n="mode.continueMatch">Maça Devam Et</strong>
-                        <span data-i18n="mode.continueMatchDetail">Bu cihazda kaydedilen yarım maça dönün.</span>
-                    </span>
-                </button>
-            </div>
-            <div id="start-mode-menu" role="group" aria-labelledby="start-mode-menu-title">
-                <h3 id="start-mode-menu-title" data-i18n="mode.title">Oyun Modları</h3>
-                <div id="start-mode-grid">
-                    <button
-                        id="start-button"
-                        class="start-mode-card start-mode-card-primary"
-                        data-mode="quick-play"
-                        type="button"
-                    >
-                        <span class="start-mode-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" focusable="false">
-                                <path d="M13 2 5 14h6l-1 8 9-13h-6V2Z" />
-                            </svg>
-                        </span>
-                        <span class="start-mode-copy">
-                            <strong data-i18n="mode.quickPlay">Hızlı Oyun</strong>
-                            <span data-i18n="mode.quickPlayDetail">Hazır ayarlarla hemen bota karşı başlayın.</span>
-                        </span>
-                    </button>
+            </header>
 
-                    <div class="start-mode-card start-mode-card-bot">
+            <div id="start-lobby-layout">
+                <figure id="start-board-showcase" aria-hidden="true">
+                    <img
+                        src="./assets/boards/nardora-start-board-preview.webp"
+                        alt=""
+                        width="1280"
+                        height="911"
+                    >
+                </figure>
+
+                <section id="start-launch-panel" aria-labelledby="start-mode-menu-title">
+                    <div id="ongoing-match-entry">
                         <button
-                            id="bot-match-button"
-                            class="start-mode-card-action"
-                            data-mode="bot-match"
+                            id="continue-match-button"
+                            data-mode="continue-match"
                             type="button"
+                            hidden
+                            aria-hidden="true"
                         >
-                            <span class="start-mode-icon" aria-hidden="true">
+                            <span class="start-resume-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" focusable="false">
-                                    <rect x="4" y="7" width="16" height="12" rx="3" />
-                                    <path d="M12 3v4M8 12h.01M16 12h.01M9 16h6" />
+                                    <path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6" />
+                                    <path d="M12 8v4l2.8 1.8" />
                                 </svg>
                             </span>
                             <span class="start-mode-copy">
-                                <strong data-i18n="mode.botMatch">Bot Maçı</strong>
-                                <span data-i18n="mode.botMatchDetail">Seviyeyi seçip yerel maça başlayın.</span>
+                                <strong data-i18n="mode.continueMatch">Maça Devam Et</strong>
+                                <span data-i18n="mode.continueMatchDetail">Bu cihazda kaydedilen yarım maça dönün.</span>
                             </span>
                         </button>
-                        <div class="start-mode-config">
-                            <div class="start-mode-config-field"><label for="start-bot-difficulty" data-i18n="mode.difficulty">Seviye</label>
-                                <select id="start-bot-difficulty" data-i18n-aria-label="mode.difficulty" aria-label="Seviye">
-                                    <option value="easy" data-i18n="difficulty.easy">Kolay</option>
-                                    <option value="medium" data-i18n="difficulty.medium" selected>Orta</option>
-                                    <option value="hard" data-i18n="difficulty.hard">Usta</option>
-                                    <option value="champion" data-i18n="difficulty.champion">Şampiyon</option>
-                                </select></div>
-                            <div class="start-mode-config-field"><label for="start-turn-timer" data-i18n="mode.turnTimer">Süre</label>
-                                <select id="start-turn-timer" data-i18n-aria-label="mode.turnTimer" aria-label="Süre">
-                                    <option value="0">Kapalı</option>
-                                    <option value="30" selected>30 sn</option>
-                                    <option value="60">60 sn</option>
-                                    <option value="90">90 sn</option>
-                                </select></div>
+                    </div>
+
+                    <div id="start-mode-menu" role="group" aria-labelledby="start-mode-menu-title">
+                        <div id="start-mode-menu-heading">
+                            <h3 id="start-mode-menu-title" class="visually-hidden" data-i18n="mode.title">Oyun Modları</h3>
+                        </div>
+                        <div id="start-mode-grid">
+                            <button
+                                id="start-button"
+                                class="start-mode-card start-mode-card-primary"
+                                data-mode="quick-play"
+                                type="button"
+                            >
+                                <span class="start-mode-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" focusable="false">
+                                        <path d="M13 2 5 14h6l-1 8 9-13h-6V2Z" />
+                                    </svg>
+                                </span>
+                                <span class="start-mode-copy">
+                                    <strong data-i18n="mode.quickPlay">Hızlı Oyun</strong>
+                                    <span data-i18n="mode.quickPlayDetail">Hazır ayarlarla hemen bota karşı başlayın.</span>
+                                </span>
+                            </button>
+
+                            <div class="start-mode-card start-mode-card-bot">
+                                <button
+                                    id="bot-match-button"
+                                    class="start-mode-card-action"
+                                    data-mode="bot-match"
+                                    type="button"
+                                >
+                                    <span class="start-mode-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false">
+                                            <rect x="4" y="7" width="16" height="12" rx="3" />
+                                            <path d="M12 3v4M8 12h.01M16 12h.01M9 16h6" />
+                                        </svg>
+                                    </span>
+                                    <span class="start-mode-copy">
+                                        <strong data-i18n="mode.botMatch">Bot Maçı</strong>
+                                        <span data-i18n="mode.botMatchDetail">Seviyeyi seçip yerel maça başlayın.</span>
+                                    </span>
+                                </button>
+                            </div>
+
+                            <div id="start-match-settings">
+                                <div id="start-language-container">
+                                    <label id="start-language-label" for="start-language-select">
+                                        <span data-i18n="ui.language">Dil:</span>
+                                    </label>
+                                    <select
+                                        id="start-language-select"
+                                        data-i18n-aria-label="ui.language"
+                                        aria-label="Dil"
+                                    >
+                                        <option value="tr" data-i18n="language.tr">Türkçe</option>
+                                        <option value="en" data-i18n="language.en">English</option>
+                                        <option value="ru" data-i18n="language.ru">Русский</option>
+                                    </select>
+                                </div>
+                                <fieldset id="checker-color-picker">
+                                    <legend data-i18n="checkerColor.title">Pul Renginiz</legend>
+                                    <div class="checker-color-options">
+                                        <label class="checker-color-option">
+                                            <input
+                                                type="radio"
+                                                name="checker-color"
+                                                value="white"
+                                                checked
+                                            >
+                                            <span class="checker-color-swatch checker-color-swatch-white" aria-hidden="true"></span>
+                                            <span data-i18n="checkerColor.white">Beyaz (Fildişi)</span>
+                                        </label>
+                                        <label class="checker-color-option">
+                                            <input
+                                                type="radio"
+                                                name="checker-color"
+                                                value="black"
+                                            >
+                                            <span class="checker-color-swatch checker-color-swatch-black" aria-hidden="true"></span>
+                                            <span data-i18n="checkerColor.black">Siyah</span>
+                                        </label>
+                                    </div>
+                                    <p id="checker-color-detail" class="visually-hidden" data-i18n="checkerColor.detail">Bot karşı rengi alır; kurallar ve oyun yönü değişmez.</p>
+                                </fieldset>
+                                <div class="start-mode-config">
+                                    <div class="start-mode-config-field"><label for="start-bot-difficulty" data-i18n="mode.difficulty">Seviye</label>
+                                        <select id="start-bot-difficulty" data-i18n-aria-label="mode.difficulty" aria-label="Seviye">
+                                            <option value="easy" data-i18n="difficulty.easy">Kolay</option>
+                                            <option value="medium" data-i18n="difficulty.medium" selected>Orta</option>
+                                            <option value="hard" data-i18n="difficulty.hard">Usta</option>
+                                            <option value="champion" data-i18n="difficulty.champion">Şampiyon</option>
+                                        </select></div>
+                                    <div class="start-mode-config-field"><label for="start-turn-timer" data-i18n="mode.turnTimer">Süre</label>
+                                        <select id="start-turn-timer" data-i18n-aria-label="mode.turnTimer" aria-label="Süre">
+                                            <option value="0">Kapalı</option>
+                                            <option value="30" selected>30 sn</option>
+                                            <option value="60">60 sn</option>
+                                            <option value="90">90 sn</option>
+                                        </select></div>
+                                </div>
+                            </div>
+
+                            <button
+                                id="friend-match-button"
+                                class="start-mode-card start-mode-card-unavailable"
+                                data-mode="friend-match"
+                                data-availability="coming-next"
+                                type="button"
+                                disabled
+                                aria-disabled="true"
+                            >
+                                <span class="start-mode-copy">
+                                    <strong data-i18n="mode.friendMatch">Arkadaş Maçı</strong>
+                                    <span data-i18n="mode.friendMatchDetail">Özel masa ve davet bağlantıları sırada.</span>
+                                </span>
+                                <span class="start-mode-badge" data-i18n="mode.comingNext">Sırada</span>
+                            </button>
+
+                            <button
+                                id="online-match-button"
+                                class="start-mode-card start-mode-card-unavailable"
+                                data-mode="online"
+                                data-availability="coming-next"
+                                type="button"
+                                disabled
+                                aria-disabled="true"
+                            >
+                                <span class="start-mode-copy">
+                                    <strong data-i18n="mode.online">Çevrimiçi</strong>
+                                    <span data-i18n="mode.onlineDetail">Güvenli hesaplar ve çevrimiçi oyun geliştiriliyor.</span>
+                                </span>
+                                <span class="start-mode-badge" data-i18n="mode.comingNext">Sırada</span>
+                            </button>
                         </div>
                     </div>
 
-                    <button
-                        id="friend-match-button"
-                        class="start-mode-card start-mode-card-unavailable"
-                        data-mode="friend-match"
-                        data-availability="coming-next"
-                        type="button"
-                        disabled
-                        aria-disabled="true"
-                    >
-                        <span class="start-mode-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" focusable="false">
-                                <circle cx="9" cy="8" r="3" />
-                                <circle cx="17" cy="10" r="2.5" />
-                                <path d="M3.5 19c.6-3.2 2.4-5 5.5-5s4.9 1.8 5.5 5M14 15c2.9-.7 5.1.7 5.8 3.5" />
-                            </svg>
-                        </span>
-                        <span class="start-mode-copy">
-                            <strong data-i18n="mode.friendMatch">Arkadaş Maçı</strong>
-                            <span data-i18n="mode.friendMatchDetail">Özel masa ve davet bağlantıları sırada.</span>
-                            <span class="start-mode-badge" data-i18n="mode.comingNext">Sırada</span>
-                        </span>
-                    </button>
-
-                    <button
-                        id="online-match-button"
-                        class="start-mode-card start-mode-card-unavailable"
-                        data-mode="online"
-                        data-availability="coming-next"
-                        type="button"
-                        disabled
-                        aria-disabled="true"
-                    >
-                        <span class="start-mode-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" focusable="false">
-                                <circle cx="12" cy="12" r="9" />
-                                <path d="M3 12h18M12 3c2.5 2.5 3.8 5.5 3.8 9S14.5 18.5 12 21M12 3C9.5 5.5 8.2 8.5 8.2 12s1.3 6.5 3.8 9" />
-                            </svg>
-                        </span>
-                        <span class="start-mode-copy">
-                            <strong data-i18n="mode.online">Çevrimiçi</strong>
-                            <span data-i18n="mode.onlineDetail">Güvenli hesaplar ve çevrimiçi oyun geliştiriliyor.</span>
-                            <span class="start-mode-badge" data-i18n="mode.comingNext">Sırada</span>
-                        </span>
-                    </button>
-                </div>
+                    <div id="friend-preview-entry">
+                        <button
+                            id="friend-preview-button"
+                            class="secondary-start-button"
+                            data-i18n="friendPreview.entry"
+                            data-i18n-aria-label="friendPreview.entry"
+                            type="button"
+                            aria-describedby="friend-preview-entry-note"
+                            aria-label="Yerel Masa Önizlemesi"
+                        >Yerel Masa Önizlemesi</button>
+                        <p id="friend-preview-entry-note" class="visually-hidden" data-i18n="friendPreview.entryNote">Bu cihazda iki oyunculu durum simülasyonu — çevrimiçi değildir.</p>
+                    </div>
+                </section>
             </div>
             <div id="start-screen-actions">
                 <button
@@ -421,24 +444,12 @@
                 <button
                     id="start-theme-manager-button"
                     class="secondary-start-button"
-                    data-i18n="theme.managerOpen"
+                    data-i18n="theme.managerMenu"
                     data-i18n-aria-label="theme.managerOpen"
                     type="button"
                     aria-haspopup="dialog"
                     aria-label="Tema galerisini aç"
-                >Tema Galerisini Aç</button>
-            </div>
-            <div id="friend-preview-entry">
-                <button
-                    id="friend-preview-button"
-                    class="secondary-start-button"
-                    data-i18n="friendPreview.entry"
-                    data-i18n-aria-label="friendPreview.entry"
-                    type="button"
-                    aria-describedby="friend-preview-entry-note"
-                    aria-label="Yerel Masa Önizlemesi"
-                >Yerel Masa Önizlemesi</button>
-                <p id="friend-preview-entry-note" data-i18n="friendPreview.entryNote">Bu cihazda iki oyunculu durum simülasyonu — çevrimiçi değildir.</p>
+                >Tema</button>
             </div>
             <div id="feedback-button-row">
                 <aside

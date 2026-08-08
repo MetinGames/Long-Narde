@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'nardora-offline-';
-const CACHE_VERSION = 'v30-2026-08-07';
+const CACHE_VERSION = 'v32-2026-08-07';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const PRECACHE_PATHS = [
@@ -14,9 +14,11 @@ const PRECACHE_PATHS = [
     './sound-controls.css',
     './friend-match-preview.css',
     './real-device-polish.css',
+    './start-lobby.css',
     './manifest.webmanifest',
     './app.js',
     './assets/boards/anadolu-ustasi-board-v1.webp',
+    './assets/boards/nardora-start-board-preview.webp',
     './assets/branding/nardora-splash.css',
     './assets/branding/icons/nardora-icon.svg',
     './assets/branding/icons/nardora-192.png',
